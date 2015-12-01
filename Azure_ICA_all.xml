@@ -55,7 +55,7 @@
 					<Name>FreeBSD</Name>
 					<OsImage>OSImage_Name_On_Azure</OsImage>
 				</Distro> 
-				<Distro>
+			<!-- 	<Distro>
 					<Name>FreeBSD</Name>
 					<OsImage>OSImage_Name_On_Azure</OsImage>
 				</Distro>
@@ -63,7 +63,7 @@
 				<Distro>
 					<Name>FreeBSD</Name>
 					<OsImage>OSImage_Name_On_Azure</OsImage>
-				</Distro>
+				</Distro>  -->
 				<VMsizes>
 					<ExtraSmall>
 						<VCPU>Shared</VCPU>
