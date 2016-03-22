@@ -5,32 +5,24 @@ $resultArr = @()
 $isDeployed = DeployVMS -setupType $currentTestData.setupType -Distro $Distro -xmlConfig $xmlConfig
 if ($isDeployed)
 {
-	$hsNames = $isDeployed.Split("^")
-	$hs1Name = $hsNames[0]
-	$hs2Name = $hsNames[1]
-	$testServiceData = Get-AzureService -ServiceName $hs1Name
-	$dtapServiceData = Get-AzureService -ServiceName $hs2Name
-	#Extract Test VM Data
-	$testVMsinService = $testServiceData | Get-AzureVM
-	$hs1vm1 = $testVMsinService
-	$hs1vm1Endpoints = $hs1vm1 | Get-AzureEndpoint
-	$hs1VIP = $hs1vm1Endpoints[0].Vip
-	$hs1ServiceUrl = $hs1vm1.DNSName
-	$hs1ServiceUrl = $hs1ServiceUrl.Replace("http://","")
-	$hs1ServiceUrl = $hs1ServiceUrl.Replace("/","")
-	$hs1vm1tcpport = GetPort -Endpoints $hs1vm1Endpoints -usage tcp
-	$hs1vm1udpport = GetPort -Endpoints $hs1vm1Endpoints -usage udp
-	$hs1vm1sshport = GetPort -Endpoints $hs1vm1Endpoints -usage ssh	
-	#Extract DTAP VM data
-   	$dtapServer = $dtapServiceData | Get-AzureVM
-	$dtapServerEndpoints = $dtapServer | Get-AzureEndpoint
-	$dtapServerIp = $dtapServerEndpoints[0].Vip
-	$dtapServerUrl = $dtapServer.DNSName
-	$dtapServerUrl = $dtapServerUrl.Replace("http://","")
-	$dtapServerUrl = $dtapServerUrl.Replace("/","")
-	$dtapServerTcpport = GetPort -Endpoints $dtapServerEndpoints -usage tcp
-	$dtapServerUdpport = GetPort -Endpoints $dtapServerEndpoints -usage udp
-	$dtapServerSshport = GetPort -Endpoints $dtapServerEndpoints -usage ssh
+	foreach ($VMdata in $allVMData)
+	{
+		if ($VMdata.RoleName -imatch $currentTestData.setupType)
+		{
+			$hs1VIP = $VMdata.PublicIP
+			$hs1vm1sshport = $VMdata.SSHPort
+			$hs1vm1tcpport = $VMdata.TCPtestPort
+			$hs1vm1udpport = $VMdata.UDPtestPort
+			$hs1ServiceUrl = $VMdata.URL
+		}
+		elseif ($VMdata.RoleName -imatch "DTAP")
+		{
+			$dtapServerIp = $VMdata.PublicIP
+			$dtapServerSshport = $VMdata.SSHPort
+			$dtapServerTcpport = $VMdata.TCPtestPort
+			$dtapServerUdpport = $VMdata.UDPtestPort
+		}
+	}
 	LogMsg "Test Machine : $hs1VIP : $hs1vm1sshport"
 	LogMsg "DTAP Machine : $dtapServerIp : $hs1vm1sshport"
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
@@ -44,14 +36,14 @@ if ($isDeployed)
 		{
 			$testResult = $null
 			mkdir $LogDir\$mode -ErrorAction SilentlyContinue | out-null
-			$server.cmd ="python start-server.py -p $hs1vm1udpport -u yes && mv -f Runtime.log start-server.py.log"
+			$server.cmd ="$python_cmd start-server.py -p $hs1vm1udpport -u yes && mv -f Runtime.log start-server.py.log"
 			if(($mode -eq "IP") -or ($mode -eq "VIP") -or ($mode -eq "DIP"))
 			{
-				$client.cmd ="python start-client.py -c $hs1VIP -p $hs1vm1udpport -t$iperfTimeoutSeconds -u yes -l1420"
+				$client.cmd ="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1udpport -t$iperfTimeoutSeconds -u yes -l1420"
 			}
 			if(($mode -eq "URL") -or ($mode -eq "Hostname"))
 			{
-				$client.cmd ="python start-client.py -c $hs1ServiceUrl -p $hs1vm1udpport -t$iperfTimeoutSeconds -u yes -l1420"
+				$client.cmd ="$python_cmd start-client.py -c $hs1ServiceUrl -p $hs1vm1udpport -t$iperfTimeoutSeconds -u yes -l1420"
 			}
 			$server.logDir = "$LogDir\$mode"
 			$client.logDir = "$LogDir\$mode"
@@ -85,10 +77,10 @@ if ($isDeployed)
 					if($serverState -eq $true)
 					{
 						LogMsg "Stopping Server.."
-						$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "python stop-server.py" -runAsSudo
+						$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "$python_cmd stop-server.py" -runAsSudo
 						$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "echo ServerStopped1 >> iperf-server.txt" -runAsSudo
 						LogMsg "Stopping Client.."
-						$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "python stop-client.py" -runAsSudo
+						$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "$python_cmd stop-client.py" -runAsSudo
 						
 
 						#Step 2. Do not start iperf server and start the client..
@@ -96,7 +88,7 @@ if ($isDeployed)
 						$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "echo ClientStarted2 >> iperf-client.txt" -runAsSudo
 
 						StartIperfClient $client
-						$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "python stop-client.py" -runAsSudo
+						$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "$python_cmd stop-client.py" -runAsSudo
 						$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "echo ClientStopped2 >> iperf-client.txt" -runAsSudo
 						$isClientStarted = IsIperfClientStarted $client -beginningText ClientStarted2 -endText ClientStopped2
 						Write-Host "isClientConnecte : $isClientStarted"
@@ -119,7 +111,7 @@ if ($isDeployed)
 								if($isClientStarted -eq $true)
 								{
 									$serverState = IsIperfServerRunning $server
-									$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "python stop-server.py" -runAsSudo
+									$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "$python_cmd stop-server.py" -runAsSudo
 									$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "echo ServerStopped3 >> iperf-server.txt" -runAsSudo
 
 									if($serverState -eq $true)
@@ -200,7 +192,7 @@ else
 $result = GetFinalResultHeader -resultarr $resultArr
 
 #Clean up the setup
-DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed
+DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed -ResourceGroups $isDeployed
 
 #Return the result and summery to the test suite script..
 return $result,$resultSummary

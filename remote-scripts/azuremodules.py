@@ -9,13 +9,20 @@ import subprocess
 import logging
 import string
 import os
-import commands
 import time
 import os.path
 import array
 import linecache
 import sys
 import re
+
+try:
+    import commands
+except ImportError:
+    import subprocess as commands
+
+py_ver_str = sys.version
+# print(sys.version)
 
 #THIS LOG WILL COLLECT ALL THE LOGS THAT ARE RUN WHILE THE TEST IS GOING ON...
 RunLog = logging.getLogger("RuntimeLog : ")
@@ -41,26 +48,31 @@ ResultScreen.setFormatter(ResultFormatter)
 ResultLog.addHandler(WResultLog)
 
 def UpdateRepos(current_distro):
-	RunLog.info ("\nUpdating the repositoriy information...")
-	if ((current_distro == "ubuntu") or (current_distro == "Debian")):
-		Run("apt-get update")
-	elif ((current_distro == "rhel") or (current_distro == "Oracle") or (current_distro == 'centos')):
-		Run("yum -y update")
-	elif (current_distro == "opensuse") or (current_distro == "SUSE") or (current_distro == "sles"):
-		Run("zypper --non-interactive --gpg-auto-import-keys update")
-	else:
-		RunLog.info("Repo upgradation failed on:"+current_distro)
-		return False
+    RunLog.info ("\nUpdating the repositoriy information...")
+    if (current_distro.find("ubuntu") != -1) or (current_distro.find("debian") != -1): 
+        #method 'RunUpdate': fix deadlock when using stdout=PIPE and/or stderr=PIPE and the child process generates enough output to a pipe
+        RunUpdate("apt-get update")
+    elif (current_distro.find("rhel") != -1) or (current_distro.find("Oracle") != -1) or (current_distro.find('centos') != -1):
+        RunUpdate("yum -y update")
+    elif (current_distro.find("opensuse") != -1) or (current_distro.find("SUSE") != -1) or (current_distro.find("sles") != -1):
+        RunUpdate("zypper --non-interactive --gpg-auto-import-keys update")
+    else:
+        RunLog.info("Repo upgradation failed on:"+current_distro)
+        return False
 
-	RunLog.info ("Updating the repositoriy information... [done]")
-	return True
+    RunLog.info ("Updating the repositoriy information... [done]")
+    return True
 
-def DownloadUrl(url, destination_folder):
-    rtrn = Run("wget -P "+destination_folder+" "+url+ " 2>&1")
+def DownloadUrl(url, destination_folder, output_file=None):
+    cmd = "wget -P "+destination_folder+" "+url+ " 2>&1"
+    if output_file is not None:
+        cmd = "wget {0} -O {1} 2>&1".format(url, output_file)
+
+    rtrn = Run(cmd)
 
     if(rtrn.rfind("wget: command not found") != -1):
-        install_package("wget")
-        rtrn = Run("wget -P "+destination_folder+" "+url+ " 2>&1")
+        InstallPackage("wget")
+        rtrn = Run(cmd)
 
     if( rtrn.rfind("100%") != -1):
         return True
@@ -69,63 +81,63 @@ def DownloadUrl(url, destination_folder):
         return False
 
 def DetectDistro():
-	distribution = 'unknown'
-	version = 'unknown'
-	
-	RunLog.info("Detecting Distro ")
-	output = Run("cat /etc/*-release")
-	outputlist = re.split("\n", output)
-	
-	for line in outputlist:
-		line = re.sub('"', '', line)
-		if (re.match(r'^ID=(.*)',line,re.M|re.I) ):
-			matchObj = re.match( r'^ID=(.*)', line, re.M|re.I)
-			distribution  = matchObj.group(1)
-		elif (re.match(r'^VERSION_ID=(.*)',line,re.M|re.I) ):
-			matchObj = re.match( r'^VERSION_ID=(.*)', line, re.M|re.I)
-			version = matchObj.group(1)
+    distribution = 'unknown'
+    version = 'unknown'
 
-	if(distribution == "ol"):
-		distribution = 'Oracle'
-		
-	if(distribution == 'unknown'):
-		# Finding the Distro
-		for line in outputlist:
-			if (re.match(r'.*Ubuntu.*',line,re.M|re.I) ):
-				distribution = 'ubuntu'
-				break
-			elif (re.match(r'.*SUSE Linux.*',line,re.M|re.I)):
-				distribution = 'SUSE'
-				break
-			elif (re.match(r'.*openSUSE.*',line,re.M|re.I)):
-				distribution = 'opensuse'
-				break
-			elif (re.match(r'.*centos.*',line,re.M|re.I)):
-				distribution = 'centos'
-				break
-			elif (re.match(r'.*Oracle.*',line,re.M|re.I)):
-				distribution = 'Oracle'
-				break
-			elif (re.match(r'.*Red Hat.*',line,re.M|re.I)):
-				distribution = 'rhel'
-				break
-			elif (re.match(r'.*Fedora.*',line,re.M|re.I)):
-				distribution = 'fedora'
-				break					
-	return [distribution, version]
+    RunLog.info("Detecting Distro ")
+    output = Run("cat /etc/*-release")
+    outputlist = re.split("\n", output)
+
+    for line in outputlist:
+        line = re.sub('"', '', line)
+        if (re.match(r'^ID=(.*)',line,re.M|re.I) ):
+            matchObj = re.match( r'^ID=(.*)', line, re.M|re.I)
+            distribution  = matchObj.group(1)
+        elif (re.match(r'^VERSION_ID=(.*)',line,re.M|re.I) ):
+            matchObj = re.match( r'^VERSION_ID=(.*)', line, re.M|re.I)
+            version = matchObj.group(1)
+
+    if(distribution == "ol"):
+        distribution = 'Oracle'
+
+    if(distribution == 'unknown'):
+        # Finding the Distro
+        for line in outputlist:
+            if (re.match(r'.*Ubuntu.*',line,re.M|re.I) ):
+                distribution = 'ubuntu'
+                break
+            elif (re.match(r'.*SUSE Linux.*',line,re.M|re.I)):
+                distribution = 'SUSE'
+                break
+            elif (re.match(r'.*openSUSE.*',line,re.M|re.I)):
+                distribution = 'opensuse'
+                break
+            elif (re.match(r'.*centos.*',line,re.M|re.I)):
+                distribution = 'centos'
+                break
+            elif (re.match(r'.*Oracle.*',line,re.M|re.I)):
+                distribution = 'Oracle'
+                break
+            elif (re.match(r'.*Red Hat.*',line,re.M|re.I)):
+                distribution = 'rhel'
+                break
+            elif (re.match(r'.*Fedora.*',line,re.M|re.I)):
+                distribution = 'fedora'
+                break
+    return [distribution, version]
 
 def FileGetContents(filename):
     with open(filename) as f:
         return f.read()
 
 def ExecMultiCmdsLocalSudo(cmd_list):
-	f = open('/tmp/temp_script.sh','w')
-	for line in cmd_list:
-			f.write(line+'\n')
-	f.close()
-	Run ("chmod +x /tmp/temp_script.sh")
-	Run ("/tmp/temp_script.sh 2>&1 > /tmp/exec_multi_cmds_local_sudo.log")
-	return FileGetContents("/tmp/exec_multi_cmds_local_sudo.log")
+    f = open('/tmp/temp_script.sh','w')
+    for line in cmd_list:
+            f.write(line+'\n')
+    f.close()
+    Run ("chmod +x /tmp/temp_script.sh")
+    Run ("/tmp/temp_script.sh 2>&1 > /tmp/exec_multi_cmds_local_sudo.log")
+    return FileGetContents("/tmp/exec_multi_cmds_local_sudo.log")
 
 def DetectLinuxDistro():
     if os.path.isfile("/etc/redhat-release"):
@@ -142,32 +154,45 @@ def IsUbuntu():
         cmd = "cat /etc/issue"
         tmp=Run(cmd)
         return ("Ubuntu" in tmp)
-
+		
 def IsFreeBSD():
 		cmd = "uname -s"
 		tmp = Run(cmd)
 		return ("FreeBSD" in tmp)
-		
+
 def Run(cmd):
         proc=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         proc.wait()
         op = proc.stdout.read()
         RunLog.debug(op)
         code=proc.returncode
-        int(code)
-        #print code
-        if code !=0:
-            #RunLog.error(op)
+        if int(code) !=0:
             exception = 1
-            #updateState('TestFailed')
         else:
-            #RunLog.info(op)
-            #print (op)
+            #ensure type str return
+            if py_ver_str[0] == '3':
+                op = op.decode('utf-8')
             return op
         if exception == 1:
             str_code = str(code)
-            #RunLog.critical("Exception, return code is " + str_code + #" for command " + cmd)
-            #return commands.getoutput(cmd)
+            return op
+#use method communicate() instead of wait()
+#This will deadlock when using stdout=PIPE and/or stderr=PIPE and the child process generates enough output to a pipe
+#such that it blocks waiting for the OS pipe buffer to accept more data. Use communicate() to avoid that.
+def RunUpdate(cmd):
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        retval = proc.communicate()
+        op = retval[0]
+        RunLog.debug(op)
+        code = proc.returncode
+        if int(code) !=0:
+            exception = 1
+        else:
+            if py_ver_str[0] == '3':
+                op = op.decode('utf-8')
+            return op
+        if exception == 1:
+            str_code = str(code)
             return op
 
 def JustRun(cmd):
@@ -177,7 +202,7 @@ def UpdateState(testState):
     stateFile = open('state.txt', 'w')
     stateFile.write(testState)
     stateFile.close()
-    
+
 def GetFileContents(filepath):
     file = None
     try:
@@ -194,34 +219,34 @@ def GetFileContents(filepath):
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 # Instlaltion routines
-		
-def YumPackageInstall(package):
-	RunLog.info(("\nyum_package_install: " + package))
-	output = Run("yum install -y "+package)
-	outputlist = re.split("\n", output)
 
-	for line in outputlist:
-		#Package installed successfully
-		if (re.match(r'Complete!', line, re.M|re.I)):
-			RunLog.info((package+": package installed successfully.\n"+line))
-			return True
-		#package is already installed
-		elif (re.match(r'.* already installed and latest version', line, re.M|re.I)):
-			RunLog.info((package + ": package is already installed.\n"+line))
-			return True
-		elif (re.match(r'^Nothing to do', line, re.M|re.I)):
-			RunLog.info((package + ": package already installed.\n"+line))
-			return True
-		#Package installation failed
-		elif (re.match(r'^Error: Nothing to do', line, re.M|re.I)):
-			break
-		#package is not found on the repository
-		elif (re.match(r'^No package '+ re.escape(package)+ r' available', line, re.M|re.I)):
-			break
-			
-	#Consider package installation failed if non of the above matches.
-	RunLog.error((package + ": package installation failed!\n" +output))
-	return False
+def YumPackageInstall(package):
+    RunLog.info(("\nyum_package_install: " + package))
+    output = Run("yum install -y "+package)
+    outputlist = re.split("\n", output)
+
+    for line in outputlist:
+        #Package installed successfully
+        if (re.match(r'Complete!', line, re.M|re.I)):
+            RunLog.info((package+": package installed successfully.\n"+line))
+            return True
+        #package is already installed
+        elif (re.match(r'.* already installed and latest version', line, re.M|re.I)):
+            RunLog.info((package + ": package is already installed.\n"+line))
+            return True
+        elif (re.match(r'^Nothing to do', line, re.M|re.I)):
+            RunLog.info((package + ": package already installed.\n"+line))
+            return True
+        #Package installation failed
+        elif (re.match(r'^Error: Nothing to do', line, re.M|re.I)):
+            break
+        #package is not found on the repository
+        elif (re.match(r'^No package '+ re.escape(package)+ r' available', line, re.M|re.I)):
+            break
+
+    #Consider package installation failed if non of the above matches.
+    RunLog.error((package + ": package installation failed!\n" +output))
+    return False
 
 def AptgetPackageInstall(package,dbpasswd = "root"):
 	RunLog.info("Installing Package: " + package)
@@ -245,7 +270,7 @@ def AptgetPackageInstall(package,dbpasswd = "root"):
 			RunLog.info(package + ": package is already installed."+line)
 			return True
 		#package installation check 1	
-		elif (re.match(r'Unpacking '+ re.escape(package) + r" \(.*" , line, re.M|re.I)):
+		elif (re.match(r'Unpacking.*'+ re.escape(package) + r'.*', line, re.M|re.I)):
 			unpacking = True
 		#package installation check 2
 		elif (re.match(r'Setting up '+ re.escape(package) + r" \(.*" , line, re.M|re.I)):
@@ -273,12 +298,12 @@ def ZypperPackageInstall(package):
 	outputlist = re.split("\n", output)
 		
 	for line in outputlist:
-		#Package installed successfully
-		if (re.match(r'.*Installing: '+re.escape(package)+r'.*done', line, re.M|re.I)):
+		#Package or package dependencies installed successfully
+		if (re.match(r'.*Installing: '+r'.*done', line, re.M|re.I)):
 			RunLog.info((package+": package installed successfully.\n"+line))
 			return True
-		#package is already installed
-		elif (re.match(r'\''+re.escape(package)+r'\' is already installed', line, re.M|re.I)):
+		#package or provider of package is already installed
+		elif (re.match(r'.*\''+re.escape(package)+r'\' is already installed', line, re.M|re.I)):
 			RunLog.info((package + ": package is already installed.\n"+line))
 			return True
 		#package is not found on the repository
@@ -315,11 +340,11 @@ def ZypperPackageRemove(package):
 def InstallPackage(package):
 	RunLog.info( "\nInstall_package: "+package)
 	[current_distro, distro_version] = DetectDistro()
-	if ((current_distro == "ubuntu") or (current_distro == "Debian")):
+	if (("ubuntu" in current_distro) or  ("Debian" in current_distro)):
 		return AptgetPackageInstall(package)
-	elif ((current_distro == "rhel") or (current_distro == "Oracle") or (current_distro == 'centos') or (current_distro == 'fedora')):
+	elif (("rhel" in current_distro) or ("Oracle" in current_distro) or ("centos" in current_distro) or ("fedora" in current_distro)):
 		return YumPackageInstall(package)
-	elif ((current_distro == "SUSE") or (current_distro == "opensuse") or (current_distro == "sles")):
+	elif (("SUSE" in current_distro) or ("opensuse" in current_distro) or ("sles" in current_distro)):
 		return ZypperPackageInstall(package)
 	else:
 		RunLog.error((package + ": package installation failed!"))
@@ -390,30 +415,16 @@ def GetServerCommand():
                 command = command + ' -M' + str(args.maxsegset)
         if args.maxsegdisplay == 'yes':
                 command = command + ' -m'
-	
-	finalCommand = 'nohup ' + command + ' >  iperf-server.txt &'
+
+        finalCommand = 'nohup ' + command + ' >  iperf-server.txt &'
         return finalCommand
 
 #_________________________________________________________________________________________________________________________________________________
 
 def StopServer():
-	RunLog.info("Killing iperf server if running ..")
-	temp = Run("killall iperf")
-	RunLog.info("Checking if iperf server is killed ..")
-	retry = 7
-	while retry != 0:
-		isIperserverRunning = Run("ps ax | grep iperf | grep -v grep | wc -l | tr -d '\n' | tr -d ' '")
-		if (int(isIperserverRunning) == 0):
-			RunLog.info("No iperf server is running..")
-			break
-		else:
-			RunLog.info("iperf server is still runnning, retry to kill..")
-			retry-=1
-	if retry == 0:
-		RunLog.error("Stop iperf server failed.")
-	RunLog.info("wait 30 seconds to release port.")
-	tmp = Run("sleep 30")
-	
+    RunLog.info("Killing iperf server if running ..")
+    temp = Run("killall iperf")
+
 def StartServer(server):
     StopServer()
     RunLog.info("Starting iperf server..")
@@ -425,18 +436,18 @@ def StartServer(server):
     #print output
     RunLog.info("Checking if server is started..")
     if ("listening" in output) :
-        str_out = string.split(output)
+        str_out = str.split(output)
         #len_out = len(str_out)
         for each in str_out :
             #print(each)
-            if cmp(each, "listening")==0 :
-            	if (IsFreeBSD()):
+            if each == "listening" :
+                if (IsFreeBSD()):
             		iperfPID = Run("ps ax | grep iperf | grep -v grep | awk '{print $1}'")
             	else:
                 	iperfPID = Run('pidof iperf')
                 RunLog.info("Server started successfully. PID : %s", iperfPID)
                 Run('echo "yes" > isServerStarted.txt')
-		#UpdateState('TestCompleted')
+        #UpdateState('TestCompleted')
 
     else :
         RunLog.error('Server Failed to start..')
@@ -475,11 +486,11 @@ def AnalyseClientUpdateResult():
                         UpdateState("TestCompleted")
 
         else:
-		if("No address associated" in output):
-                	RunLog.error('Client was not connected to server.')
-	                RunLog.error("No address associated with hostname")
-	                ResultLog.info('FAIL')
-	                UpdateState("TestCompleted")
+                if("No address associated" in output):
+                    RunLog.error('Client was not connected to server.')
+                    RunLog.error("No address associated with hostname")
+                    ResultLog.info('FAIL')
+                    UpdateState("TestCompleted")
 
                 elif("Connection refused" in output):
                         RunLog.error('Client was not connected to server.')
@@ -496,7 +507,7 @@ def AnalyseClientUpdateResult():
                         UpdateState("TestCompleted")
 
 
-		else:
+                else:
                         RunLog.error('Client was not connected to server.')
                         RunLog.error("Unlisted error. Check logs for more information...!")
                         ResultLog.info('FAIL')
@@ -508,7 +519,6 @@ def AnalyseClientUpdateResult():
 def isProcessRunning(processName):
         temp = 'ps -ef'
         outProcess = Run(temp)
-        #print(iperfProcess)
         ProcessCount = outProcess.count('iperf -c')
         if (ProcessCount > 0):
                 return "True"
@@ -522,22 +532,31 @@ def isProcessRunning(processName):
 
 
 #DECLARE GLOBAL VARIBALES HERE FIRST AND THEN ADD THEM TO SetVnetGlobalParametesrs()
-lisvnetlab_db_filepath = ''
-lisvnetlab_rev_filepath = ''
+vnetDomain_db_filepath = ''
+vnetDomain_rev_filepath = ''
 dns_server_ip = ''
 resolv_conf_filepath = ''
 hosts_filepath = ''
 def SetVnetGlobalParameters():
+    import argparse
+    import sys
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--dns_server_ip', help='DNS server IP address',required=True)
+    parser.add_argument('-D', '--vnetDomain_db_filepath', help='VNET Domain db filepath', required=True)
+    parser.add_argument('-r', '--vnetDomain_rev_filepath', help='VNET rev filepath',required=True)
+    parser.add_argument('-R', '--resolv_conf_filepath', help='resolv.conf filepath', required=True)
+    parser.add_argument('-h', '--hosts_filepath', help='hosts filepath',required = True)
+    args = parser.parse_args()
     global dns_server_ip
-    global lisvnetlab_db_filepath
-    global lisvnetlab_rev_filepath
+    global vnetDomain_db_filepath
+    global vnetDomain_rev_filepath
     global resolv_conf_filepath
     global hosts_filepath
-    lisvnetlab_db_filepath =  '/etc/bind/zones/lisvnetlab.com.db'
-    lisvnetlab_rev_filepath = '/etc/bind/zones/rev.4.168.192.in-addr.arpa'
-    dns_server_ip = '192.168.3.120'
-    resolv_conf_filepath = '/etc/resolv.conf'
-    hosts_filepath = '/etc/hosts'
+    vnetDomain_db_filepath =  str(args.vnetDomain_db_filepath)
+    vnetDomain_rev_filepath = str(args.vnetDomain_rev_filepath)
+    dns_server_ip = str(args.dns_server_ip)
+    resolv_conf_filepath = str(args.resolv_conf_filepath)
+    hosts_filepath = str(args.hosts_filepath)
 
 def GetFileContentsByLines(filepath):
     file = None
@@ -596,15 +615,13 @@ def GetStringMatchCount(filepath, matchString):
     #except:
         print ('File : %s not found.' % filepath)
 
-def RemoveICAVMsFromDBfile():
-    SetVnetGlobalParameters()    
+def RemoveICAVMsFromDBfile(vnetDomain_db_filepath):
     matchString = 'ICA-'
-    RemoveStringMatchLinesFromFile(lisvnetlab_db_filepath,matchString)
+    RemoveStringMatchLinesFromFile(vnetDomain_db_filepath,matchString)
 
-def RemoveICAVMsFromREVfile():
-    SetVnetGlobalParameters()
+def RemoveICAVMsFromREVfile(vnetDomain_rev_filepath):
     matchString = 'ICA-'
-    RemoveStringMatchLinesFromFile(lisvnetlab_rev_filepath,matchString)
+    RemoveStringMatchLinesFromFile(vnetDomain_rev_filepath,matchString)
 
 
 def RetryOperation(operation, description, expectResult=None, maxRetryCount=18, retryInterval=10):
@@ -644,21 +661,40 @@ def AppendTextToFile(filepath,textString):
         print('File %s not found' % filepath)
 
 
-def AddICAVMsToDnsServer(HostnameDIP):
-    SetVnetGlobalParameters()
+def AddICAVMsToDnsServer(HostnameDIP,vnetDomain_db_filepath,vnetDomain_rev_filepath):
+    #SetVnetGlobalParameters()
+    vnetDomain=(vnetDomain_db_filepath.split("/"))[len((vnetDomain_db_filepath.split("/")))-1].replace(".db","")
     #PARSE THE VM DETAILS FIRST.
     separatedVMs = HostnameDIP.split('^')
+    vmCounter = 0
+    successCount = 0
     for eachVM in separatedVMs:
+        vmCounter = vmCounter + 1
         eachVMdata = eachVM.split(':')
         eachVMHostname = eachVMdata[0]
         eachVMDIP = eachVMdata[1]
         lastDigitofVMDIP = eachVMDIP.split('.')[3]
-        lisvnetlabDBstring = '%s\tIN\tA\t%s\n' % (eachVMHostname,eachVMDIP)
-        print(lisvnetlabDBstring.replace('\n',''))
-        AppendTextToFile(lisvnetlab_db_filepath,lisvnetlabDBstring)
-        lisvnetlabREVstring = '%s\tIN\tPTR\t%s.lisvnetlab.com.\n' % (lastDigitofVMDIP,eachVMHostname)
-        AppendTextToFile(lisvnetlab_rev_filepath,lisvnetlabREVstring)
-        print(lisvnetlabREVstring.replace('\n',''))
+        vnetDomainDBstring = '%s\tIN\tA\t%s\n' % (eachVMHostname,eachVMDIP)
+        print(vnetDomainDBstring.replace('\n',''))
+        AppendTextToFile(vnetDomain_db_filepath,vnetDomainDBstring)
+        vnetDomainREVstring = '%s\tIN\tPTR\t%s.%s.\n' % (lastDigitofVMDIP,eachVMHostname,vnetDomain)
+        AppendTextToFile(vnetDomain_rev_filepath,vnetDomainREVstring)
+        print(vnetDomainREVstring.replace('\n',''))
+        isDBFileEntry =  GetStringMatchCount(vnetDomain_db_filepath,vnetDomainDBstring)
+        isREVFileEntry =  GetStringMatchCount(vnetDomain_rev_filepath,vnetDomainREVstring)
+        if isDBFileEntry >= 1 and isREVFileEntry >= 1:
+            print (vnetDomain_db_filepath + " file edited for " + eachVMDIP + " : " + eachVMHostname)
+            print (vnetDomain_rev_filepath + " file edited for " + eachVMDIP + " : " + eachVMHostname)
+            successCount = successCount + 1
+        else:
+            if isDBFileEntry != 1:
+                print ("Failed to edit " + vnetDomain_db_filepath + " for " + eachVMDIP + " : " + eachVMHostname)
+            if isREVFileEntry != 1:
+                print ("Failed to edit " + vnetDomain_rev_filepath + " for " + eachVMDIP + " : " + eachVMHostname)
+    if successCount == vmCounter:
+        return 0
+    else:
+        return 1
 
 def RemoteUpload(hostIP, hostPassword, hostUsername, hostPort, filesToUpload, remoteLocation):
     import paramiko
@@ -689,8 +725,8 @@ def RemoteUpload(hostIP, hostPassword, hostUsername, hostPort, filesToUpload, re
                     print ('...OK!')
                 except:
                     print('...Error!')
-            transport.close()					
-        except:    
+            transport.close()
+        except:
             print("Failed to upload to %s" % hostIP)
 
     except:
@@ -733,26 +769,33 @@ def RemoteDownload(hostIP, hostPassword, hostUsername, hostPort, filesToDownload
         print("...Failed!")
 
 
-def ConfigureResolvConf():
+def ConfigureResolvConf(resolv_conf_filepath,dns_server_ip,vnetDomain):
     isDnsEntry =  GetStringMatchCount(resolv_conf_filepath,dns_server_ip)
     hostName = JustRun('hostname')
     if isDnsEntry == 1:
-        ReplaceStringMatchLinesFromFile(resolv_conf_filepath,'search','search lisvnetlab.com')
-        ConfigureHostsFile()
-        isHostsEdited = GetStringMatchCount(hosts_filepath, hostName)
-        isDnsEntry =  GetStringMatchCount(resolv_conf_filepath,dns_server_ip)
-        isDnsNameEntry =  GetStringMatchCount(resolv_conf_filepath,'search lisvnetlab.com')
-        if isDnsEntry == 1 and isDnsNameEntry == 1 and isHostsEdited >= 1:
-            print "ExitCode : 0"
+        domainReplaceString="search " + vnetDomain
+        ReplaceStringMatchLinesFromFile(resolv_conf_filepath,'search',domainReplaceString)
+        isDnsNameEntry =  GetStringMatchCount(resolv_conf_filepath,domainReplaceString)
+        if isDnsNameEntry == 1:
+            print('Added string "search ' + vnetDomain + '" to ' + resolv_conf_filepath)
+            return 0
         else :
-            print "ExitCode : 1"
+            print('Failed to add string "search ' + vnetDomain + '" to ' + resolv_conf_filepath)
+            return 1
     else:
-        print('Dns server IP is not present in resolv.conf file')
-        print "ExitCode : 2"
+        print('DNS server IP is not present in ' + resolv_conf_filepath + ' file')
+        return 2
 
-def ConfigureHostsFile():
+def ConfigureHostsFile(hosts_filepath):
     hostName = JustRun('hostname')
     AppendTextToFile(hosts_filepath,"127.0.0.1 %s\n" % hostName)
+    isHostsEdited = GetStringMatchCount(hosts_filepath, hostName)
+    if isHostsEdited >= 1:
+        print('Added string "127.0.0.1 ' + hostName + '" to ' + hosts_filepath)
+        return 0
+    else :
+        print('Failed to Add string "127.0.0.1 ' + hostName + '" to ' + hosts_filepath)
+        return 1
 
 def GetOSDisk():
     if(IsUbuntu()):

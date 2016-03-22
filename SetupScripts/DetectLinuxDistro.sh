@@ -10,14 +10,26 @@
 #  FEDORA
 DetectDistro()
 {
+uname -a | grep -i "freebsd"
+if [ $? -eq 0 ]; then
+    echo "FreeBSD"
+    exit 0
+fi
+
 while echo $1 | grep ^- > /dev/null; do
     eval $( echo $1 | sed 's/-//g' | tr -d '\012')=$2
     shift
     shift
 done
         if [ -e /etc/debian_version ]; then
-                echo "UBUNTU"
-                exitVal=0
+		        tmp=`cat /etc/*-release`
+                if [[ "$tmp" == *Ubuntu* ]]; then
+                    echo "UBUNTU"
+                    exitVal=0
+                else
+                    echo "DEBIAN"
+                    exitVal=0
+                fi
         elif [ -e /etc/redhat-release ]; then
                 tmp=`cat /etc/redhat-release`
                 if [ -e /etc/oracle-release ]; then

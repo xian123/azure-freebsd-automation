@@ -5,37 +5,29 @@ $resultArr = @()
 $isDeployed = DeployVMS -setupType $currentTestData.setupType -Distro $Distro -xmlConfig $xmlConfig
 if ($isDeployed)
 {
-	$hsNames = $isDeployed.Split("^")
-	$hs1Name = $hsNames[0]
-	$hs2Name = $hsNames[1]
-	$testServiceData = Get-AzureService -ServiceName $hs1Name
-	$dtapServiceData = Get-AzureService -ServiceName $hs2Name
-	#Extract Test VM Data
-	$testVMsinService = $testServiceData | Get-AzureVM
-	$hs1vm1 = $testVMsinService
-	$hs1vm1Endpoints = $hs1vm1 | Get-AzureEndpoint
-	$hs1VIP = $hs1vm1Endpoints[0].Vip
-	$hs1ServiceUrl = $hs1vm1.DNSName
-	$hs1ServiceUrl = $hs1ServiceUrl.Replace("http://","")
-	$hs1ServiceUrl = $hs1ServiceUrl.Replace("/","")
-	$hs1vm1tcpport = GetPort -Endpoints $hs1vm1Endpoints -usage tcp
-	$hs1vm1udpport = GetPort -Endpoints $hs1vm1Endpoints -usage udp
-	$hs1vm1sshport = GetPort -Endpoints $hs1vm1Endpoints -usage ssh	
-	#Extract DTAP VM data
-   	$dtapServer = $dtapServiceData | Get-AzureVM
-	$dtapServerEndpoints = $dtapServer | Get-AzureEndpoint
-	$dtapServerIp = $dtapServerEndpoints[0].Vip
-	$dtapServerUrl = $dtapServer.DNSName
-	$dtapServerUrl = $dtapServerUrl.Replace("http://","")
-	$dtapServerUrl = $dtapServerUrl.Replace("/","")
-	$dtapServerTcpport = GetPort -Endpoints $dtapServerEndpoints -usage tcp
-	$dtapServerUdpport = GetPort -Endpoints $dtapServerEndpoints -usage udp
-	$dtapServerSshport = GetPort -Endpoints $dtapServerEndpoints -usage ssh	
+	foreach ($VMdata in $allVMData)
+	{
+		if ($VMdata.RoleName -imatch $currentTestData.setupType)
+		{
+			$hs1VIP = $VMdata.PublicIP
+			$hs1vm1sshport = $VMdata.SSHPort
+			$hs1vm1tcpport = $VMdata.TCPtestPort
+			$hs1vm1udpport = $VMdata.UDPtestPort
+			$hs1ServiceUrl = $VMdata.URL
+		}
+		elseif ($VMdata.RoleName -imatch "DTAP")
+		{
+			$dtapServerIp = $VMdata.PublicIP
+			$dtapServerSshport = $VMdata.SSHPort
+			$dtapServerTcpport = $VMdata.TCPtestPort
+			$dtapServerUdpport = $VMdata.UDPtestPort
+		}
+	}
 	LogMsg "Test Machine : $hs1VIP : $hs1vm1sshport"
 	LogMsg "DTAP Machine : $dtapServerIp : $hs1vm1sshport"
 
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
-	$cmd1="python start-server.py -p $dtapServerUdpport -u yes && mv -f Runtime.log start-server.py.log"
+	$cmd1="$python_cmd start-server.py -p $dtapServerUdpport -u yes && mv -f Runtime.log start-server.py.log"
 	$server = CreateIperfNode -nodeIp $dtapServerIp -nodeSshPort $dtapServerSshport -nodeTcpPort $dtapServerUdpport -nodeIperfCmd $cmd1 -user $user -password $password -files $currentTestData.files -logDir $LogDir
 	RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 	RemoteCopy -uploadTo $dtapServerIp -port $dtapServerSshport -files $currentTestData.files -username $user -password $password -upload
@@ -46,7 +38,7 @@ if ($isDeployed)
 		#Start server...
 		LogMsg "Startin iperf Server...on $dtapServerIp"
 		$suppressedOut = StartIperfServer -node $server
-		#$suppressedOut = RunLinuxCmd -username $user -password $password -ip $dtapServerIp -port $dtapServerSshport -command "python start-server.py -i1 -p $dtapServerUDPport -u yes && mv -f Runtime.log start-server.py.log" -runAsSudo
+		#$suppressedOut = RunLinuxCmd -username $user -password $password -ip $dtapServerIp -port $dtapServerSshport -command "$python_cmd start-server.py -i1 -p $dtapServerUDPport -u yes && mv -f Runtime.log start-server.py.log" -runAsSudo
 		#RemoteCopy -download -downloadFrom $dtapServerIp -files "/home/$user/start-server.py.log" -downloadTo $LogDir -port $dtapServerSshport -username $user -password $password
 		#Verify, if server started...
 		LogMsg "Verifying if server is started or not.."
@@ -57,7 +49,7 @@ if ($isDeployed)
 			LogMsg "iperf Server started successfully. Listening TCP port $hs1vm1tcpport..."
 			#On confirmation, of server starting, let's start iperf client...
 			LogMsg "Startin iperf client and trying to connect to port $dtapServerTcpport..."
-			$suppressedOut = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "python start-client.py -c $dtapServerIp -p $dtapServerUDPport -t$iperfTimeoutSeconds -u yes -l 1400" -runAsSudo
+			$suppressedOut = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "$python_cmd start-client.py -c $dtapServerIp -p $dtapServerUDPport -t$iperfTimeoutSeconds -u yes -l 1400" -runAsSudo
 			$suppressedOut = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "mv -f Runtime.log start-client.py.log" -runAsSudo
 			RemoteCopy -download -downloadFrom $hs1VIP -files "/home/$user/start-client.py.log, /home/$user/iperf-client.txt" -downloadTo $LogDir -port $hs1vm1sshport -username $user -password $password
 			RemoteCopy -download -downloadFrom $hs1VIP -files "/home/$user/state.txt, /home/$user/Summary.log" -downloadTo $LogDir -port $hs1vm1sshport -username $user -password $password
@@ -69,7 +61,7 @@ if ($isDeployed)
 			if($clientState -eq "TestCompleted" -and $clientSummary -eq "PASS")
 			{
 				#Now we know that our client was connected. Let's go and check the server now...
-				$suppressedOut = RunLinuxCmd -username $user -password $password -ip $dtapServerIp -port $dtapServerSshport -command "python check-server.py && mv -f Runtime.log check-server.py.log" -runAsSudo
+				$suppressedOut = RunLinuxCmd -username $user -password $password -ip $dtapServerIp -port $dtapServerSshport -command "$python_cmd check-server.py && mv -f Runtime.log check-server.py.log" -runAsSudo
 				RemoteCopy -download -downloadFrom $dtapServerIp -files "/home/$user/check-server.py.log, /home/$user/iperf-server.txt" -downloadTo $LogDir -port $dtapServerSshport -username $user -password $password
 				RemoteCopy -download -downloadFrom $dtapServerIp -files "/home/$user/state.txt, /home/$user/Summary.log" -downloadTo $LogDir -port $dtapServerSshport -username $user -password $password
 				$serverState = Get-Content $LogDir\state.txt
@@ -123,7 +115,7 @@ else
 $result = GetFinalResultHeader -resultarr $resultArr
 
 #Clean up the setup
-DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed
+DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed -ResourceGroups $isDeployed
 
 #Return the result and summery to the test suite script..
 return $result,$resultSummary

@@ -7,38 +7,30 @@ $SubtestValues = $Subtests.Split(",")
 $isDeployed = DeployVMS -setupType $currentTestData.setupType -Distro $Distro -xmlConfig $xmlConfig
 if($isDeployed)
 {
-	$hsNames = $isDeployed.Split("^")
-	$hs1Name = $hsNames[0]
-	$hs2Name = $hsNames[1]
-	$testServiceData = Get-AzureService -ServiceName $hs1Name
-	$dtapServiceData = Get-AzureService -ServiceName $hs2Name
-	#Extract Test VM Data
-	$testVMsinService = $testServiceData | Get-AzureVM
-	$hs1vm1 = $testVMsinService
-	$hs1vm1Endpoints = $hs1vm1 | Get-AzureEndpoint
-	$hs1VIP = $hs1vm1Endpoints[0].Vip
-	$hs1ServiceUrl = $hs1vm1.DNSName
-	$hs1ServiceUrl = $hs1ServiceUrl.Replace("http://","")
-	$hs1ServiceUrl = $hs1ServiceUrl.Replace("/","")
-	$hs1vm1tcpport = GetPort -Endpoints $hs1vm1Endpoints -usage tcp
-	$hs1vm1udpport = GetPort -Endpoints $hs1vm1Endpoints -usage udp
-	$hs1vm1sshport = GetPort -Endpoints $hs1vm1Endpoints -usage ssh	
-	#Extract DTAP VM data
-   	$dtapServer = $dtapServiceData | Get-AzureVM
-	$dtapServerEndpoints = $dtapServer | Get-AzureEndpoint
-	$dtapServerIp = $dtapServerEndpoints[0].Vip
-	$dtapServerUrl = $dtapServer.DNSName
-	$dtapServerUrl = $dtapServerUrl.Replace("http://","")
-	$dtapServerUrl = $dtapServerUrl.Replace("/","")
-	$dtapServerTcpport = GetPort -Endpoints $dtapServerEndpoints -usage tcp
-	$dtapServerUdpport = GetPort -Endpoints $dtapServerEndpoints -usage udp
-	$dtapServerSshport = GetPort -Endpoints $dtapServerEndpoints -usage ssh
+	foreach ($VMdata in $allVMData)
+	{
+		if ($VMdata.RoleName -imatch $currentTestData.setupType)
+		{
+			$hs1VIP = $VMdata.PublicIP
+			$hs1vm1sshport = $VMdata.SSHPort
+			$hs1vm1tcpport = $VMdata.TCPtestPort
+			$hs1vm1udpport = $VMdata.UDPtestPort
+			$hs1ServiceUrl = $VMdata.URL
+		}
+		elseif ($VMdata.RoleName -imatch "DTAP")
+		{
+			$dtapServerIp = $VMdata.PublicIP
+			$dtapServerSshport = $VMdata.SSHPort
+			$dtapServerTcpport = $VMdata.TCPtestPort
+			$dtapServerUdpport = $VMdata.UDPtestPort
+		}
+	}
 	LogMsg "Test Machine : $hs1VIP : $hs1vm1sshport"
 	LogMsg "DTAP Machine : $dtapServerIp : $hs1vm1sshport"
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
-	$cmd1="python start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
-	$cmd2="python start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
+	$cmd1="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
+	$cmd2="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 
 	$client = CreateIperfNode -nodeIp $dtapServerIp -nodeSshPort $dtapServerSshport -nodeTcpPort $dtapServerTcpport -nodeIperfCmd $cmd1 -user $user -password $password -files $currentTestData.files -logDir $LogDir
 	$server = CreateIperfNode -nodeIp $hs1VIP -nodeSshPort $hs1vm1sshport -nodeTcpPort $hs1vm1tcpport -nodeIperfCmd $cmd2 -user $user -password $password -files $currentTestData.files -logDir $LogDir
@@ -59,11 +51,11 @@ if($isDeployed)
 				LogMsg "Starting the test in $mode.."
 				if(($mode -eq "IP") -or ($mode -eq "VIP"))
 				{
-					$client.cmd = "python start-client.py -c $hs1VIP  -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
+					$client.cmd = "$python_cmd start-client.py -c $hs1VIP  -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
 				}
 				if(($mode -eq "URL") -or ($mode -eq "Hostname"))
 				{
-					$client.cmd = "python start-client.py -c $hs1ServiceUrl  -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
+					$client.cmd = "$python_cmd start-client.py -c $hs1ServiceUrl  -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
 				}
 				mkdir $LogDir\$Value\$mode -ErrorAction SilentlyContinue | out-null
 				$server.logDir = $LogDir + "\$Value" + "\$mode"
@@ -98,7 +90,7 @@ else
 $result = GetFinalResultHeader -resultarr $resultArr
 
 #Clean up the setup
-DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed
+DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed -ResourceGroups $isDeployed
 
 #Return the result and summery to the test suite script..
 return $result,$resultSummary

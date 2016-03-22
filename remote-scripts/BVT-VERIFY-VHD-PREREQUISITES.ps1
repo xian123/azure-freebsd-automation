@@ -9,22 +9,19 @@ if ($isDeployed)
 
 	try
 	{
-		$testServiceData = Get-AzureService -ServiceName $isDeployed
+		$hs1VIP = $AllVMData.PublicIP
+		$hs1vm1sshport = $AllVMData.SSHPort
+		$hs1ServiceUrl = $AllVMData.URL
+		$hs1vm1Dip = $AllVMData.InternalIP
 
-	#Get VMs deployed in the service..
-		$testVMsinService = $testServiceData | Get-AzureVM
-
-		$hs1vm1 = $testVMsinService
-		$hs1vm1Endpoints = $hs1vm1 | Get-AzureEndpoint
-		$hs1vm1sshport = GetPort -Endpoints $hs1vm1Endpoints -usage ssh
-		$hs1VIP = $hs1vm1Endpoints[0].Vip
-		$hs1ServiceUrl = $hs1vm1.DNSName
-		$hs1ServiceUrl = $hs1ServiceUrl.Replace("http://","")
-		$hs1ServiceUrl = $hs1ServiceUrl.Replace("/","")
 		$detectedDistro = DetectLinuxDistro -VIP $hs1VIP -SSHport $hs1vm1sshport -testVMUser $user -testVMPassword $password
 		if ($detectedDistro -imatch "UBUNTU")
 		{
 			$matchstrings = @("_TEST_SUDOERS_VERIFICATION_SUCCESS","_TEST_GRUB_VERIFICATION_SUCCESS", "_TEST_REPOSITORIES_AVAILABLE")
+		}
+		if ($detectedDistro -imatch "DEBIAN")
+		{
+			$matchstrings = @("_TEST_SUDOERS_VERIFICATION_SUCCESS", "_TEST_REPOSITORIES_AVAILABLE")
 		}
 		elseif ($detectedDistro -imatch "SUSE")
 		{
@@ -40,7 +37,7 @@ if ($isDeployed)
 		}
 		elseif ($detectedDistro -imatch "REDHAT")
 		{
-			$matchstrings = @("_TEST_SUDOERS_VERIFICATION_SUCCESS","_TEST_NETWORK_MANAGER_NOT_INSTALLED","_TEST_NETWORK_FILE_SUCCESS", "_TEST_IFCFG_ETH0_FILE_SUCCESS", "_TEST_UDEV_RULES_SUCCESS", "_TEST_GRUB_VERIFICATION_SUCCESS")
+			$matchstrings = @("_TEST_SUDOERS_VERIFICATION_SUCCESS","_TEST_NETWORK_MANAGER_NOT_INSTALLED","_TEST_NETWORK_FILE_SUCCESS", "_TEST_IFCFG_ETH0_FILE_SUCCESS", "_TEST_UDEV_RULES_SUCCESS", "_TEST_GRUB_VERIFICATION_SUCCESS","_TEST_RHUIREPOSITORIES_AVAILABLE")
 		}
 		elseif ($detectedDistro -imatch "FEDORA")
 		{	
@@ -54,7 +51,11 @@ if ($isDeployed)
 		{
 			$matchstrings = @("_TEST_UDEV_RULES_SUCCESS")
 		}
-      
+		if ($detectedDistro -imatch "FreeBSD")
+		{
+			$matchstrings = @("_TEST_SUDOERS_VERIFICATION_SUCCESS")
+		}
+	  
 		RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *.py" -runAsSudo
 
@@ -112,7 +113,7 @@ else
 $result = GetFinalResultHeader -resultarr $resultArr
 
 #Clean up the setup
-DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed
+DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed -ResourceGroups $isDeployed
 
 #Return the result and summery to the test suite script..
 return $result

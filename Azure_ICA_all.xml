@@ -35,6 +35,7 @@
 			<CertificateThumbprint>Certificate_Associated_with_your_Azure_Subscription</CertificateThumbprint>
 			<ManagementEndpoint>https://management.core.windows.net</ManagementEndpoint>
 			<StorageAccount>Preferred_Stoarage_Account</StorageAccount>
+			<ARMStorageAccount>Preferred_ARM_Stoarage_Account</ARMStorageAccount>
 			<!--<Location>"Preferred_Location"</Location>-->
 			<AffinityGroup>Your_Affinity_Group</AffinityGroup>
 		</General>
@@ -44,20 +45,24 @@
 			<!--
 			<DestinationURL>http://linuxautostoreeastus2.blob.core.windows.net/vhds</DestinationURL> 
 			-->
-			<VHDName>Your_FreeBSD_VHD_Name</VHDName>
-			<VHDpath>Your_FreeBSD_VHD_Path</VHDpath>
+			<VHDName>Linux.vhd</VHDName>
+			<VHDpath>F:\VHDs</VHDpath>
 		</CSUpload>
 		<Deployment>
 			<Data>
 				<!-- You can add your own distro and Image names here -->
 				<Distro>
-					<Name>FreeBSD</Name>
-				 	<OsImage>OSImage_Name_On_Azure</OsImage> 
+					<Name>U1410</Name>
+					<OsImage>b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu_DAILY_BUILD-utopic-14_10-amd64-server-20150620-en-us-30GB</OsImage>
 				</Distro> 
 				<Distro>
-					<Name>FreeBSD2</Name>
-				 	<OsImage>OSImage_Name_On_Azure</OsImage> 
-				</Distro> 
+					<Name>FreebsdASM</Name>
+					<OsImage>Freebsd102rep1420160318</OsImage>
+				</Distro>
+                <Distro>
+					<Name>FreebsdARM</Name>
+					<OsVHD>freebsdtest.vhd</OsVHD>
+				</Distro>
 				<VMsizes>
 					<ExtraSmall>
 						<VCPU>Shared</VCPU>
@@ -100,8 +105,8 @@
 						<RAM>114688</RAM>
 					</A9>
 				</VMsizes>
-				<UserName>test</UserName>
-				<Password>"Your_Preferred_Password"</Password>
+				<UserName>linuxuser</UserName>
+				<Password>"Your_preferred_password"</Password>
 				<sshKey>myPrivateKey.ppk</sshKey>
 				<sshPublicKey>myCert.cer</sshPublicKey>
 				<WaagentVersion>"2.0.8"</WaagentVersion>
@@ -132,6 +137,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -160,6 +166,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -190,6 +197,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -215,6 +223,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -242,6 +251,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -267,6 +277,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -298,6 +309,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -323,6 +335,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -347,7 +360,68 @@
 					</VirtualMachine>
 				</HostedService>
 			</IEndpointSingleHS>
-
+			
+			<NetPerf1HS2VM>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<!-- <InstanceSize>A9</InstanceSize>
+						<ARMInstanceSize>A9</ARMInstanceSize> -->
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<EndPoints>
+							<Name>TCPtest</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>750</LocalPort>
+							<PublicPort>750</PublicPort>
+							<LoadBalanced>False</LoadBalanced>
+						</EndPoints>
+						<EndPoints>
+							<Name>UDPtest</Name>
+							<Protocol>udp</Protocol>
+							<LocalPort>990</LocalPort>
+							<PublicPort>990</PublicPort>
+							<LoadBalanced>False</LoadBalanced>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+					<VirtualMachine>
+						<state></state>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<!-- <InstanceSize>A9</InstanceSize>
+						<ARMInstanceSize>A9</ARMInstanceSize> -->
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>222</PublicPort>
+						</EndPoints>
+						<EndPoints>
+							<Name>TCPtest</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>1750</LocalPort>
+							<PublicPort>1750</PublicPort>
+							<LoadBalanced>False</LoadBalanced>
+						</EndPoints>
+						<EndPoints>
+							<Name>UDPtest</Name>
+							<Protocol>udp</Protocol>
+							<LocalPort>1990</LocalPort>
+							<PublicPort>1990</PublicPort>
+							<LoadBalanced>False</LoadBalanced>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</NetPerf1HS2VM>
 
 			<E2ESingleVM>
 				<isDeployed>NO</isDeployed>
@@ -646,12 +720,13 @@
 			<VNETVM>
 				<isDeployed>NO</isDeployed>
 				<HostedService>
-					<VnetName>AzureDTAP02Net</VnetName>
+					<VnetName>VNet</VnetName>
 					<DnsServerIP>"192.168.3.120"</DnsServerIP>
 					<VirtualMachine>
 						<state></state>
 						<SubnetName>Subnet1</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -678,6 +753,7 @@
 						<state></state>
 						<SubnetName>Subnet2</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -702,12 +778,13 @@
 					</VirtualMachine>
 				</HostedService>
 				<HostedService>
-					<VnetName>AzureDTAP02Net</VnetName>
+					<VnetName>VNet</VnetName>
 					<DnsServerIP>"192.168.3.120"</DnsServerIP>
 					<VirtualMachine>
 						<state></state>
 						<SubnetName>Subnet2</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -734,6 +811,7 @@
 						<state></state>
 						<SubnetName>Subnet1</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -757,17 +835,76 @@
 						<DataDisk></DataDisk>
 					</VirtualMachine>
 				</HostedService>
-			</VNETVM>
-
+			</VNETVM>			
+			<VMWithMaxNICs>
+				<isDeployed>NO</isDeployed>
+				<MaxNic>8</MaxNic>
+				<HostedService>
+					<VnetName>AzureDTAP02Net</VnetName>
+					<VnetDomainDBFilePath>/etc/bind/zones/lisvnetlab.com.db</VnetDomainDBFilePath>
+					<VnetDomainRevFilePath>/etc/bind/zones/rev.4.168.192.in-addr.arpa</VnetDomainRevFilePath>
+					<Subnet1Range>192.168.2.0/27</Subnet1Range>
+					<Subnet2Range>192.168.2.32/27</Subnet2Range>
+					<DnsServerIP>192.168.3.120</DnsServerIP>
+					<VirtualMachine>
+						<state>
+						</state>
+						<SubnetName>Subnet1</SubnetName>
+						<InstanceSize>Standard_D14</InstanceSize>
+						<ARMSubnetName>Subnet1</ARMSubnetName>
+						<ARMInstanceSize>Standard_D14</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk>
+						</DataDisk>
+						<NetworkInterfaces>
+							<Name>Ethernet1</Name>
+						</NetworkInterfaces>
+						<NetworkInterfaces>
+							<Name>Ethernet2</Name>
+						</NetworkInterfaces>
+						<NetworkInterfaces>
+							<Name>Ethernet3</Name>
+						</NetworkInterfaces>
+						<NetworkInterfaces>
+							<Name>Ethernet4</Name>
+						</NetworkInterfaces>
+						<NetworkInterfaces>
+							<Name>Ethernet5</Name>
+						</NetworkInterfaces>
+						<NetworkInterfaces>
+							<Name>Ethernet6</Name>
+						</NetworkInterfaces>
+						<NetworkInterfaces>
+							<Name>Ethernet7</Name>
+						</NetworkInterfaces>
+					</VirtualMachine>
+				</HostedService>
+			</VMWithMaxNICs>
 			<VNETVMPR>
 				<isDeployed>NO</isDeployed>
 				<HostedService>
 					<VnetName>AzureDTAP02Net</VnetName>
-					<DnsServerIP>"192.168.3.120"</DnsServerIP>
+					<VnetDomainDBFilePath>/etc/bind/zones/lisvnetlab.com.db</VnetDomainDBFilePath>
+					<VnetDomainRevFilePath>/etc/bind/zones/rev.4.168.192.in-addr.arpa</VnetDomainRevFilePath>
+					<Subnet1Range>192.168.2.0/27</Subnet1Range>
+					<Subnet2Range>192.168.2.32/27</Subnet2Range>
+					<ARMVnetName>DTAPWestUSvn</ARMVnetName>
+					<ARMVnetDomainDBFilePath>/etc/bind/zones/dtaparm01.com.db</ARMVnetDomainDBFilePath>
+					<ARMVnetDomainRevFilePath>/etc/bind/zones/rev.3.168.192.in-addr.arpa</ARMVnetDomainRevFilePath>
+					<ARMSubnet1Range>10.0.2.0/24</ARMSubnet1Range>
+					<ARMSubnet2Range>10.0.3.0/24</ARMSubnet2Range>					
+					<DnsServerIP>192.168.3.120</DnsServerIP>
 					<VirtualMachine>
 						<state></state>
 						<SubnetName>Subnet1</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMSubnetName>Subnet1</ARMSubnetName>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -794,6 +931,8 @@
 						<state></state>
 						<SubnetName>Subnet2</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMSubnetName>Subnet2</ARMSubnetName>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>						
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -819,11 +958,22 @@
 				</HostedService>
 				<HostedService>
 					<VnetName>AzureDTAP02Net</VnetName>
-					<DnsServerIP>"192.168.3.120"</DnsServerIP>
+					<VnetDomainDBFilePath>/etc/bind/zones/lisvnetlab.com.db</VnetDomainDBFilePath>
+					<VnetDomainRevFilePath>/etc/bind/zones/rev.4.168.192.in-addr.arpa</VnetDomainRevFilePath>
+					<Subnet1Range>192.168.2.0/27</Subnet1Range>
+					<Subnet2Range>192.168.2.32/27</Subnet2Range>
+					<ARMVnetName>DTAPWestUSvn</ARMVnetName>
+					<ARMVnetDomainDBFilePath>/etc/bind/zones/dtaparm01.com.db</ARMVnetDomainDBFilePath>
+					<ARMVnetDomainRevFilePath>/etc/bind/zones/rev.3.168.192.in-addr.arpa</ARMVnetDomainRevFilePath>
+					<ARMSubnet1Range>10.0.2.0/24</ARMSubnet1Range>
+					<ARMSubnet2Range>10.0.3.0/24</ARMSubnet2Range>					
+					<DnsServerIP>192.168.3.120</DnsServerIP>
 					<VirtualMachine>
 						<state></state>
 						<SubnetName>Subnet2</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMSubnetName>Subnet2</ARMSubnetName>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -850,6 +1000,8 @@
 						<state></state>
 						<SubnetName>Subnet1</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMSubnetName>Subnet1</ARMSubnetName>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -878,11 +1030,22 @@
 				<isDeployed>NO</isDeployed>
 				<HostedService>
 					<VnetName>AzureDTAP02Net</VnetName>
-					<DnsServerIP>"192.168.3.120"</DnsServerIP>
+					<VnetDomainDBFilePath>/etc/bind/zones/lisvnetlab.com.db</VnetDomainDBFilePath>
+					<VnetDomainRevFilePath>/etc/bind/zones/rev.4.168.192.in-addr.arpa</VnetDomainRevFilePath>
+					<Subnet1Range>192.168.2.0/27</Subnet1Range>
+					<Subnet2Range>192.168.2.32/27</Subnet2Range>
+					<ARMVnetName>DTAPWestUSvn</ARMVnetName>
+					<ARMVnetDomainDBFilePath>/etc/bind/zones/dtaparm01.com.db</ARMVnetDomainDBFilePath>
+					<ARMVnetDomainRevFilePath>/etc/bind/zones/rev.3.168.192.in-addr.arpa</ARMVnetDomainRevFilePath>
+					<ARMSubnet1Range>10.0.2.0/24</ARMSubnet1Range>
+					<ARMSubnet2Range>10.0.3.0/24</ARMSubnet2Range>					
+					<DnsServerIP>192.168.3.120</DnsServerIP>
 					<VirtualMachine>
 						<state></state>
 						<SubnetName>Subnet1</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMSubnetName>Subnet1</ARMSubnetName>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -909,6 +1072,8 @@
 						<state></state>
 						<SubnetName>Subnet2</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMSubnetName>Subnet2</ARMSubnetName>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -934,11 +1099,22 @@
 				</HostedService>
 				<HostedService>
 					<VnetName>AzureDTAP02Net</VnetName>
-					<DnsServerIP>"192.168.3.120"</DnsServerIP>
+					<VnetDomainDBFilePath>/etc/bind/zones/lisvnetlab.com.db</VnetDomainDBFilePath>
+					<VnetDomainRevFilePath>/etc/bind/zones/rev.4.168.192.in-addr.arpa</VnetDomainRevFilePath>
+					<Subnet1Range>192.168.4.192/26</Subnet1Range>
+					<Subnet2Range>192.168.4.128/26</Subnet2Range>
+					<ARMVnetName>DTAPWestUSvn</ARMVnetName>
+					<ARMVnetDomainDBFilePath>/etc/bind/zones/dtaparm01.com.db</ARMVnetDomainDBFilePath>
+					<ARMVnetDomainRevFilePath>/etc/bind/zones/rev.3.168.192.in-addr.arpa</ARMVnetDomainRevFilePath>
+					<ARMSubnet1Range>10.0.2.0/24</ARMSubnet1Range>
+					<ARMSubnet2Range>10.0.3.0/24</ARMSubnet2Range>					
+					<DnsServerIP>192.168.3.120</DnsServerIP>
 					<VirtualMachine>
 						<state></state>
 						<SubnetName>Subnet2</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMSubnetName>Subnet2</ARMSubnetName>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -965,6 +1141,8 @@
 						<state></state>
 						<SubnetName>Subnet1</SubnetName>
 						<InstanceSize>Small</InstanceSize>
+						<ARMSubnetName>Subnet1</ARMSubnetName>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -993,6 +1171,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1023,6 +1202,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1050,6 +1230,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1082,6 +1263,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1101,6 +1283,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1123,6 +1306,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1155,6 +1339,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1169,19 +1354,12 @@
 							<ProbePort>750</ProbePort>
 							<LoadBalanced>True</LoadBalanced>
 						</EndPoints>
-						<EndPoints>
-							<Name>UDPtest</Name>
-							<Protocol>udp</Protocol>
-							<LocalPort>990</LocalPort>
-							<PublicPort>990</PublicPort>
-							<ProbePort>990</ProbePort>
-							<LoadBalanced>True</LoadBalanced>
-						</EndPoints>
 						<DataDisk></DataDisk>
 					</VirtualMachine>
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1196,14 +1374,6 @@
 							<ProbePort>750</ProbePort>
 							<LoadBalanced>True</LoadBalanced>
 						</EndPoints>
-						<EndPoints>
-							<Name>UDPtest</Name>
-							<Protocol>udp</Protocol>
-							<LocalPort>990</LocalPort>
-							<PublicPort>990</PublicPort>
-							<ProbePort>990</ProbePort>
-							<LoadBalanced>True</LoadBalanced>
-						</EndPoints>
 						<DataDisk></DataDisk>
 					</VirtualMachine>					
 				</HostedService>
@@ -1212,6 +1382,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1241,9 +1412,10 @@
 				<isDeployed>NO</isDeployed>
 				<HostedService>
 					<VnetName></VnetName>
-						<VirtualMachine>
+					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1258,19 +1430,12 @@
 							<ProbePort>500</ProbePort>
 							<LoadBalanced>True</LoadBalanced>
 						</EndPoints>
-						<EndPoints>
-							<Name>UDPtest</Name>
-							<Protocol>udp</Protocol>
-							<LocalPort>990</LocalPort>
-							<PublicPort>990</PublicPort>
-							<ProbePort>500</ProbePort>
-							<LoadBalanced>True</LoadBalanced>
-						</EndPoints>
 						<DataDisk></DataDisk>
-						</VirtualMachine>
-						<VirtualMachine>
+					</VirtualMachine>
+					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1285,14 +1450,6 @@
 							<ProbePort>500</ProbePort>
 							<LoadBalanced>True</LoadBalanced>
 						</EndPoints>
-						<EndPoints>
-							<Name>UDPtest</Name>
-							<Protocol>udp</Protocol>
-							<LocalPort>990</LocalPort>
-							<PublicPort>990</PublicPort>
-							<ProbePort>500</ProbePort>
-							<LoadBalanced>True</LoadBalanced>
-						</EndPoints>
 						<DataDisk></DataDisk>
 					</VirtualMachine>
 				</HostedService>
@@ -1301,6 +1458,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1314,16 +1472,9 @@
 							<PublicPort>750</PublicPort>
 							<LoadBalanced>False</LoadBalanced>
 						</EndPoints>
-						<EndPoints>
-							<Name>UDPtest</Name>
-							<Protocol>udp</Protocol>
-							<LocalPort>990</LocalPort>
-							<PublicPort>990</PublicPort>
-							<LoadBalanced>False</LoadBalanced>
-						</EndPoints>
 						<DataDisk></DataDisk>
 					</VirtualMachine>
-				</HostedService>								
+				</HostedService>
 			</CustomProbeOtherPort>
 
 			<BVTDeployment>
@@ -1332,6 +1483,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1342,6 +1494,25 @@
 					</VirtualMachine>
 				</HostedService>
 			</BVTDeployment>
+
+			<RHUIStressDep>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</RHUIStressDep>
+			
 			<MeshVM>
 				<isDeployed>NO</isDeployed>
 				<HostedService>
@@ -1473,6 +1644,150 @@
 					</VirtualMachine>
 				</HostedService>
 			</VMImage>			
+			<D1V2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D1_v2</InstanceSize>
+						<ARMInstanceSize>Standard_D1_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+					</VirtualMachine>
+				</HostedService>
+			</D1V2>
+			<D2V2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D2_v2</InstanceSize>
+						<ARMInstanceSize>Standard_D2_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+					</VirtualMachine>
+				</HostedService>
+			</D2V2>
+			<D3V2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D3_v2</InstanceSize>
+						<ARMInstanceSize>Standard_D3_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+					</VirtualMachine>
+				</HostedService>
+			</D3V2>
+			<D4V2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D4_v2</InstanceSize>
+						<ARMInstanceSize>Standard_D4_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+					</VirtualMachine>
+				</HostedService>
+			</D4V2>
+			<D5V2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D5_v2</InstanceSize>
+						<ARMInstanceSize>Standard_D5_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+					</VirtualMachine>
+				</HostedService>
+			</D5V2>
+			<D11V2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D11_v2</InstanceSize>
+						<ARMInstanceSize>Standard_D11_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+					</VirtualMachine>
+				</HostedService>
+			</D11V2>
+			<D12V2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D12_v2</InstanceSize>
+						<ARMInstanceSize>Standard_D12_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+					</VirtualMachine>
+				</HostedService>
+			</D12V2>
+			<D13V2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D13_v2</InstanceSize>
+						<ARMInstanceSize>Standard_D13_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+					</VirtualMachine>
+				</HostedService>
+			</D13V2>
+			<D14V2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D14_v2</InstanceSize>
+						<ARMInstanceSize>Standard_D14_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+					</VirtualMachine>
+				</HostedService>
+			</D14V2>
 			<D1>
 				<isDeployed>NO</isDeployed>
 				<HostedService>
@@ -1681,12 +1996,185 @@
 					</VirtualMachine>
 				</HostedService>
 			</G5>
+
+			<BasicA0>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Basic_A0</InstanceSize>
+						<ARMInstanceSize>Basic_A0</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</BasicA0>
+			<BasicA1>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Basic_A1</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</BasicA1>
+			<BasicA2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Basic_A2</InstanceSize>
+						<ARMInstanceSize>Basic_A2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</BasicA2>
+			<BasicA3>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Basic_A3</InstanceSize>
+						<ARMInstanceSize>Basic_A3</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</BasicA3>			
+			<BasicA4>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Basic_A4</InstanceSize>
+						<ARMInstanceSize>Basic_A4</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</BasicA4>
+			
+			<A0>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>A0</InstanceSize>
+						<ARMInstanceSize>Standard_A0</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</A0>
+			<A1>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>A1</InstanceSize>
+						<ARMInstanceSize>Standard_A1</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</A1>
+			<A2>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>A2</InstanceSize>
+						<ARMInstanceSize>Standard_A2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</A2>
+			<A3>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>A3</InstanceSize>
+						<ARMInstanceSize>Standard_A3</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</A3>			
+			<A4>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>A4</InstanceSize>
+						<ARMInstanceSize>Standard_A4</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</A4>
 			<A5>
 				<isDeployed>NO</isDeployed>
 				<HostedService>
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>A5</InstanceSize>
+						<ARMInstanceSize>Standard_A5</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1703,6 +2191,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>A6</InstanceSize>
+						<ARMInstanceSize>Standard_A6</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1719,6 +2208,7 @@
 					<VirtualMachine>
 						<state></state>
 						<InstanceSize>A7</InstanceSize>
+						<ARMInstanceSize>Standard_A7</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -1808,12 +2298,12 @@
 						<DataDisk>
 							<LUN>0</LUN>
 							<DiskSizeInGB>10</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>1</LUN>
 							<DiskSizeInGB>10</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 					</VirtualMachine>
 				</HostedService>
@@ -1833,82 +2323,620 @@
 						<DataDisk>
 							<LUN>0</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>1</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>2</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>3</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>4</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>5</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>6</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>7</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>8</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>9</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>10</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 						<DataDisk>
 							<LUN>11</LUN>
 							<DiskSizeInGB>512</DiskSizeInGB>
-							<HostCaching>ReadOnly</HostCaching>
+							<HostCaching>None</HostCaching>
 						</DataDisk>
 					</VirtualMachine>
 				</HostedService>
 			</DS14DISK12>
+			<DS14DISK32>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_DS14</InstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk>
+							<LUN>0</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>1</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>2</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>3</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>4</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>5</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>6</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>7</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>8</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>9</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>10</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>11</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>12</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>13</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>14</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>15</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>16</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>17</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>18</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>19</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>20</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>21</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>22</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>23</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>24</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>25</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>26</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>27</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>28</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>29</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>30</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>31</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</DS14DISK32>
 			
+			<D14DISK32>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D14</InstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk>
+							<LUN>0</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>1</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>2</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>3</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>4</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>5</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>6</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>7</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>8</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>9</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>10</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>11</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>12</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>13</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>14</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>15</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>16</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>17</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>18</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>19</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>20</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>21</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>22</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>23</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>24</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>25</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>26</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>27</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>28</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>29</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>30</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+						<DataDisk>
+							<LUN>31</LUN>
+							<DiskSizeInGB>1023</DiskSizeInGB>
+							<HostCaching>None</HostCaching>
+						</DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</D14DISK32>
+			<ExtensionTest>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</ExtensionTest>
+			<M1S1>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>server-vm</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12122</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>client-vm</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12222</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>					
+				</HostedService>
+			</M1S1>			
+			<M1S5>
+				<!-- This setup type defines One Master and Three slave machines. Hence name is M(aster)1S(lave)3. -->
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>master</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12122</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>slave1</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12222</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>					
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>slave2</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12322</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>					
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>slave3</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12422</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>					
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>slave4</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12522</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>					
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>slave5</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12622</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>					
+				</HostedService>
+			</M1S5>	
+			<S2C1>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>Server1</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12122</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>Server2</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12222</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>					
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_G5</InstanceSize>
+						<ARMInstanceSize>Standard_G5</ARMInstanceSize>
+						<RoleName>Client</RoleName>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>12322</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>					
+				</HostedService>
+			</S2C1>			
 		</Deployment>
 		
 
 	</Azure>
 	<VMs>
 		<vm>
-			<hvServer>server-name</hvServer>
-			<vmName>vmname</vmName>
-			<ipv4>ipaddress</ipv4>
-			<Password>yourpassword</Password>
-			<LIS_TARBALL>xyz.tar</LIS_TARBALL>
-			<sshKey>sshkeyfile</sshKey>
+			<hvServer>LISINTER620-4</hvServer>
+			<vmName>VhdUpload</vmName>
+			<ipv4>10.200.51.232</ipv4>
+			<Password>redhat</Password>
+			<LIS_TARBALL>hv-rhel6.3-july9-2012.tar</LIS_TARBALL>
+			<sshKey>rhel5_id_rsa.ppk</sshKey>
 		</vm>
 	</VMs>
 	<testsDefinition>
+		<test>
+			<testName>SETUP-INSTALL-PACKAGES</testName>
+			<testScript>SETUP-INSTALL-PACKAGES.py</testScript>
+			<testScriptPs1>SETUP-INSTALL-PACKAGES.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\SETUP-INSTALL-PACKAGES.py,.\remote-scripts\AddNewUserWithSudoPermission.sh,.\remote-scripts\packages.xml</files>
+			<setupType>VMImage</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>AzureSetup_001</TestID>
+		</test>
+	
 		<test>
 			<testName>BVT-VERIFY-DEPLOYMENT-PROVISION</testName>
 			<testScript></testScript>
@@ -1917,16 +2945,18 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_001</TestID>
 		</test>
 		<test>
 			<testName>BVT-VERIFY-HOSTNAME</testName>
 			<testScript>BVT-VERIFY-HOSTNAME.py</testScript>
 			<testScriptPs1>BVT-VERIFY-HOSTNAME.ps1</testScriptPs1>
-			<files>.\remote-scripts\BVT-VERIFY-HOSTNAME.py,.\remote-scripts\azuremodules.py</files>
+			<files>.\remote-scripts\nslookup.py,.\remote-scripts\BVT-VERIFY-HOSTNAME.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_003</TestID>
 		</test>
 		<test>
@@ -1937,6 +2967,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_004</TestID>
 		</test>
 		<test>
@@ -1947,6 +2978,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_005</TestID>
 		</test>
 
@@ -1958,6 +2990,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_006</TestID>
 		</test>
 		<test>
@@ -1968,6 +3001,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_007</TestID>
 		</test>
 		<test>
@@ -1978,6 +3012,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_009</TestID>
 		</test>
 		<test>
@@ -1988,6 +3023,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_010</TestID>
 		</test>
 		<test>
@@ -1998,6 +3034,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_011</TestID>
 		</test>
 		<test>
@@ -2008,7 +3045,19 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_012</TestID>
+		</test>
+		<test>
+			<testName>BVT-LAST-CONSOLE-CHECK</testName>
+			<testScript>BVT-LAST-CONSOLE-CHECK.py</testScript>
+			<testScriptPs1>BVT-LAST-CONSOLE-CHECK.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\BVT-LAST-CONSOLE-CHECK.py</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureBVT_020</TestID>
 		</test>
 		<test>
 			<testName>BVT-VERIFY-DISKSIZE</testName>
@@ -2018,7 +3067,19 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID>AzureBVT_013</TestID>
+		</test>
+		<test>
+			<testName>BVT-VERIFY-FIREWALL-STATUS</testName>
+			<testScript>BVT-VERIFY-FIREWALL-STATUS.py</testScript>
+			<testScriptPs1>BVT-VERIFY-FIREWALL-STATUS.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\BVT-VERIFY-FIREWALL-STATUS.py</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureBVT_014</TestID>
 		</test>
 		<test>
 			<testName>BVT-VERIFY-BOOT-ERROR-WARNINGS</testName>
@@ -2028,6 +3089,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_015</TestID>
 		</test>
 		<test>
@@ -2038,6 +3100,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_016</TestID>
 		</test>
 		<test>
@@ -2048,6 +3111,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_017</TestID>
 		</test>
 		<test>
@@ -2058,6 +3122,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_018</TestID>
 		</test>
 		<test>
@@ -2068,6 +3133,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_019</TestID>
 		</test>
 	
@@ -2079,6 +3145,7 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID>AzureBVT_020</TestID>
 		</test>
 		<test>
@@ -2089,7 +3156,19 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_021</TestID>
+		</test>
+		<test>
+			<testName>BVT-VERIFY-VHD-PREREQUISITES</testName>
+			<testScript>BVT-VERIFY-VHD-PREREQUISITES.py</testScript>
+			<testScriptPs1>BVT-VERIFY-VHD-PREREQUISITES.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\BVT-VERIFY-VHD-PREREQUISITES.py</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureBVT_022</TestID>
 		</test>
 		<test>
 			<testName>BVT-VERIFY-MNT-RESOURCE-README</testName>
@@ -2099,17 +3178,52 @@
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_023</TestID>
 		</test>
 		<test>
 			<testName>BVT-VERIFY-NO-ERROR-IN-LOGS</testName>
 			<testScript>BVT-VERIFY-NO-ERROR-IN-LOGS.py</testScript>
 			<testScriptPs1>BVT-VERIFY-NO-ERROR-IN-LOGS.ps1</testScriptPs1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\BVT-VERIFY-NO-ERROR-IN-LOGS.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\BVT-VERIFY-NO-ERROR-IN-LOGS.py,.\remote-scripts\ignorable-walalog-errors.xml</files>
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureBVT_024</TestID>
+		</test>
+		<test>
+			<testName>BVT-VERIFY-VERBOSE-ENABLED-LOGS</testName>
+			<testScript>BVT-VERIFY-VERBOSE-ENABLED-LOGS.py</testScript>
+			<testScriptPs1>BVT-VERIFY-VERBOSE-ENABLED-LOGS.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\BVT-VERIFY-VERBOSE-ENABLED-LOGS.py</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureBVT_025</TestID>
+		</test>
+		<test>
+			<testName>BVT-VERIFY-RHUI-DOWNLOAD</testName>
+			<testScript>BVT-VERIFY-RHUI-DOWNLOAD.sh</testScript>
+			<testScriptPs1>BVT-VERIFY-RHUI-DOWNLOAD.ps1</testScriptPs1>
+			<files>.\remote-scripts\package-download-test.sh,.\remote-scripts\BVT-VERIFY-RHUI-DOWNLOAD.sh</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureBVT_026</TestID>
+		</test>
+		<test>
+			<testName>BVT-VERIFY-BASH-HISTORY</testName>
+			<testScript>BVT-VERIFY-BASH-HISTORY.py</testScript>
+			<testScriptPs1>BVT-VERIFY-BASH-HISTORY.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\BVT-VERIFY-BASH-HISTORY.py</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureBVT_027</TestID>
 		</test>
 		<test>
 			<testName>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-UDP</testName>
@@ -2121,6 +3235,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_OA_004</TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2133,6 +3248,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_OA_001</TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2146,6 +3262,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_OA_003</TestID>
 			<TestMode>IP</TestMode>
 			<Priority>P0</Priority>
@@ -2160,6 +3277,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_OA_005</TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2173,6 +3291,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_OA_006</TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2185,6 +3304,7 @@
 			<setupType>PublicEndpoint</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID></TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2197,6 +3317,7 @@
 			<setupType>PublicEndPoint</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID>AzureNetwork_OA_007</TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2209,6 +3330,7 @@
 			<setupType>PublicEndpoint</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID></TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2221,6 +3343,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_003</TestID>
 			<TestMode>IP,Hostname</TestMode>
 			<Priority>P0</Priority>
@@ -2234,6 +3357,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_001</TestID>
 			<TestMode>IP,Hostname</TestMode>
 			<Priority>P0</Priority>
@@ -2248,6 +3372,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_002</TestID>
 			<TestMode>DIP,Hostname</TestMode>
 			<Priority>P0</Priority>
@@ -2262,6 +3387,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_005</TestID>
 			<TestMode>DIP,Hostname</TestMode>
 			<Priority>P0</Priority>
@@ -2275,6 +3401,7 @@
 			<setupType>IEndpointSingleHS</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_007</TestID>
 			<TestMode>DIP,Hostname</TestMode>
 			<Priority>P0</Priority>
@@ -2288,6 +3415,7 @@
 			<setupType>IEndpointSingleHS</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_006</TestID>
 			<TestMode>DIP,Hostname</TestMode>
 			<Priority>P0</Priority>
@@ -2303,6 +3431,7 @@
 			<setupType>IEndpointTwoHS</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_010</TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2315,6 +3444,7 @@
 			<setupType>PublicEndpoint</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID></TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2327,6 +3457,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INP_001</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2340,6 +3471,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INP_003</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2353,6 +3485,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INP_008</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2367,6 +3500,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INP_005</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2381,6 +3515,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INP_002</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2395,6 +3530,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INP_007</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2409,6 +3545,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INP_006</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2424,6 +3561,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_004</TestID>
 			<Priority>P0</Priority>
 		</test>
@@ -2436,6 +3574,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_LB_001</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2450,6 +3589,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_LB_002</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2464,6 +3604,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_LB_003</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2478,6 +3619,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_LB_004</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2492,6 +3634,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_LB_005</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2501,11 +3644,12 @@
 			<testName>NETWORK-LB-NO-PROBE-PORT-TWO-NODE-DOWN-TCP</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-LB-NO-PROBE-PORT-TWO-NODE-DOWN-TCP.ps1</testScriptps1>
-			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\stop-client.py,.\remote-scripts\stop-server.py,.\remote-scripts\azuremodules.py,.\remote-scripts\start-server-without-stopping.py</files>
+			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\stop-server.py,.\remote-scripts\azuremodules.py,.\remote-scripts\start-server-without-stopping.py,.\remote-scripts\stop-client.py</files>
 			<setupType>LoadBalancedNoCP</setupType>
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_LB_006</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2520,6 +3664,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPSP_001</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2533,6 +3678,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPSP_002</TestID>
 			<SubtestValues>2,4</SubtestValues>
 			<TestMode>VIP,URL</TestMode>
@@ -2547,11 +3693,15 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPSP_007</TestID>
 			<SubtestValues>2,4</SubtestValues>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
 		</test>
+
+
+
 		<test>
 			<testName>NETWORK-VERIFY-CUSTOMPROBE-SAME-PORT-TCP</testName>
 			<testScript></testScript>
@@ -2561,6 +3711,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID></TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2574,6 +3725,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPSP_003</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2587,6 +3739,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPOP_002</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2595,11 +3748,12 @@
 			<testName>NETWORK-LB-CUSTOMPROBE-SAME-PORT-TWO-NODES-DOWN-TCP</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-LB-CUSTOMPROBE-SAME-PORT-TWO-NODES-DOWN-TCP.ps1</testScriptps1>
-			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\stop-client.py,.\remote-scripts\check-server.py,.\remote-scripts\stop-server.py,.\remote-scripts\azuremodules.py,.\remote-scripts\start-server-without-stopping.py,.\remote-scripts\stop-client.py</files>
+			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\stop-server.py,.\remote-scripts\azuremodules.py,.\remote-scripts\start-server-without-stopping.py,.\remote-scripts\stop-client.py</files>
 			<setupType>CustomProbeSamePort</setupType>
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPSP_006</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2613,10 +3767,12 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPOP_005</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
 		</test>
+
 		<test>
 			<testName>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-IPERF-TCP</testName>
 			<testScript></testScript>
@@ -2626,6 +3782,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPOP_001</TestID>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
@@ -2639,6 +3796,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPSP_005</TestID>
 			<TestMode>VIP,URL</TestMode>
 		</test>
@@ -2651,9 +3809,11 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPOP_004</TestID>
 			<TestMode>VIP,URL</TestMode>
 		</test>
+
 		<test>
 			<testName>NETWORK-VERIFY-CUSTOMPROBE-OTHER-PORT-TCP</testName>
 			<testScript></testScript>
@@ -2663,6 +3823,7 @@
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID></TestID>
 		</test>
 		<test>
@@ -2674,6 +3835,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID></TestID>
 		</test>
 		<test>
@@ -2685,6 +3847,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INP_004</TestID>
 			<TestMode>VIP,URL</TestMode>
 		</test>
@@ -2697,6 +3860,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INP_009</TestID>
 			<TestMode>VIP,URL</TestMode>
 		</test>
@@ -2709,6 +3873,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_008</TestID>
 			<TestMode>IP,Hostname</TestMode>
 		</test>
@@ -2721,6 +3886,7 @@
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_INT_009</TestID>
 			<TestMode>IP,Hostname</TestMode>
 		</test>
@@ -2734,6 +3900,7 @@
 			<setupType>IEndpointSingleHS</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID>AzureNetwork_IDNS_001</TestID>
 		</test>
 
@@ -2748,6 +3915,7 @@
 			<setupType>IEndpointSingleHS</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_IDNS_002</TestID>
 		</test>
 		<test>
@@ -2760,6 +3928,7 @@
 			<setupType>IEndpointTwoHS</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_IDNS_006</TestID>
 		</test>
 
@@ -2769,11 +3938,25 @@
 			<testName>VNET-PING-VNET-TO-LOCAL-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-PING-VNET-TO-LOCAL-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\ping.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\ping.py</files>
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_INTER_001</TestID>
+			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
+			<TestMode>DIP,Hostname</TestMode>
+		</test>
+		<test>
+			<testName>VNET-PING-LOCAL-TO-VNET-ACCESS</testName>
+			<testScript></testScript>
+			<testScriptps1>VNET-PING-LOCAL-TO-VNET-ACCESS.ps1</testScriptps1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\ping.py</files>
+			<setupType>VNETVMPR</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureVNET_INTER_008</TestID>
 			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
 			<TestMode>DIP,Hostname</TestMode>
 		</test>
@@ -2781,10 +3964,11 @@
 			<testName>VNET-PING-INTRAVNET-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-PING-INTRAVNET-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\ping.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\ping.py</files>
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_INTRA_001</TestID>
 			<SubtestValues>SameHS-DiffSubnet,DiffHS-SameSubnet,DiffHS-DiffSubnet</SubtestValues>
 			<TestMode>DIP,Hostname</TestMode>
@@ -2793,10 +3977,11 @@
 			<testName>VNET-PING-OUTBOUND-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-PING-OUTBOUND-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\ping.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\ping.py</files>
 			<setupType>VNETVM-EXT</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_OA_001</TestID>
 			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
 			<TestMode>IP</TestMode>
@@ -2809,6 +3994,7 @@
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_SANITY_001</TestID>
 			<SubtestValues></SubtestValues>
 			<TestMode></TestMode>
@@ -2821,6 +4007,7 @@
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_SANITY_002</TestID>
 			<SubtestValues></SubtestValues>
 			<TestMode></TestMode>
@@ -2833,6 +4020,7 @@
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_SANITY_006</TestID>
 			<SubtestValues></SubtestValues>
 			<TestMode></TestMode>
@@ -2845,6 +4033,7 @@
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_SANITY_005</TestID>
 			<SubtestValues></SubtestValues>
 			<TestMode></TestMode>
@@ -2853,10 +4042,11 @@
 			<testName>VNET-VERIFY-REMOTE-SSH-SCP-INTRAVNET-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-VERIFY-REMOTE-SSH-SCP-INTRAVNET-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py</files>
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_INTRA_002</TestID>
 			<SubtestValues>SameHS-DiffSubnet,DiffHS-SameSubnet,DiffHS-DiffSubnet</SubtestValues>
 			<TestMode>DIP,Hostname</TestMode>
@@ -2865,10 +4055,11 @@
 			<testName>VNET-VERIFY-REMOTE-SSH-SCP-INTERVNET-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-VERIFY-REMOTE-SSH-SCP-INTERVNET-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py</files>
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID>AzureVNET_INTER_002</TestID>
 			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
 			<TestMode>DIP,Hostname</TestMode>
@@ -2877,10 +4068,11 @@
 			<testName>VNET-VERIFY-REMOTE-SSH-SCP-OUTBOUND-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-VERIFY-REMOTE-SSH-SCP-OUTBOUND-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py</files>
 			<setupType>VNETVM-EXT</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_OA_002</TestID>
 			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
 			<TestMode>IP</TestMode>
@@ -2890,10 +4082,11 @@
 			<testName>VNET-IPERF-UDP-INTRAVNET-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-IPERF-UDP-INTRAVNET-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py</files>
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_INTRA_003</TestID>
 			<SubtestValues>SameHS-DiffSubnet,DiffHS-SameSubnet,DiffHS-DiffSubnet</SubtestValues>
 			<TestMode>DIP,Hostname</TestMode>
@@ -2902,10 +4095,11 @@
 			<testName>VNET-IPERF-UDP-VNET-TO-LOCAL-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-IPERF-UDP-VNET-TO-LOCAL-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py</files>
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_INTER_007</TestID>
 			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
 			<TestMode>IP,Hostname</TestMode>
@@ -2914,36 +4108,899 @@
 			<testName>VNET-IPERF-UDP-LOCAL-TO-VNET-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-IPERF-UDP-LOCAL-TO-VNET-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py</files>
 			<setupType>VNETVMPR</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_INTER_010</TestID>
 			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
 			<TestMode>DIP,Hostname</TestMode>
 		</test>
+
+
 		<test>
 			<testName>VNET-IPERF-UDP-OUTBOUND-ACCESS</testName>
 			<testScript></testScript>
 			<testScriptps1>VNET-IPERF-UDP-OUTBOUND-ACCESS.ps1</testScriptps1>
-			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureResolvConf.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py</files>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\CleanupDnsServer.py,.\remote-scripts\ConfigureDnsServer.py,.\remote-scripts\ConfigureVnetVM.py,.\remote-scripts\RunSSHCmd.py,.\remote-scripts\RemoteCopy.py,.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py</files>
 			<setupType>VNETVM-EXT</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureVNET_OA_003</TestID>
 			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
 			<TestMode>IP,URL</TestMode>
 		</test>
-	</testsDefinition>
 
+		<test>
+			<testName>VNET-MYSQL-ACCESS</testName>
+			<testScript></testScript>
+			<testScriptps1>VNET-MYSQL-ACCESS.ps1</testScriptps1>
+			<files></files>
+			<setupType>VNETVMPR</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>AzureVNET_INTER_003</TestID>
+			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
+			<TestMode>DIP,Hostname</TestMode>
+		</test>
 
+		<test>
+			<testName>VNET-MYSQL-OPERATIONS</testName>
+			<testScript></testScript>
+			<testScriptps1>VNET-MYSQL-OPERATIONS.ps1</testScriptps1>
+			<files></files>
+			<setupType>VNETVMPR</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>AzureVNET_INTER_004</TestID>
+			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
+			<TestMode>DIP,Hostname</TestMode>
+		</test>
+		<test>
+			<testName>VNET-NFS-ACCESS</testName>
+			<testScript></testScript>
+			<testScriptps1>VNET-NFS-ACCESS.ps1</testScriptps1>
+			<files></files>
+			<setupType>VNETVMPR</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>AzureVNET_INTER_005</TestID>
+			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
+			<TestMode>DIP,Hostname</TestMode>
+		</test>
+		<test>
+			<testName>VNET-NFS-FILE-TRANSFER</testName>
+			<testScript></testScript>
+			<testScriptps1>VNET-NFS-FILE-TRANSFER.ps1</testScriptps1>
+			<files></files>
+			<setupType>VNETVMPR</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>AzureVNET_INTER_006</TestID>
+			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
+			<TestMode>DIP,Hostname</TestMode>
+		</test>
+		<test>
+			<testName>VNET-VERIFY-REMOTE-SSH-SCP-LOCAL-TO-VNET-ACCESS</testName>
+			<testScript></testScript>
+			<testScriptps1>VNET-VERIFY-REMOTE-SSH-SCP-LOCAL-TO-VNET-ACCESS.ps1</testScriptps1>
+			<files>.\remote-scripts\RunSSHCmd.py,.\remote-scripts\azuremodules.py,.\remote-scripts\RemoteCopy.py</files>
+			<setupType>VNETVMPR</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureVNET_INTER_009</TestID>
+			<SubtestValues>HS1VM1,HS1VM2,HS2VM1,HS2VM2</SubtestValues>
+			<TestMode>DIP,Hostname</TestMode>
+		</test>
+	
+		<!-- E2E TEST DEFINITIONS -->
+		<test>
+			<testName>E2E-WORDPRESS-SINGLE-VM-SETUP</testName>
+			<testScript>E2E-WORDPRESS-SETUP.py</testScript>
+			<testScriptps1>E2E-WORDPRESS-SETUP.ps1</testScriptps1>
+			<files>.\remote-scripts\Packages\wordpress.zip,.\remote-scripts\Packages\Wordpress.DDL,.\remote-scripts\E2E-WORDPRESS-SETUP.py,.\remote-scripts\azuremodules.py</files>
+			<setupType>E2ESingleVM</setupType>
+			<TestType></TestType>
+			<E2ESetupCmdLineArgument>singleVM_setup</E2ESetupCmdLineArgument>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-DAYTRADER-SINGLE-VM-SETUP</testName>
+			<testScript>E2E-DAYTRADER-SETUP.py,E2E-SIEGE-TEST.py</testScript>
+			<testScriptPs1>E2E-DAYTRADER-SETUP.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\E2E-DAYTRADER-SETUP.py,.\remote-scripts\Packages\IBMWebSphere\daytrader.tar.gz,.\remote-scripts\Packages\IBMWebSphere\wasce_setup-2.1.1.6-unix.bin,.\remote-scripts\Packages\python-pexpect-3.1-1.1.noarch.rpm</files>
+			<setupType>E2ESingleVM</setupType>
+			<newsetupType>PublicEndpoint</newsetupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues>siege</SubtestValues>
+			<!--You must provide siege time with time format 's' for seconds, 'm' for minutes and 'h' for hours-->
+			<SiegeTime>120m</SiegeTime>
+			<SiegeNumberofUsers>64</SiegeNumberofUsers>
+			<E2ESetupCmdLineArgument>singleVM_setup</E2ESetupCmdLineArgument>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-WORDPRESS-FOUR-VM-SETUP</testName>
+			<testScript>E2E-WORDPRESS-SETUP.py</testScript>
+			<testScriptps1>E2E-WORDPRESS-SETUP.ps1</testScriptps1>
+			<files>.\remote-scripts\Packages\wordpress.zip,.\remote-scripts\Packages\Wordpress.DDL,.\remote-scripts\E2E-WORDPRESS-SETUP.py,.\remote-scripts\azuremodules.py</files>
+			<setupType>E2EFourVM</setupType>
+			<TestType></TestType>
+			<E2ESetupCmdLineArgument>loadbalancer_setup</E2ESetupCmdLineArgument>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-DAYTRADER-FOUR-VM-SETUP</testName>
+			<testScript>E2E-DAYTRADER-SETUP.py,E2E-SIEGE-TEST.py</testScript>
+			<testScriptPs1>E2E-DAYTRADER-SETUP.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\E2E-DAYTRADER-SETUP.py,.\remote-scripts\Packages\IBMWebSphere\daytrader.tar.gz,.\remote-scripts\Packages\IBMWebSphere\wasce_setup-2.1.1.6-unix.bin,.\remote-scripts\Packages\python-pexpect-3.1-1.1.noarch.rpm</files>
+			<setupType>E2EFourVM</setupType>
+			<newsetupType>PublicEndpoint</newsetupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues>siege</SubtestValues>
+			<!--You must provide siege time with time format 's' for seconds, 'm' for minutes and 'h' for hours-->
+			<SiegeTime>120m</SiegeTime>
+			<SiegeNumberofUsers>64</SiegeNumberofUsers>
+			<E2ESetupCmdLineArgument>loadbalancer_setup</E2ESetupCmdLineArgument>
+			<Priority>P0</Priority>
+		</test>
+		<!-- E2E DISK TEST DEFINITIONS -->
+		<test>
+			<testName>E2E-RAID0-DISK-TEST</testName>
+			<testScript>CreateDiskGroup.py</testScript>
+			<testScriptps1>E2E-DISK-RAID0-LVM-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\temp.txt,.\remote-scripts\azuremodules.py,.\remote-scripts\DoIOTest.py,.\remote-scripts\CreateDiskGroup.py</files>
+			<setupType></setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues>MediumVM</SubtestValues>
+			<DiskType>RAID</DiskType>
+			<DiskFormat>ext4</DiskFormat>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-LVM-DISK-TEST</testName>
+			<testScript>CreateDiskGroup.py</testScript>
+			<testScriptps1>E2E-DISK-RAID0-LVM-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\temp.txt,.\remote-scripts\azuremodules.py,.\remote-scripts\DoIOTest.py,.\remote-scripts\CreateDiskGroup.py</files>
+			<setupType></setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues>MediumVM</SubtestValues>
+			<DiskType>LVM</DiskType>
+			<DiskFormat>ext4</DiskFormat>
+			<Priority>P0</Priority>
+		</test>
+		
+		<!-- NETWORK PERF TESTS -->
+		<test>
+			<testName>NETWORK-PERF-CLOUDHARMONY-TEST</testName>
+			<testScript>network-perf-cloudharmony-server.sh,network-perf-cloudharmony-client.sh</testScript>
+			<testScriptps1>NETWORK-PERF-CLOUDHARMONY-TEST.ps1</testScriptps1>
+			<SubtestValues></SubtestValues>
+			<files1>remote-scripts\network-perf-cloudharmony-server.sh</files1>
+			<files>.\remote-scripts\network-perf-cloudharmony-client.sh,.\remote-scripts\perf-cloudharmony-options.txt</files>
+			<setupType>IEndpointSingleHS</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>Perf_001</TestID>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>NETWORK-PERF-THROUGHPUT-6K-CONNETCTIONS-TEST</testName>
+			<testScript>network-6k-connections-server.sh,network-6k-connections-client.sh</testScript>
+			<testScriptps1>NETWORK-PERF-THROUGHPUT-6K-CONNETCTIONS-TEST.ps1</testScriptps1>
+			<SubtestValues></SubtestValues>
+			<files1>remote-scripts\network-6k-connections-server.sh</files1>
+			<files>.\remote-scripts\network-6k-connections-client.sh,.\remote-scripts\perf-statistics.sh</files>
+			<setupType>IEndpointSingleHS</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>Perf_002</TestID>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>NETWORK-PERF-MESH-TEST</testName>
+			<testScript>meshnetwork-perf-main.sh,meshnetwork-perf-server.sh,meshnetwork-perf-client.sh</testScript>
+			<testScriptps1>NETWORK-PERF-MESH-TEST.ps1</testScriptps1>
+			<SubtestValues>32,64,512,1000,2000,4000,6000</SubtestValues>
+			<files>.\remote-scripts\meshnetwork-perf-main.sh,.\remote-scripts\meshnetwork-perf-server.sh,.\remote-scripts\meshnetwork-perf-client.sh,.\remote-scripts\collect-stats.sh</files>
+			<setupType>MeshVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>Perf_003</TestID>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>ICA-IO-DISK-PERF-TEST-RAID</testName>
+			<testScript>io-test-setup.sh</testScript>
+			<testScriptps1>ICA-IO-DISK-PERF-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\sysbench-full-io-test.sh,.\remote-scripts\sysbench-log-parser.sh,.\remote-scripts\io-test-setup.sh,.\remote-scripts\keep_cmds_in_startup.sh</files>
+			<setupType>D14DISK32</setupType>
+			<!-- <setupType>DS14DISK32</setupType> -->
+			<TestType></TestType>
+			<DiskType>RAID</DiskType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>Perf_004</TestID>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>ICA-IO-DISK-PERF-TEST-LVM</testName>
+			<testScript>io-test-setup.sh</testScript>
+			<testScriptps1>ICA-IO-DISK-PERF-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\sysbench-full-io-test.sh,.\remote-scripts\sysbench-log-parser.sh,.\remote-scripts\io-test-setup.sh,.\remote-scripts\keep_cmds_in_startup.sh</files>
+			<setupType>D14DISK32</setupType>
+			<!-- <setupType>DS14DISK32</setupType> -->
+			<TestType></TestType>
+			<DiskType>LVM</DiskType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>Perf_006</TestID>
+			<Priority>P0</Priority>
+		</test>	
+		<test>
+			<testName>ICA-NETWORK-PERF-TEST</testName>
+			<testScript>NetPerf_setup_startup.sh</testScript>
+			<testScriptps1>ICA-NETWORK-PERF-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\NetPerf_setup_startup.sh,.\remote-scripts\client_start.sh,.\remote-scripts\server_start.sh,.\remote-scripts\keep_cmds_in_startup.sh,.\remote-scripts\sar-top.sh,.\remote-scripts\generate_csvs.sh</files>
+			<setupType>NetPerf1HS2VM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>Perf_005</TestID>
+			<Priority>P0</Priority>
+		</test>
+		
+		<test>
+			<testName>ICA-FIO-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-FIO-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\start-fio.py,.\remote-scripts\azuremodules.py,SetupScripts\packageInstall.sh</files>
+			<setupType>ExtraLargeVM</setupType>
+			<!-- ioSizes in kiloBytes only 1,2,4,8,16,32,... ,1024. Don't add "k" after integer-->
+			<ioSizes>4,8,16,32,64,128,256</ioSizes>
+			<!-- you can specifiy que depths with commaa separated integer values. 1,2,4,16......-->
+			<queueDepths>16</queueDepths>
+			<TestFileSizeinGB>8</TestFileSizeinGB>
+			<!-- if ioengine is empty here, libaio will be used as default io engine-->
+			<ioengine></ioengine>
+			<runtimeSeconds>600</runtimeSeconds>
+			<SubtestValues>Here_some_text_is_required_due_to_automation_structure</SubtestValues>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<Priority>P0</Priority>
+		</test>
+		<!-- xSMB CIFS TESTS -->
+		<test>
+			<testName>XSMB-XFS-TEST</testName>
+			<testScript>XSMB-XFS-TEST.py</testScript>
+			<testScriptps1>XSMB-XFS-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\XSMB-XFS-TEST.py,.\remote-scripts\GetXsmbXfsTestStatus.sh,.\remote-scripts\Packages\xfstests.tar,.\remote-scripts\Packages\xfsprogs.tar</files>
+			<setupType>xSMBVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<MountPoint>'/azureshare'</MountPoint>
+			<AzureShareUrl>'//ostcsmbtest.file.core.windows.net/sirebbshare'</AzureShareUrl>
+			<AccessKey>'bh1ViaUop7GLs51246E9WHg9y7goc1Y+IXMBxJfj379GQLe4Ha81gdlL9zBZQt7QdeuFb+076tIO7wuFVoQNog=='</AccessKey>
+			<Priority>P0</Priority>
+		</test>
+		
+		<!-- E2E FEATURE TEST DEFINITIONS -->
+		<test>
+			<testName>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SERIAL</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SERIAL.ps1</testScriptps1>
+			<files>.\remote-scripts\ManagePartitionOnDisk.sh</files>
+			<setupType></setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues>ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM</SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-PARALLEL</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-PARALLEL.ps1</testScriptps1>
+			<files>.\remote-scripts\ManagePartitionOnDisk.sh</files>
+			<setupType></setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues>SmallVM,MediumVM,LargeVM,ExtraLargeVM</SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-TIME-SYNC</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-TIME-SYNC.ps1</testScriptps1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ConfigureNTP.py</files>
+			<setupType>SmallVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-TIME-SYNC-KERNBENCH</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-TIME-SYNC-KERNBENCH.ps1</testScriptps1>
+			<files>.\remote-scripts\ConfigureNTP.py,.\remote-scripts\azuremodules.py,.\remote-scripts\SetupKernbench.sh,.\remote-scripts\StartKernbench.sh,.\remote-scripts\InvokeKernbench.sh</files>
+			<setupType>LargeVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-HOT-ADD-REMOVE-EXISTING-DATA-DISK-SERIAL</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-HOT-ADD-REMOVE-EXISTING-DATA-DISK-SERIAL.ps1</testScriptps1>
+			<files>.\remote-scripts\ManagePartitionOnDisk.sh</files>
+			<setupType></setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues>ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM</SubtestValues>
+			<ExistingDisks>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_0.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_1.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_2.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_3.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_4.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_5.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_6.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_7.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_8.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_9.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_10.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_11.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_12.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_13.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_14.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_15.vhd</MediaLink>
+			</ExistingDisks>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-HOT-ADD-REMOVE-EXISTING-DATA-DISK-PARALLEL</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-HOT-ADD-REMOVE-EXISTING-DATA-DISK-PARALLEL.ps1</testScriptps1>
+			<files>.\remote-scripts\ManagePartitionOnDisk.sh</files>
+			<setupType></setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues>SmallVM,MediumVM,LargeVM,ExtraLargeVM</SubtestValues>
+			<ExistingDisks>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_0.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_1.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_2.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_3.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_4.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_5.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_6.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_7.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_8.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_9.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_10.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_11.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_12.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_13.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_14.vhd</MediaLink>
+				<MediaLink>http://sivahydsa.blob.core.windows.net/testdata/E2E_Existing_Disk_Test_Do_Not_Delete_15.vhd</MediaLink>
+			</ExistingDisks>
+			<Priority>P0</Priority>
+		</test>	
+		<test>
+			<testName>E2E-CHANGE-USER-PASSWORD</testName>
+			<testScript>ChangeUserPassword.sh</testScript>
+			<testScriptps1>E2E-CHANGE-USER-PASSWORD</testScriptps1>
+			<files>.\remote-scripts\ChangeUserPassword.sh</files>
+			<setupType>SmallVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-ADD-NEW-USER-CHANGE-PASSWORD</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-ADD-NEW-USER-CHANGE-PASSWORD</testScriptps1>
+			<files>.\remote-scripts\AddNewUser.sh,.\remote-scripts\ChangeUserPassword.sh</files>
+			<setupType>SmallVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>		
+		<test>
+			<testName>E2E-ADD-USER-DELETE-USER</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-ADD-USER-DELETE-USER</testScriptps1>
+			<files>.\remote-scripts\AddNewUser.sh,.\remote-scripts\DeleteUser.sh</files>
+			<setupType>SmallVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-VM-CAPTURE-IMAGE-WITH-WAAGENT-DEPROVISION+USER</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-VM-CAPTURE-IMAGE-WITH-WAAGENT-DEPROVISION+USER.ps1</testScriptps1>
+			<files>.\remote-scripts\temp.txt</files>
+			<setupType>SmallVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues>Two</SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-VM-CAPTURE-IMAGE-WITH-WAAGENT-DEPROVISION</testName>
+			<testScript></testScript>
+			<testScriptps1>E2E-VM-CAPTURE-IMAGE-WITH-WAAGENT-DEPROVISION.ps1</testScriptps1>
+			<files>.\remote-scripts\temp.txt</files>
+			<setupType>SmallVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<!--ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM -->
+			<SubtestValues>Two</SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-WA-UNINST</testName>
+			<testScript>E2E-WA-UNINST.py</testScript>
+			<testScriptPs1>E2E-WA-UNINST.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\E2E-WA-UNINST.py</files>
+			<setupType>SmallVM</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-VERIFY-MAX-NIC</testName>
+			<testScript>
+			</testScript>
+			<testScriptPs1>E2E-VERIFY-MAX-NIC.ps1</testScriptPs1>
+			<files>
+			</files>
+			<setupType>VMWithMaxNICs</setupType>
+			<TestType>
+			</TestType>
+			<TestFeature>
+			</TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>
+			</TestID>
+		</test>		
 
+		<test>
+			<testName>INJECTION-VERIFY-ENABLE</testName>
+			<testScript>INJECTION-VERIFY-ENABLE.py</testScript>
+			<testScriptPs1>INJECTION-VERIFY-ENABLE.ps1</testScriptPs1>
+			<files>.\remote-scripts\temp.txt</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>Injection_01</TestID>
+		</test>
+		
+		<test>
+			<testName>INJECTION-VERIFY-DISABLE</testName>
+			<testScript>INJECTION-VERIFY-DISABLE.py</testScript>
+			<testScriptPs1>INJECTION-VERIFY-DISABLE.ps1</testScriptPs1>
+			<files>.\remote-scripts\temp.txt</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>Injection_02</TestID>
+		</test>
+		<test>
+			<testName>INJECTION-VERIFY-UNINSTALL</testName>
+			<testScript>INJECTION-VERIFY-UNINSTALL.py</testScript>
+			<testScriptPs1>INJECTION-VERIFY-UNINSTALL.ps1</testScriptPs1>
+			<files>.\remote-scripts\temp.txt</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>Injection_03</TestID>
+		</test>
+		<test>
+			<testName>INJECTION-VERIFY-UPDATE</testName>
+			<testScript>INJECTION-VERIFY-UPDATE.py</testScript>
+			<testScriptPs1>INJECTION-VERIFY-UPDATE.ps1</testScriptPs1>
+			<files>.\remote-scripts\temp.txt</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID>Injection_04</TestID>
+		</test>
+	
+		<test>
+			<testName>ICA-DEPLOYMENT-ALL-SIZES-LOOP-TEST</testName>
+			<testScript></testScript>
+			<testScriptPs1>ICA-DEPLOYMENT-ALL-SIZES-LOOP-TEST.ps1</testScriptPs1>
+			<files>.\remote-scripts\temp.txt</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<!-- <SubtestValues>ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM</SubtestValues> -->
+			<SubtestValues>ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM,A5,A6,A7,A8,A9,A10,A11,D1,D2,D3,D4,D11,D12,D13,D14,G1,G2,G3,G4,G5</SubtestValues>
+			<ARMSubtestValues>BasicA0,BasicA1,BasicA2,BasicA3,BasicA4,A0,A1,A2,A3,A4,A5,A6,A7,D1V2,D2V2,D3V2,D4V2,D11V2,D12V2,D13V2,D14V2</ARMSubtestValues>
+			<DeploymentCount>250</DeploymentCount>
+			<TestID>Reboot_01</TestID>
+		</test>
+		<test>
+			<testName>ICA-VM-REBOOT-TEST</testName>
+			<testScript></testScript>
+			<testScriptPs1>ICA-VM-REBOOT-TEST.ps1</testScriptPs1>
+			<setupType>G5</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<rebootCount>100</rebootCount>
+			<TestID>Reboot_02</TestID>
+		</test>		
+		
+		<!-- PERFORMANCE TESTS DEFINITIONS -->
+		<test>
+			<testName>ICA-LINPACK-TEST</testName>
+			<testScript></testScript>
+			<testScriptPs1>ICA-LINPACK-TEST.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\start-linpack-test-in-background.py</files>
+			<setupType>A8</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<!-- <SubtestValues>ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM,D1,D2,D3,D4</SubtestValues> -->
+			<SubtestValues></SubtestValues>
+			<TestID></TestID>
+		</test>
+		<test>
+			<testName>ICA-STREAM-TEST</testName>
+			<testScript>ICA-STREAM-TEST.py</testScript>
+			<testScriptPs1>ICA-STREAM-TEST.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ICA-STREAM-TEST.py,.\remote-scripts\stream.c</files>
+			<setupType>A8</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<!-- <SubtestValues>ExtraSmallVM,SmallVM,MediumVM,LargeVM,ExtraLargeVM,D1,D2,D3,D4</SubtestValues> -->
+			<SubtestValues></SubtestValues>
+			<TestID></TestID>
+		</test>	
+		<test>
+			<testName>ICA-BUILD-LINUX-KERNEL</testName>
+			<testScript>Perf_BuildKernel.sh</testScript>
+			<testScriptPs1>ICA-BUILD-LINUX-KERNEL.ps1</testScriptPs1>
+			<files>.\remote-scripts\Perf_BuildKernel.sh,.\remote-scripts\Packages\linux-3.18.1.tar.xz,SetupScripts\DetectLinuxDistro.sh</files>
+			<setupType>MediumVM</setupType>
+			<testParams>
+				<param>SOURCE_TYPE=ONLINE</param>
+				<param>LINUX_KERNEL_LOCATION=https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git</param>
+				<param>KERNEL_VERSION=linux-next</param>
+				<!-- <param>SOURCE_TYPE=TARBALL</param>
+				<param>TARBALL=linux-3.18.1.tar.xz</param>
+				<param>KERNEL_VERSION=linux-3.18.1</param>  -->
+			</testParams>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<TestID></TestID>
+		</test>
+		<test>
+			<testName>ICA-LIS4-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-LIS4-TEST.ps1</testScriptps1>
+			<files></files>
+			<LISExtractCommand>tar -xzf lis4.0.10-beta1.tar.gz^cp -ar lis4.0.10/* .</LISExtractCommand>
+			<setupType>DS2DISK2</setupType>
+			<files>.\remote-scripts\ManagePartitionOnDisk.sh,.\remote-scripts\ManageRaid.sh,.\remote-scripts\sys-custom.sh,.\remote-scripts\packageInstaller.sh,.\tools\LinuxPackages\epel-release-7-5.noarch.rpm</files>
+			<!-- <SubtestValues>TestID1,TestID2,TestID3,TestID4,TestID5,TestID6,TestID7,TestID8,TestID9,TestID10,TestID12</SubtestValues> -->
+			<SubtestValues>TestID1,TestID3,TestID4,TestID5,TestID6,TestID7,TestID8,TestID9,TestID10</SubtestValues>
+			<sysbenchConfig>
+				<IOs>8</IOs>
+				<Threads>16,32</Threads>
+				<ioRuntime>60</ioRuntime>
+				<!-- <testModes>rndrd,rndwr,rndrw,seqrd,seqrewr</testModes> -->
+				<testModes>rndrd,rndwr</testModes>
+				<fileSize>10G</fileSize>
+			</sysbenchConfig>		
+			<dataDiskConfig>
+				<DiskSizeInGB>10</DiskSizeInGB>
+				<HostCaching>ReadOnly</HostCaching>
+			</dataDiskConfig>
+			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
+			<Priority>P0</Priority>
+		</test>		
+		<test>
+			<testName>ICA-CUSTOM-SCRIPT-EXTENSION-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-CUSTOM-SCRIPT-EXTENSION-TEST.ps1</testScriptps1>
+			<setupType>ExtensionTest</setupType>
+			<ProvisionTimeExtensions>CustomScriptTouchCommand</ProvisionTimeExtensions>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<Priority>P0</Priority>
+		</test>		
+		<test>
+			<testName>ICA-OS-PATCHING-EXTENSION-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-OS-PATCHING-EXTENSION-TEST.ps1</testScriptps1>
+			<ProvisionTimeExtensions>OsPatching</ProvisionTimeExtensions>
+			<setupType>ExtensionTest</setupType>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<Priority>P0</Priority>
+		</test>		
+		<test>
+			<testName>ICA-VM-DIAGNOSTIC-EXTENSION-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-VM-DIAGNOSTIC-EXTENSION-TEST.ps1</testScriptps1>
+			<ProvisionTimeExtensions>LinuxDiagnosticDefaultDataSet</ProvisionTimeExtensions>
+			<setupType>ExtensionTest</setupType>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>ICA-VM-ACCESS-EXTENSION-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-VM-ACCESS-EXTENSION-TEST.ps1</testScriptps1>
+			<setupType>ExtensionTest</setupType>
+			<!-- <ProvisionTimeExtensions>VMAccess</ProvisionTimeExtensions> -->
+			<SubtestValues>AddUser,ResetPassword,DeleteUser,ResetSSHConfig</SubtestValues>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>ICA-DOCKER-EXTENSION-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-DOCKER-EXTENSION-TEST.ps1</testScriptps1>
+			<ProvisionTimeExtensions>Docker</ProvisionTimeExtensions>
+			<setupType>ExtensionTest</setupType>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<Priority>P0</Priority>
+		</test>		
+
+		<test>
+		  <testName>Template-datastax-enterprise</testName>
+		  <testScript></testScript>
+		  <testScriptPs1>Template-datastax-enterprise.ps1</testScriptPs1>
+		  <files></files>
+		  <setupType></setupType>
+          <parameters>
+			<storageAccountPrefix>testaccount</storageAccountPrefix>
+			<dnsName>datastax</dnsName>
+			<virtualNetworkName>datastaxvnet</virtualNetworkName>
+			<clusterVmSize>Standard_D1</clusterVmSize>
+			<clusterNodeCount>1</clusterNodeCount>
+			<clusterName>TestCluster</clusterName>
+          </parameters>
+		  <TestType>
+		  </TestType>
+		  <TestFeature>
+		  </TestFeature>
+		  <SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+		  <TestID>AzureTemplate_001</TestID>
+		</test>
+
+		<test>
+		  <testName>Template-cloudera-centos</testName>
+		  <testScript></testScript>
+		  <testScriptPs1>Template-cloudera-centos.ps1</testScriptPs1>
+		  <files></files>
+		  <setupType></setupType>
+		  <parameters>
+			<storageAccountPrefix>testaccount</storageAccountPrefix>
+			<dnsNamePrefix>cloudera</dnsNamePrefix>
+			<virtualNetworkName>clouderavnet</virtualNetworkName>
+			<subnetName>clouderasubvnet</subnetName>
+			<numberOfDataNodes>1</numberOfDataNodes>
+			<VmSize>Standard_D4</VmSize>
+          </parameters>
+		  <TestType>
+		  </TestType>
+		  <TestFeature>
+		  </TestFeature>
+		  <SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+		  <TestID>AzureTemplate_002</TestID>
+		</test>
+
+		<!-- IMPORTED FROM LISA TEST DEFINITIONS -->
+		<test>
+			<testName>ICA-TERASORT-BENCHMARK-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-TERASORT-BENCHMARK-TEST.ps1</testScriptps1>
+			<setupType>M1S5</setupType>
+			<TERAGEN_RECORDS>60000000</TERAGEN_RECORDS>
+			<sshKey>.\ssh\myPrivateKey.key</sshKey>
+			<!-- Hadoop version is optional here. If left blank then hadoop version will be taken from remoteXML file of this definition.-->
+			<HADOOP_VERSION></HADOOP_VERSION>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<remoteFiles>https://raw.githubusercontent.com/LIS/lis-test/master/WS2012R2/lisa/remote-scripts/ica/perf_hadoopterasort.sh</remoteFiles>
+			<!--Remote XML will be downloaded to automation server for analysis-->
+			<remoteXML>https://raw.githubusercontent.com/LIS/lis-test/master/WS2012R2/lisa/xml/perf_hadoopterasort.xml</remoteXML>
+			<SubtestValues>SOME,TEXTS,NEEDS,TO,BE,PRESENT,HERE,FOR,PRINTING,TEST,SUMMARY</SubtestValues>
+			<Priority>P0</Priority>
+		</test>		
+		<test>
+			<testName>ICA-PERF-REDIS-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-PERF-REDIS-TEST.ps1</testScriptps1>
+			<setupType>M1S1</setupType>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<remoteFiles>https://raw.githubusercontent.com/LIS/lis-test/master/WS2012R2/lisa/remote-scripts/ica/performance_redis.sh</remoteFiles>
+			<!--Remote XML will be downloaded to automation server for analysis-->
+			<remoteXML>https://raw.githubusercontent.com/LIS/lis-test/master/WS2012R2/lisa/xml/Perf_Redis.xml</remoteXML>
+			<SubtestValues>SOME,TEXTS,NEEDS,TO,BE,PRESENT,HERE,FOR,PRINTING,TEST,SUMMARY</SubtestValues>
+			<Priority>P0</Priority>
+		</test>		
+		<test>
+			<testName>ICA-PERF-APACHE-BENCHMARK-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-PERF-APACHE-BENCHMARK-TEST.ps1</testScriptps1>
+			<setupType>M1S1</setupType>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<!--Remote Files will be directly downloaded to test VM.-->
+			<remoteFiles>https://raw.githubusercontent.com/iamshital/lis-test/master/WS2012R2/lisa/remote-scripts/ica/performance_ab.sh</remoteFiles>
+			<!--Remote XML will be downloaded to automation server for analysis-->
+			<remoteXML>https://raw.githubusercontent.com/LIS/lis-test/master/WS2012R2/lisa/xml/Perf_AB.xml</remoteXML>
+			<SubtestValues>SOME,TEXTS,NEEDS,TO,BE,PRESENT,HERE,FOR,PRINTING,TEST,SUMMARY</SubtestValues>
+			<Priority>P0</Priority>
+		</test>			
+		<test>
+		  <testName>RHUI-STRESS-DOWNLOAD</testName>
+		  <entrytestScript>start-rhui-stress-test-in-background.py</entrytestScript>
+		  <testScript>RHUI-STRESS-DOWNLOAD.py</testScript>
+		  <testScriptPs1>RHUI-STRESS-DOWNLOAD.ps1</testScriptPs1>
+		  <files>.\remote-scripts\azuremodules.py,.\remote-scripts\RHUI-STRESS-DOWNLOAD.py,.\remote-scripts\start-rhui-stress-test-in-background.py</files>
+		  <setupType>RHUIStressDep</setupType>
+		  <parameters>
+			<duration>1800</duration>
+			<pkg>gcc</pkg>
+			<timeout>100</timeout>			
+          </parameters>
+		  <TestType></TestType>
+		  <TestFeature></TestFeature>
+		  <SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+		  <TestID>AzureRHUIStress_001</TestID>
+		</test>
+        <test>
+			<testName>ICA-RHUI-ALL-REGION-TEST</testName>
+		    <entrytestScript>start-rhui-stress-test-in-background.py</entrytestScript>
+		    <downloadtestScript>RHUI-STRESS-DOWNLOAD.py</downloadtestScript>
+		    <testScript>ICA-RHUI-ALL-REGION-TEST.py</testScript>
+			<testScriptPs1>ICA-RHUI-ALL-REGION-TEST.ps1</testScriptPs1>
+		  <files>.\remote-scripts\azuremodules.py,.\remote-scripts\RHUI-STRESS-DOWNLOAD.py,.\remote-scripts\start-rhui-stress-test-in-background.py,.\remote-scripts\ICA-RHUI-ALL-REGION-TEST.py</files>
+			<setupType>BVTDeployment</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<ASMRegion>"East US","West US","South Central US","Central US","North Central US","East US 2","North Europe","West Europe","Southeast Asia","East Asia","Japan West","Japan East","Brazil South","Australia Southeast","Australia East","Central India","South India","West India"</ASMRegion>
+			<ARMRegion>"East US","West US","South Central US","Central US","North Central US","East US 2","North Europe","West Europe","Southeast Asia","East Asia","Japan West","Japan East","Brazil South","Australia Southeast","Australia East"</ARMRegion>
+			<ASMStorageAccount>cieastus,ciwestus,ciscentralus,cicentralus,cincentralus,cieastus22,cinortheurope,ciwesteurope,cisoutheastasia,cieastasia,cijapanwest,cijapaneast,cibrazilsouth,ciaustraliasoutheast,ciaustraliaeast,cicentralindia,cisouthindia,ciwestindia</ASMStorageAccount>
+			<ARMStorageAccount>cieastusv2,ciwestusv2,cisouthcentralusv2,cicentralusv2,cinorthcentralusv2,cieastus2v2,cinortheuropev2,ciwesteuropev2,cisoutheastasiav2,cieastasiav2,cijapanwestv2,cijapaneastv2,cibrazilsouthv2,ciaustraliasoutheastv2,ciaustraliaeastv2</ARMStorageAccount>
+			<Publisher>RedHat</Publisher>
+			<Offer>RHEL</Offer>
+			<Sku>7.2</Sku>
+			<Version>latest</Version>
+			<RunDownload>true</RunDownload>
+			<parameters> 
+ 			    <duration>3600</duration> 
+ 			    <pkg>gcc</pkg> 
+ 			    <timeout>100</timeout>			 
+            </parameters> 
+			<TestID></TestID>
+		</test>
+			<test>
+				<testName>ICA-PERF-ZOOKEEPER-TEST</testName>
+				<testScript></testScript>
+				<testScriptps1>ICA-PERF-ZOOKEEPER-TEST.ps1</testScriptps1>
+				<setupType>S2C1</setupType>
+				<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+				<TestParameters>
+					<param>ZK_VERSION=3.4.6</param>
+					<param>ZK_TIMEOUT=1000000</param>
+					<param>ZK_ZNODE_SIZE=100</param>
+					<param>ZK_ZNODE_COUNT=100</param>
+					<param>ZK_FORCE=true</param>
+					<param>ZK_SYNCHRONOUS=true</param>
+					<param>ZK_VERBOSE=false</param>				
+				</TestParameters>
+				<!--Remote Files will be directly downloaded to test VM.-->
+				<remoteFiles>https://raw.githubusercontent.com/phunt/zk-smoketest/master/zkclient.py,https://raw.githubusercontent.com/phunt/zk-smoketest/master/zk-latencies.py,https://github.com/phunt/zk-smoketest/raw/master/lib.linux-x86_64-2.6/libzookeeper_mt.so.2,https://github.com/phunt/zk-smoketest/raw/master/lib.linux-x86_64-2.6/zookeeper.so</remoteFiles>
+				<!--Remote XML will be downloaded to automation server for analysis-->
+				<remoteXML></remoteXML>
+				<Priority>P0</Priority>
+			</test>			
+			
+		</testsDefinition>
 	<testCycles>
+		<!-- Setup related tests -->
+		<Cycle>
+			<cycleName>DEPLOYMENT</cycleName>
+			<test>
+				<Name>ICA-DEPLOYMENT-ALL-SIZES-LOOP-TEST</Name>
+			</test>
+		</Cycle>
+
 		<!-- BVT tests -->
 		<Cycle>
 			<cycleName>BVT</cycleName>
 			<test>
 				<Name>BVT-VERIFY-NO-ERROR-IN-LOGS</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-BASH-HISTORY</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-VHD-PREREQUISITES</Name>
 			</test>
 			<test>
 				<Name>BVT-WA-PROC-CHECK</Name>
@@ -2994,13 +5051,19 @@
 				<Name>BVT-VERIFY-BOOT-ERROR-WARNINGS</Name>
 			</test>
 			<test>
-				<Name>BVT-VERIFY-PRIVATEKEY-AUTHENTICATION</Name>
-			</test>
-			<test>
 				<Name>BVT-VERIFY-SSHD-CONFIG</Name>
 			</test>
 			<test>
+				<Name>BVT-VERIFY-VERBOSE-ENABLED-LOGS</Name>
+			</test>
+			<test>
 				<Name>BVT-VERIFY-SHUTDOWN</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-PRIVATEKEY-AUTHENTICATION</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-FIREWALL-STATUS</Name>
 			</test>
 		</Cycle>
 
@@ -3321,7 +5384,13 @@
 				<Name>VNET-VERIFY-REMOTE-SSH-SCP-OUTBOUND-ACCESS</Name>
 			</test>
 			<test>
+				<Name>VNET-VERIFY-REMOTE-SSH-SCP-LOCAL-TO-VNET-ACCESS</Name>
+			</test>
+			<test>
 				<Name>VNET-PING-VNET-TO-LOCAL-ACCESS</Name>
+			</test>
+			<test>
+				<Name>VNET-PING-LOCAL-TO-VNET-ACCESS</Name>
 			</test>
 			<test>
 				<Name>VNET-IPERF-UDP-VNET-TO-LOCAL-ACCESS</Name>
@@ -3345,15 +5414,142 @@
 				<Name>VNET-VERIFY-CA-AFTER-REBOOT</Name>
 			</test>
 		</Cycle>
+		
+		<!-- All network tests for CI -->		
+		<Cycle>
+			<cycleName>CI-NETWORK</cycleName>
+			<test>
+				<Name>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-UDP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-INPUT-ENDPOINT-IPERF-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-INPUT-ENDPOINT-IPERF-UDP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-IE-TCP-SINGLE-HS</Name>
+			</test>
+			<test>
+				<Name>NETWORK-IE-UDP-SINGLE-HS</Name>
+			</test>
+			<test>
+				<Name>NETWORK-IDNS-SINGLEHS-CHANGED-HOSTNAME</Name>
+			</test>
+		</Cycle>
 
-
+		<!-- VNET tests for CI -->
+		<Cycle>
+			<cycleName>CI-VNET</cycleName>
+			<test>
+				<Name>VNET-VERIFY-REMOTE-SSH-SCP-INTRAVNET-ACCESS</Name>
+			</test>
+			<test>
+				<Name>VNET-VERIFY-REMOTE-SSH-SCP-LOCAL-TO-VNET-ACCESS</Name>
+			</test>
+			<test>
+				<Name>VNET-VERIFY-REMOTE-SSH-SCP-OUTBOUND-ACCESS</Name>
+			</test>
+		</Cycle>
+		
 	
+		<!-- E2E tests -->		
+		<Cycle>
+			<cycleName>E2E</cycleName>
+			<!-- We have separate cycles for Time Synch, as each time sync test takes 2 days for execution -->
+			<test>
+				<Name>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SERIAL</Name>
+			</test>
+			<test>
+				<Name>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-PARALLEL</Name>
+			</test>
+			<test>
+				<Name>E2E-HOT-ADD-REMOVE-EXISTING-DATA-DISK-SERIAL</Name>
+			</test>
+			<test>
+				<Name>E2E-HOT-ADD-REMOVE-EXISTING-DATA-DISK-PARALLEL</Name>
+			</test> 
+			<test>
+				<Name>E2E-CHANGE-USER-PASSWORD</Name>
+			</test>
+			<test>
+				<Name>E2E-ADD-NEW-USER-CHANGE-PASSWORD</Name>
+			</test> 
+			<test>
+				<Name>E2E-VM-CAPTURE-IMAGE-WITH-WAAGENT-DEPROVISION+USER</Name>
+			</test>
+			<test>
+				<Name>E2E-VM-CAPTURE-IMAGE-WITH-WAAGENT-DEPROVISION</Name>
+			</test>
+			<test>
+				<Name>E2E-WA-UNINST</Name>
+			</test>
+			<test>
+				<Name>E2E-VERIFY-MAX-NIC</Name>
+			</test>
+		</Cycle>
+		
+		<Cycle>
+			<cycleName>EXTENSION</cycleName>
+			<test>
+				<Name>ICA-CUSTOM-SCRIPT-EXTENSION-TEST</Name>
+			</test>
+		</Cycle>
+
+		<!-- Waagent BVT tests -->
+		<Cycle>
+			<cycleName>WaagentBVT</cycleName>
+			<test>
+				<Name>ICA-CUSTOM-SCRIPT-EXTENSION-TEST</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-NO-ERROR-IN-LOGS</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-BASH-HISTORY</Name>
+			</test>
+			<test>
+				<Name>BVT-WA-PROC-CHECK</Name>
+			</test>
+			<test>
+				<Name>BVT-WA-VER-CHECK</Name>
+			</test>
+			<test>
+				<Name>BVT-SWAP-CHECK</Name>
+			</test>
+			<test>
+				<Name>BVT-ROOT-DEVICE-TIMEOUT-CHECK</Name>
+			</test>
+			<test>
+				<Name>BVT-IS-ROOT-PASSWORD-DELETED</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-HOSTNAME</Name>
+			</test>
+			<test>
+				<Name>BVT-RESOURCE-DISK-FILESYSTEM</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-MNT-RESOURCE-WRITABLE</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-MNT-RESOURCE-README</Name>
+			</test>
+			<test>
+				<Name>BVT-VERIFY-VERBOSE-ENABLED-LOGS</Name>
+			</test>
+		</Cycle>
+
+
 		<Cycle>
 			<cycleName>DEBUG</cycleName>
 			<!--You can add individual tests here and run them for debugging purpose. You can also add new cycles. -->
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-ONE-NODE-DOWN-TCP</Name>
-			</test>	
+            <test>
+				<Name>BVT-VERIFY-NO-ERROR-IN-LOGS</Name>
+			</test>
 		</Cycle>
 	</testCycles>
 </config>

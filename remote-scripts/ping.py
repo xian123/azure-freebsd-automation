@@ -27,7 +27,6 @@ command = command + ' ' + args.client
 finalCommand = command + ' >>  ping.log'
 
 
-
 def RunTest(command):
     UpdateState("TestRunning")
     RunLog.info("Executing Command : %s", command)
