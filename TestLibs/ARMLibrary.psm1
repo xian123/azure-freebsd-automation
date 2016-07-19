@@ -113,14 +113,14 @@ Function DeleteResourceGroup([string]$RGName, [switch]$KeepDisks)
 {
     try
     {
-        $ResourceGroup = Get-AzureResourceGroup -Name $RGName -ErrorAction Ignore
+        $ResourceGroup = Get-AzureRmResourceGroup -Name $RGName -ErrorAction Ignore
     }
     catch
     {
     }
     if ($ResourceGroup)
     {
-        Remove-AzureResourceGroup -Name $RGName -Force -Verbose
+        Remove-AzureRmResourceGroup -Name $RGName -Force -Verbose
         $retValue = $?
     }
     else
@@ -145,7 +145,7 @@ Function CreateResourceGroup([string]$RGName, $location)
             if($location)
             {
                 LogMsg "Using location : $location"
-                $createRG = New-AzureResourceGroup -Name $RGName -Location $location.Replace('"','') -Force -Verbose
+                $createRG = New-AzureRmResourceGroup -Name $RGName -Location $location.Replace('"','') -Force -Verbose
             }
             $operationStatus = $createRG.ProvisioningState
             if ($operationStatus  -eq "Succeeded")
@@ -180,7 +180,7 @@ Function CreateResourceGroupDeployment([string]$RGName, $location, $setupType, $
             if($location)
             {
                 LogMsg "Creating Deployment using $TemplateFile ..."
-                $createRGDeployment = New-AzureResourceGroupDeployment -Name $ResourceGroupDeploymentName -ResourceGroupName $RGName -TemplateFile $TemplateFile -Verbose
+                $createRGDeployment = New-AzureRmResourceGroupDeployment -Name $ResourceGroupDeploymentName -ResourceGroupName $RGName -TemplateFile $TemplateFile -Verbose
             }
             $operationStatus = $createRGDeployment.ProvisioningState
             if ($operationStatus  -eq "Succeeded")
@@ -213,7 +213,7 @@ if($storageAccount)
  $StorageAccountName = $storageAccount
 }
 LogMsg "Getting Storage Account : $StorageAccountName details ..."
-$StorageAccountType = (Get-AzureStorageAccount | where {$_.StorageAccountName -eq "$StorageAccountName"}).AccountType
+$StorageAccountType = (Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).Sku.Tier.ToString()
 if($StorageAccountType -match 'Premium')
 {
     $StorageAccountType = "Premium_LRS"
@@ -280,7 +280,7 @@ if ($RGXMLData.ARMVnetName)
 {
     $ExistingVnet = $RGXMLData.ARMVnetName
     LogMsg "Getting $ExistingVnet Virtual Netowrk info ..."
-    $ExistingVnetResourceGroupName = ( Get-AzureResource | Where {$_.Name -eq $ExistingVnet}).ResourceGroupName
+    $ExistingVnetResourceGroupName = ( Get-AzureRmResource | Where {$_.Name -eq $ExistingVnet}).ResourceGroupName
     LogMsg "ARM VNET : $ExistingVnet (ResourceGroup : $ExistingVnetResourceGroupName)"
     $virtualNetworkName = $ExistingVnet
 }
@@ -728,7 +728,15 @@ foreach ( $newVM in $RGXMLData.VirtualMachine)
 foreach ( $newVM in $RGXMLData.VirtualMachine)
 {
     $VnetName = $RGXMLData.VnetName
-    $instanceSize = $newVM.ARMInstanceSize
+    if ( $OverrideVMSize )
+    {
+        $instanceSize = $OverrideVMSize
+    }
+    else
+    {
+		$instanceSize = $newVM.ARMInstanceSize
+    }
+    
     $ExistingSubnet = $newVM.ARMSubnetName
     $DnsServerIP = $RGXMLData.DnsServerIP
     if($newVM.RoleName)
@@ -925,7 +933,14 @@ if ( $numberOfVMs -eq 1)
     $newVM = $RGXMLData.VirtualMachine    
     $vmCount = $vmCount + 1
     $VnetName = $RGXMLData.VnetName
-    $instanceSize = $newVM.ARMInstanceSize
+    if ( $OverrideVMSize )
+    {
+        $instanceSize = $OverrideVMSize
+    }
+    else
+    {
+		$instanceSize = $newVM.ARMInstanceSize
+    }
     $SubnetName = $newVM.ARMSubnetName
     $DnsServerIP = $RGXMLData.DnsServerIP
     $NIC = "NIC" + "-$vmName"
@@ -1232,8 +1247,30 @@ if ( $CurrentTestData.ProvisionTimeExtensions)
                     {
                     Add-Content -Value "$($indents[5])," -Path $jsonFile
                     }
+                    if($extnConfig.ChildNodes.Count -eq 1 -and $extnConfig.ChildNodes[0].NodeType -eq 'Text')
+                    {
                     Add-Content -Value "$($indents[5])^$($extnConfig.Name)^ : ^$($extnConfig.'#text')^" -Path $jsonFile
                     LogMsg "Added $extension Extension : Private Configuration : $($extnConfig.Name) = $( ( ( $extnConfig.'#text' -replace "\w","*") -replace "\W","*" ) )"
+                    }
+                    else
+                    {
+                    Add-Content -Value "$($indents[5])^$($extnConfig.Name)^ :" -Path $jsonFile
+                        Add-Content -Value "$($indents[6]){" -Path $jsonFile
+                        $index = 0
+                        foreach($childNode in $extnConfig.ChildNodes) 
+                        {
+                           $index++
+                           if($index -lt $extnConfig.ChildNodes.Count)
+                           {
+                            Add-Content -Value "$($indents[7])^$($childNode.Name)^ : ^$($childNode.'#text')^," -Path $jsonFile
+                           }
+                           if($index -eq $extnConfig.ChildNodes.Count)
+                           { 
+                            Add-Content -Value "$($indents[7])^$($childNode.Name)^ : ^$($childNode.'#text')^" -Path $jsonFile
+                           }
+                        }
+                        Add-Content -Value "$($indents[6])}" -Path $jsonFile
+                     }
                     $isConfigAdded = $true
                 } 
                 Add-Content -Value "$($indents[4])}" -Path $jsonFile
@@ -1265,7 +1302,7 @@ Function DeployResourceGroups ($xmlConfig, $setupType, $Distro, $getLogsIfFailed
         {
             $VerifiedGroups =  $NULL
             $retValue = $NULL
-            #$ExistingGroups = RetryOperation -operation { Get-AzureResourceGroup } -description "Getting information of existing resource groups.." -retryInterval 5 -maxRetryCount 5
+            #$ExistingGroups = RetryOperation -operation { Get-AzureRmResourceGroup } -description "Getting information of existing resource groups.." -retryInterval 5 -maxRetryCount 5
             $i = 0
             $role = 1
             $setupTypeData = $xmlConfig.config.Azure.Deployment.$setupType
@@ -1352,7 +1389,7 @@ Function DeployResourceGroups ($xmlConfig, $setupType, $Distro, $getLogsIfFailed
     }
     if ( $GetDeploymentStatistics )
     {
-        return $retValue, $DeploymentElapsedTime, $VMBooTime, $VMProvisionTime
+        return $retValue, $DeploymentElapsedTime
     }
     else
     {
@@ -1413,7 +1450,7 @@ Function CreateRGDeploymentWithTempParameters([string]$RGName, $TemplateFile, $T
         {
             $FailCounter++
             LogMsg "Creating Deployment using $TemplateFile $TemplateParameterFile..."
-            $createRGDeployment = New-AzureResourceGroupDeployment -Name $ResourceGroupDeploymentName -ResourceGroupName $RGName -TemplateFile $TemplateFile -TemplateParameterFile $TemplateParameterFile -Verbose
+            $createRGDeployment = New-AzureRmResourceGroupDeployment -Name $ResourceGroupDeploymentName -ResourceGroupName $RGName -TemplateFile $TemplateFile -TemplateParameterFile $TemplateParameterFile -Verbose
             $operationStatus = $createRGDeployment.ProvisioningState
             if ($operationStatus  -eq "Succeeded")
             {

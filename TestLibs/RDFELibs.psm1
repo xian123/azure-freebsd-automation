@@ -259,7 +259,7 @@ Function InstallPackages ($VMIpAddress, $VMSshPort, $VMUserName, $VMPassword)
 
 Function IsEnvironmentSupported()
 {
-	$version = (Get-Module -Name "Azure").Version
+	$version = (Get-Module -ListAvailable Azure).Version
 	If ($version.Major -GT 0 -OR
 		$version.Minor -GT 8 -OR
 		(($version.Minor -EQ 8) -And ($version.Build -GE 8)))
@@ -495,7 +495,14 @@ Function GenerateCommand ($Setup, $serviceName, $osImage, $HSData)
 	{
 		$vmCount = $vmCount + 1
 		$VnetName = $HS.VnetName
-		$instanceSize = $newVM.InstanceSize
+        if ( $OverrideVMSize )
+        {
+            $instanceSize = $OverrideVMSize
+        }
+        else
+        {
+		    $instanceSize = $newVM.InstanceSize
+        }
 		$SubnetName = $newVM.SubnetName
 		$DnsServerIP = $HS.DnsServerIP
 #...............................................
@@ -690,7 +697,7 @@ Function GenerateCommand ($Setup, $serviceName, $osImage, $HSData)
 	return $createSetupCommand,  $serviceName, $vmCount
 } 
 
-Function CreateDeployment ($DeploymentCommand, $NewServiceName , $vmCount, [string]$storageaccount="")
+Function CreateDeployment ($DeploymentCommand, $NewServiceName , $vmCount, [string]$storageaccount="", $timeOutSeconds)
 {
 	
 	$FailCounter = 0
@@ -700,7 +707,7 @@ Function CreateDeployment ($DeploymentCommand, $NewServiceName , $vmCount, [stri
 		try
 		{
 			$FailCounter++
-			$out = RunAzureCmd -AzureCmdlet "$DeploymentCommand" -storageaccount $storageaccount
+			$out = RunAzureCmd -AzureCmdlet "$DeploymentCommand" -storageaccount $storageaccount -maxWaitTimeSeconds $timeOutSeconds
 			#LogMsg $DeploymentCommand
 			$retValue = $?
 			LogMsg "VM's deployed. Verifying.."
@@ -733,7 +740,6 @@ Function CheckVMsInService($serviceName)
 {
 	try
 	{
-		$DeployedVMs = RetryOperation -operation { Get-AzureVM -ServiceName $serviceName } -retryInterval 1 -maxRetryCount 10 -NoLogsPlease
 		$allVMsReady = "False"
 		$isTimedOut = "False"
 		$VMCheckStarted = Get-Date
@@ -743,6 +749,13 @@ Function CheckVMsInService($serviceName)
 			$VMStatus = @()
 	#$DeployedVMs = Get-AzureService -ServiceName $serviceName  | Get-AzureVM 
 			$DeployedVMs = RetryOperation -operation { Get-AzureVM -ServiceName $serviceName } -retryInterval 1 -maxRetryCount 10 -NoLogsPlease
+            if($DeployedVMs -eq $null)
+            {
+                Write-Host "No Deployment found in service."
+                $remainigSeconds = 1800
+                $VMStatuString = "service: $serviceName, vm provision-failed"
+                break
+            }
 			$Recheck = 0
 			$VMStatuString = ""
 			foreach ( $VM in $DeployedVMs )
@@ -775,8 +788,8 @@ Function CheckVMsInService($serviceName)
 			Write-Host "." -NoNewline
 			#Write-Host $VMStatus -NoNewline
 			sleep 1
-		}   
-		Write-Progress -Id 500 -Activity "Checking Deployed VM in Service : $serviceName. Seconds Remaining : $remainigSeconds" -Status "$VMStatuString" -Completed
+		}
+		Write-Progress -Id 500 -Activity "Checking Deployed VM in Service : $serviceName. Seconds Remaining : $remainigSeconds" -Status "$VMStatuString" -Completed   
 	}
 	catch
 	{
@@ -787,7 +800,7 @@ Function CheckVMsInService($serviceName)
 	return $allVMsReady
 }
 
-Function CreateAllDeployments($setupType, $xmlConfig, $Distro, [string]$region ="", [string]$storageAccount="")
+Function CreateAllDeployments($setupType, $xmlConfig, $Distro, [string]$region ="", [string]$storageAccount="", $timeOutSeconds)
 {
 
 	$hostedServiceCount = 0
@@ -865,7 +878,7 @@ Function CreateAllDeployments($setupType, $xmlConfig, $Distro, [string]$region =
 						    $DeploymentCommand = GenerateCommand -Setup $Setup -serviceName $serviceName -osImage $img -HSData $HS
 						    Set-AzureSubscription -SubscriptionName $xmlConfig.config.Azure.General.SubscriptionName  -CurrentStorageAccountName $currentStorageAccount
 						    $DeploymentStartTime = (Get-Date)
-						    $isDeployed = CreateDeployment -DeploymentCommand $DeploymentCommand[0] -NewServiceName $DeploymentCommand[1] -vmCount $DeploymentCommand[2] -storageaccount $currentStorageAccount
+						    $isDeployed = CreateDeployment -DeploymentCommand $DeploymentCommand[0] -NewServiceName $DeploymentCommand[1] -vmCount $DeploymentCommand[2] -storageaccount $currentStorageAccount -timeOutSeconds $timeOutSeconds
 						    $DeploymentEndTime = (Get-Date)
 						    $DeploymentElapsedTime = $DeploymentEndTime - $DeploymentStartTime
 						    if ( $isDeployed -eq "True" )
@@ -1200,7 +1213,7 @@ Function GetAndCheckKernelLogs($allDeployedVMs, $status, $vmUser, $vmPassword)
 				if ( $UseAzureResourceManager )
 				{
 					LogMsg "Adding preserve tag to $($VM.ResourceGroup) .."
-					$out = Set-AzureResourceGroup -Name $($VM.ResourceGroup) -Tag @{Name =$preserveKeyword; Value = "yes"},@{Name ="callTrace"; Value = "yes"}
+					$out = Set-AzureRmResourceGroup -Name $($VM.ResourceGroup) -Tag @{Name =$preserveKeyword; Value = "yes"},@{Name ="callTrace"; Value = "yes"}
 				}
 				else
 				{
@@ -1227,7 +1240,7 @@ Function SetDistroSpecificVariables($detectedDistro)
 	if(($detectedDistro -eq "SLES") -or ($detectedDistro -eq "SUSE"))
 	{
 		Set-Variable -Name ifconfig_cmd -Value "/sbin/ifconfig" -Scope Global
-		Set-Variable -Name fdisk -Value "/sbin/fdisk  -l" -Scope Global
+		Set-Variable -Name fdisk -Value "/sbin/fdisk" -Scope Global
 		LogMsg "Set `$ifconfig_cmd > $ifconfig_cmd for $detectedDistro"
 		LogMsg "Set `$fdisk > /sbin/fdisk for $detectedDistro"
 	}
@@ -1238,12 +1251,12 @@ Function SetDistroSpecificVariables($detectedDistro)
 	}
     else
 	{
-		Set-Variable -Name fdisk -Value "fdisk  -l" -Scope Global
+		Set-Variable -Name fdisk -Value "fdisk" -Scope Global
 		LogMsg "Set `$fdisk > fdisk for $detectedDistro"
 	}
 }
 
-Function DeployManagementServices ($xmlConfig, $setupType, $Distro, $getLogsIfFailed = $false, $GetDeploymentStatistics = $false, [string]$region ="", [string]$storageAccount="")
+Function DeployManagementServices ($xmlConfig, $setupType, $Distro, $getLogsIfFailed = $false, $GetDeploymentStatistics = $false, [string]$region ="", [string]$storageAccount="",[int]$timeOutSeconds)
 {
 	if( (!$EconomyMode) -or ( $EconomyMode -and ($xmlConfig.config.Azure.Deployment.$setupType.isDeployed -eq "NO")))
 	{
@@ -1256,7 +1269,7 @@ Function DeployManagementServices ($xmlConfig, $setupType, $Distro, $getLogsIfFa
 			$i = 0
 			$role = 1
 			$setupTypeData = $xmlConfig.config.Azure.Deployment.$setupType
-			$isAllDeployed = CreateAllDeployments -xmlConfig $xmlConfig -setupType $setupType -Distro $Distro -region $region -storageAccount $storageAccount
+			$isAllDeployed = CreateAllDeployments -xmlConfig $xmlConfig -setupType $setupType -Distro $Distro -region $region -storageAccount $storageAccount -timeOutSeconds $timeOutSeconds
 			$isAllVerified = "False"
 			$isAllConnected = "False"
 			if($isAllDeployed[0] -eq "True")
@@ -1355,7 +1368,7 @@ Function DeployManagementServices ($xmlConfig, $setupType, $Distro, $getLogsIfFa
 	}
 }
 
-Function DeployVMs ($xmlConfig, $setupType, $Distro, $getLogsIfFailed = $false, $GetDeploymentStatistics = $false, [string]$region = "", [string]$storageAccount = "")
+Function DeployVMs ($xmlConfig, $setupType, $Distro, $getLogsIfFailed = $false, $GetDeploymentStatistics = $false, [string]$region = "", [string]$storageAccount = "", [int]$timeOutSeconds = 600)
 {
     $AzureSetup = $xmlConfig.config.Azure.General
 
@@ -1373,7 +1386,7 @@ Function DeployVMs ($xmlConfig, $setupType, $Distro, $getLogsIfFailed = $false, 
         {
          LogMsg "CurrentStorageAccount  : $($storageAccount)"
        }
-		$retValue = DeployManagementServices -xmlConfig $xmlConfig -setupType $setupType -Distro $Distro -getLogsIfFailed $getLogsIfFailed -GetDeploymentStatistics $GetDeploymentStatistics -region $region -storageAccount $storageAccount 
+		$retValue = DeployManagementServices -xmlConfig $xmlConfig -setupType $setupType -Distro $Distro -getLogsIfFailed $getLogsIfFailed -GetDeploymentStatistics $GetDeploymentStatistics -region $region -storageAccount $storageAccount -timeOutSeconds $timeOutSeconds
 	}
 	return $retValue
 }
@@ -1930,6 +1943,7 @@ Function RemoteCopy($uploadTo, $downloadFrom, $downloadTo, $port, $files, $usern
 						{
 							LogWarn "Error in upload, Attempt $retry. Retrying for upload"
 							$retry=$retry+1
+							WaitFor -seconds 10
 						}
 						elseif(($returnCode -ne 0) -and ($retry -eq $maxRetry))
 						{
@@ -1946,7 +1960,15 @@ Function RemoteCopy($uploadTo, $downloadFrom, $downloadTo, $port, $files, $usern
 					LogMsg "Removing compressed file : $tarFileName"
 					Remove-Item -Path $tarFileName -Force 2>&1 | Out-Null
 					LogMsg "Decompressing files in VM ..."
-					$out = RunLinuxCmd -username $username -password $password -ip $uploadTo -port $port -command "tar -xf $tarFileName" -runAsSudo
+					if ( $username -eq "root" )
+					{
+						$out = RunLinuxCmd -username $username -password $password -ip $uploadTo -port $port -command "tar -xf $tarFileName"
+					}
+					else
+					{
+						$out = RunLinuxCmd -username $username -password $password -ip $uploadTo -port $port -command "tar -xf $tarFileName" -runAsSudo
+					}
+					
 				}
 				else
 				{
@@ -1985,6 +2007,7 @@ Function RemoteCopy($uploadTo, $downloadFrom, $downloadTo, $port, $files, $usern
 						{
 							LogWarn "Error in upload, Attempt $retry. Retrying for upload"
 							$retry=$retry+1
+							WaitFor -seconds 10
 						}
 						elseif(($returnCode -ne 0) -and ($retry -eq $maxRetry))
 						{
@@ -2101,20 +2124,38 @@ Function RunLinuxCmd([string] $username,[string] $password,[string] $ip,[string]
 	}
 	LogMsg ".\tools\plink.exe -t -pw $password -P $port $username@$ip $logCommand"
 	$returnCode = 1
-	$attempts = 0
+	$attemptswt = 0
+	$attemptswot = 0
 	$notExceededTimeLimit = $true
 	$isBackGroundProcessStarted = $false
-	while ( ($returnCode -ne 0) -and ($attempts -lt $maxRetryCount) -and $notExceededTimeLimit)
+    
+	while ( ($returnCode -ne 0) -and ($attemptswt -lt $maxRetryCount -or $attemptswot -lt $maxRetryCount) -and $notExceededTimeLimit)
 	{
-		$attempts += 1
-		$runLinuxCmdJob = Start-Job -ScriptBlock `
-		{ `
-			$username = $args[1]; $password = $args[2]; $ip = $args[3]; $port = $args[4]; $jcommand = $args[5]; `
-			cd $args[0]; `
-			#Write-Host ".\tools\plink.exe -t -C -v -pw $password -P $port $username@$ip $jcommand";`
-			.\tools\plink.exe -t -C -v -pw $password -P $port $username@$ip $jcommand;`
-		} `
-		-ArgumentList $currentDir, $username, $password, $ip, $port, $linuxCommand
+		if ($runwithoutt -or $attemptswt -eq $maxRetryCount)
+		{
+			Set-Variable -Name runwithoutt -Value true -Scope Global
+			$attemptswot +=1
+			$runLinuxCmdJob = Start-Job -ScriptBlock `
+			{ `
+				$username = $args[1]; $password = $args[2]; $ip = $args[3]; $port = $args[4]; $jcommand = $args[5]; `
+				cd $args[0]; `
+				#Write-Host ".\tools\plink.exe -t -C -v -pw $password -P $port $username@$ip $jcommand";`
+				.\tools\plink.exe -C -v -pw $password -P $port $username@$ip $jcommand;`
+			} `
+			-ArgumentList $currentDir, $username, $password, $ip, $port, $linuxCommand
+		}
+		else
+		{
+			$attemptswt += 1
+			$runLinuxCmdJob = Start-Job -ScriptBlock `
+			{ `
+				$username = $args[1]; $password = $args[2]; $ip = $args[3]; $port = $args[4]; $jcommand = $args[5]; `
+				cd $args[0]; `
+				#Write-Host ".\tools\plink.exe -t -C -v -pw $password -P $port $username@$ip $jcommand";`
+				.\tools\plink.exe -t -C -v -pw $password -P $port $username@$ip $jcommand;`
+			} `
+			-ArgumentList $currentDir, $username, $password, $ip, $port, $linuxCommand
+		}
 		$RunLinuxCmdOutput = ""
 		$debugOutput = ""
 		$LinuxExitCode = ""
@@ -2150,7 +2191,7 @@ Function RunLinuxCmd([string] $username,[string] $password,[string] $ip,[string]
 					}
 					$debugOutput += "$debugString`n"
 				}
-				Write-Progress -Activity "Attempt : $attempts : Initiating command in Background Mode : $logCommand on $ip : $port" -Status "Timeout in $($RunMaxAllowedTime - $RunElaplsedTime) seconds.." -Id 87678 -PercentComplete (($RunElaplsedTime/$RunMaxAllowedTime)*100) -CurrentOperation "SSH ACTIVITY : $debugString"
+				Write-Progress -Activity "Attempt : $attemptswot+$attemptswt : Initiating command in Background Mode : $logCommand on $ip : $port" -Status "Timeout in $($RunMaxAllowedTime - $RunElaplsedTime) seconds.." -Id 87678 -PercentComplete (($RunElaplsedTime/$RunMaxAllowedTime)*100) -CurrentOperation "SSH ACTIVITY : $debugString"
 				$RunCurrentTime = Get-Date
 				$RunDiffTime = $RunCurrentTime - $RunStartTime
 				$RunElaplsedTime =  $RunDiffTime.TotalSeconds
@@ -2193,7 +2234,7 @@ Function RunLinuxCmd([string] $username,[string] $password,[string] $ip,[string]
 				}
 				$debugOutput += "$debugString`n"
 			}
-			Write-Progress -Activity "Attempt : $attempts : Executing $logCommand on $ip : $port" -Status $runLinuxCmdJob.State -Id 87678 -SecondsRemaining ($RunMaxAllowedTime - $RunElaplsedTime) -Completed
+			Write-Progress -Activity "Attempt : $attemptswot+$attemptswt : Executing $logCommand on $ip : $port" -Status $runLinuxCmdJob.State -Id 87678 -SecondsRemaining ($RunMaxAllowedTime - $RunElaplsedTime) -Completed
 			if ( $isBackGroundProcessStarted -and !$isBackGroundProcessTerminated )
 			{
 				LogMsg "$command is running in background with ID $($runLinuxCmdJob.Id) ..."
@@ -2268,7 +2309,7 @@ Function RunLinuxCmd([string] $username,[string] $password,[string] $ip,[string]
 					}
 					$debugOutput += "$debugString`n"
 				}
-				Write-Progress -Activity "Attempt : $attempts : Executing $logCommand on $ip : $port" -Status "Timeout in $($RunMaxAllowedTime - $RunElaplsedTime) seconds.." -Id 87678 -PercentComplete (($RunElaplsedTime/$RunMaxAllowedTime)*100) -CurrentOperation "SSH ACTIVITY : $debugString"
+				Write-Progress -Activity "Attempt : $attemptswot+$attemptswt : Executing $logCommand on $ip : $port" -Status "Timeout in $($RunMaxAllowedTime - $RunElaplsedTime) seconds.." -Id 87678 -PercentComplete (($RunElaplsedTime/$RunMaxAllowedTime)*100) -CurrentOperation "SSH ACTIVITY : $debugString"
 				$RunCurrentTime = Get-Date
 				$RunDiffTime = $RunCurrentTime - $RunStartTime
 				$RunElaplsedTime =  $RunDiffTime.TotalSeconds
@@ -2308,7 +2349,7 @@ Function RunLinuxCmd([string] $username,[string] $password,[string] $ip,[string]
 				}
 				$debugOutput += "$debugString`n"
 			}
-			Write-Progress -Activity "Attempt : $attempts : Executing $logCommand on $ip : $port" -Status $runLinuxCmdJob.State -Id 87678 -SecondsRemaining ($RunMaxAllowedTime - $RunElaplsedTime) -Completed
+			Write-Progress -Activity "Attempt : $attemptswot+$attemptswt : Executing $logCommand on $ip : $port" -Status $runLinuxCmdJob.State -Id 87678 -SecondsRemaining ($RunMaxAllowedTime - $RunElaplsedTime) -Completed
 			Remove-Job $runLinuxCmdJob 
 			Remove-Item $LogDir\$randomFileName -Force | Out-Null
 			if ($LinuxExitCode -imatch "AZURE-LINUX-EXIT-CODE-0") 
@@ -2344,7 +2385,7 @@ Function RunLinuxCmd([string] $username,[string] $password,[string] $ip,[string]
 						Throw "Tmeout while executing command : $command"
 					}
 					LogErr "Linux machine returned exit code : $($LinuxExitCode.Split("-")[4])"
-					if ($attempts -eq $maxRetryCount)
+					if ($attemptswt -eq $maxRetryCount -and $attemptswot -eq $maxRetryCount)
 					{
 						Throw "Failed to execute : $command."
 					}
@@ -2503,7 +2544,7 @@ Function DoTestCleanUp($result, $testName, $DeployedServices, $ResourceGroups, [
 						}
 						else
 						{
-							$RGdetails = Get-AzureResourceGroup -Name $group
+							$RGdetails = Get-AzureRmResourceGroup -Name $group
 							if ( (  $RGdetails.Tags[0].Name -eq $preserveKeyword ) -and (  $RGdetails.Tags[0].Value -eq "yes" ))
 							{
 								LogMsg "Skipping Cleanup of preserved resource group."
@@ -2533,7 +2574,7 @@ Function DoTestCleanUp($result, $testName, $DeployedServices, $ResourceGroups, [
 					{
 						LogMsg "Preserving the Resource Group(s) $group"
 						LogMsg "Setting tags : preserve = yes; testName = $testName"
-						$out = Set-AzureResourceGroup -Name $group -Tag @{Name =$preserveKeyword; Value = "yes"},@{Name ="testName"; Value = "$testName"}
+						$out = Set-AzureRmResourceGroup -Name $group -Tag @{Name =$preserveKeyword; Value = "yes"},@{Name ="testName"; Value = "$testName"}
 						LogMsg "Collecting VM logs.."
 						if ( !$isVMLogsCollected)
 						{
@@ -3624,7 +3665,7 @@ Function IsIperfServerStarted($node, $expectedServerInstances = 1)
 {
 	#RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/start-server.py.log" -downloadTo $node.LogDir -port $node.sshPort -username $node.user -password $node.password
 	LogMsg "Verifying if server is started or not.."
-	$iperfout = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshPort -command "ps -ax | grep iperf -s | grep -v grep | wc -l" -runAsSudo
+	$iperfout = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshPort -command "ps -ef | grep iperf -s | grep -v grep | wc -l" -runAsSudo
 	$iperfout = [int]$iperfout[-1].ToString()
 	LogMsg "Total iperf server running instances : $($iperfout)"	
 	if($iperfout -ge $expectedServerInstances)
@@ -3639,7 +3680,7 @@ Function IsIperfServerStarted($node, $expectedServerInstances = 1)
 
 Function IsIperfServerRunning($node)
 {
-	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshport -command "$python_cmd check-server.py && mv -f Runtime.log check-server.py.log" -runAsSudo
+	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshport -command "$python_cmd check-server.py && mv Runtime.log check-server.py.log -f" -runAsSudo
 	RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/check-server.py.log, /home/$user/iperf-server.txt" -downloadTo $node.LogDir -port $node.sshPort -username $node.user -password $node.password
 	RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/state.txt, /home/$user/Summary.log" -downloadTo $node.logdir -port $node.sshPort -username $node.user -password $node.password
 	$serverState = Get-Content "$($node.Logdir)\state.txt"
@@ -3660,7 +3701,7 @@ Function IsIperfServerRunning($node)
 Function IsIperfClientStarted($node, [string]$beginningText, [string]$endText)
 {
 	sleep 1
-	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshPort -command "mv -f Runtime.log start-client.py.log" -runAsSudo
+	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshPort -command "mv Runtime.log start-client.py.log -f" -runAsSudo
 	RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/start-client.py.log, /home/$user/iperf-client.txt" -downloadTo $node.LogDir -port $node.sshPort -username $node.user -password $node.password
 	RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/state.txt, /home/$user/Summary.log" -downloadTo $node.Logdir -port $node.sshPort -username $node.user -password $node.password
 	$clientState = Get-Content "$($node.Logdir)\state.txt"
@@ -4053,9 +4094,31 @@ Function GetAllStringMatchObject([string] $logFile,[string] $beg,[string] $end)
 
 Function GetParallelConnectionCount([string] $logFile,[string] $beg,[string] $end)
 {
-	$connectStr="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\sport\s\d*\sconnected with \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\sport\s\d"
-	$p=GetStringMatchCount -logFile $logFile -beg $beg -end $end -str $connectStr
-	return $p
+	$connectStr1 = $allVMData[0].InternalIP+"\sport\s\d*\sconnected with " +$allVMData[1].InternalIP + "\sport\s\d"
+	$p1=GetStringMatchCount -logFile $logFile -beg $beg -end $end -str $connectStr1
+
+	$connectStr2 = $allVMData[0].PublicIP+"\sport\s\d*\sconnected with " +$allVMData[1].PublicIP + "\sport\s\d"
+	$p2=GetStringMatchCount -logFile $logFile -beg $beg -end $end -str $connectStr2
+
+	$connectStr3 = $allVMData[0].InternalIP+"\sport\s\d*\sconnected with " +$allVMData[1].PublicIP + "\sport\s\d"
+	$p3=GetStringMatchCount -logFile $logFile -beg $beg -end $end -str $connectStr3
+
+	$connectStr4 = $allVMData[0].PublicIP+"\sport\s\d*\sconnected with " +$allVMData[1].InternalIP + "\sport\s\d"
+	$p4=GetStringMatchCount -logFile $logFile -beg $beg -end $end -str $connectStr4
+
+	$connectStr5 = $allVMData[1].InternalIP+"\sport\s\d*\sconnected with " +$allVMData[0].InternalIP + "\sport\s\d"
+	$p5=GetStringMatchCount -logFile $logFile -beg $beg -end $end -str $connectStr5
+
+	$connectStr6 = $allVMData[1].PublicIP+"\sport\s\d*\sconnected with " +$allVMData[0].PublicIP + "\sport\s\d"
+	$p6=GetStringMatchCount -logFile $logFile -beg $beg -end $end -str $connectStr6
+
+	$connectStr7 = $allVMData[1].InternalIP+"\sport\s\d*\sconnected with " +$allVMData[0].PublicIP + "\sport\s\d"
+	$p7=GetStringMatchCount -logFile $logFile -beg $beg -end $end -str $connectStr7
+
+	$connectStr8 = $allVMData[1].PublicIP+"\sport\s\d*\sconnected with " +$allVMData[0].InternalIP + "\sport\s\d"
+	$p8=GetStringMatchCount -logFile $logFile -beg $beg -end $end -str $connectStr8
+
+	return $p1+$p2+$p3+$p4+$p5+$p6+$p7+$p8
 }
 
 Function GetMSSSize([string] $logFile,[string] $beg,[string] $end)
@@ -4240,8 +4303,8 @@ Function Get-SSHDetailofVMs($DeployedServices, $ResourceGroups)
 	{
 		foreach ($ResourceGroup in $ResourceGroups.Split("^"))
 		{
-			$RGIPdata = Get-AzureResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Network/publicIPAddresses" -ExpandProperties -OutputObjectFormat New -Verbose
-			$RGVMs = Get-AzureResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Compute/virtualMachines" -ExpandProperties -OutputObjectFormat New -Verbose
+			$RGIPdata = Get-AzureRmResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Network/publicIPAddresses" -ExpandProperties -Verbose
+			$RGVMs = Get-AzureRmResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Compute/virtualMachines" -ExpandProperties -Verbose
 			foreach ($testVM in $RGVMs)
 			{
 				$AllEndpoints = $testVM.Properties.NetworkProfile.InputEndpoints
@@ -4286,9 +4349,9 @@ Function GetAllDeployementData($DeployedServices, $ResourceGroups)
 		foreach ($ResourceGroup in $ResourceGroups.Split("^"))
 		{
 			LogMsg "Collecting $ResourceGroup data.."
-			$RGIPdata = Get-AzureResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Network/publicIPAddresses" -Verbose -ExpandProperties -OutputObjectFormat New
-			$RGVMs = Get-AzureResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Compute/virtualMachines" -Verbose -ExpandProperties -OutputObjectFormat New
-			$NICdata = Get-AzureResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Network/networkInterfaces" -Verbose -ExpandProperties -OutputObjectFormat New
+			$RGIPdata = Get-AzureRmResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Network/publicIPAddresses" -Verbose -ExpandProperties
+			$RGVMs = Get-AzureRmResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Compute/virtualMachines" -Verbose -ExpandProperties
+			$NICdata = Get-AzureRmResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Network/networkInterfaces" -Verbose -ExpandProperties
 			$numberOfVMs = 0
 			foreach ($testVM in $RGVMs)
 			{
@@ -4296,7 +4359,7 @@ Function GetAllDeployementData($DeployedServices, $ResourceGroups)
 			}
 			if ( $numberOfVMs -gt 1 )
 			{
-				$LBdata = Get-AzureResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Network/loadBalancers" -ExpandProperties -OutputObjectFormat New -Verbose
+				$LBdata = Get-AzureRmResource -ResourceGroupName $ResourceGroup -ResourceType "Microsoft.Network/loadBalancers" -ExpandProperties -Verbose
 			}
 			foreach ($testVM in $RGVMs)
 			{
@@ -4750,7 +4813,7 @@ Function RestartAllDeployments($allVMData)
 	{
 		if ( $UseAzureResourceManager)
 		{
-			$restartVM = Restart-AzureVM -ResourceGroupName $vmData.ResourceGroupName -Name $vmData.RoleName -Verbose
+			$restartVM = Restart-AzureRmVM -ResourceGroupName $vmData.ResourceGroupName -Name $vmData.RoleName -Verbose
 			if ( $restartVM.Status -eq "Succeeded" )
 			{
 				LogMsg "Restarted : $($vmData.RoleName)"
@@ -5337,8 +5400,10 @@ Function StartIperfServerOnRemoteVM($remoteVM, $intermediateVM, $expectedServerI
 	$DeletePreviousLogs = RunLinuxCmdOnRemoteVM -intermediateVM $intermediateVM -remoteVM $remoteVM -remoteCommand "rm -rf /root/*.txt /root/*.log" -runAsSudo
 	$CommandOutput = RunLinuxCmdOnRemoteVM -intermediateVM $intermediateVM -remoteVM $remoteVM -remoteCommand $NewremoteVMcmd -runAsSudo -RunInBackGround
 	LogMsg "Checking if server started successfully or not ..."
-	$isServerStarted = RunLinuxCmdOnRemoteVM -intermediateVM $intermediateVM -remoteVM $remoteVM -remoteCommand "ps -ax | grep iperf -s | grep -v grep | wc -l" -runAsSudo
-	$isServerStarted = [int]$isServerStarted.Split("`n")[1]
+	$isServerStarted = RunLinuxCmdOnRemoteVM -intermediateVM $intermediateVM -remoteVM $remoteVM -remoteCommand "ps -ef | grep iperf -s | grep -v grep | wc -l" -runAsSudo
+    $outlist = $isServerStarted.Split("`n")
+    $index_value_seek = $outlist.IndexOf("OutputStart") + 1
+	$isServerStarted = [int]$outlist[$index_value_seek]
 	LogMsg "Total iperf server running instances : $($isServerStarted)"
 	if($isServerStarted -ge $expectedServerInstances)
 	{
@@ -6535,13 +6600,14 @@ Function GetStorageAccountKey ($xmlConfig)
 	if ( $UseAzureResourceManager )
 	{
 		$storageAccountName =  $xmlConfig.config.Azure.General.ARMStorageAccount
-		$StorageAccounts = Get-AzureStorageAccount
+		$StorageAccounts = Get-AzureRmStorageAccount
 		foreach ($SA in $StorageAccounts)
 		{
-			if ( $SA.Name -eq $storageAccountName )
+			if ( $SA.StorageAccountName -eq $storageAccountName )
 			{
 				LogMsg "Getting $storageAccountName storage account key..."
-				$storageAccountKey = (Get-AzureStorageAccountKey -ResourceGroupName $SA.ResourceGroupName -Name $SA.Name).Key1
+				$storageAccountKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $SA.ResourceGroupName -Name $SA.StorageAccountName).Value[0]
+				break
 			}
 		}
 	}
