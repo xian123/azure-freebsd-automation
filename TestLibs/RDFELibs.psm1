@@ -3665,7 +3665,7 @@ Function IsIperfServerStarted($node, $expectedServerInstances = 1)
 {
 	#RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/start-server.py.log" -downloadTo $node.LogDir -port $node.sshPort -username $node.user -password $node.password
 	LogMsg "Verifying if server is started or not.."
-	$iperfout = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshPort -command "ps -ef | grep iperf -s | grep -v grep | wc -l" -runAsSudo
+	$iperfout = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshPort -command "ps -auxw | grep iperf -s | grep -v grep | wc -l" -runAsSudo
 	$iperfout = [int]$iperfout[-1].ToString()
 	LogMsg "Total iperf server running instances : $($iperfout)"	
 	if($iperfout -ge $expectedServerInstances)
@@ -3680,7 +3680,7 @@ Function IsIperfServerStarted($node, $expectedServerInstances = 1)
 
 Function IsIperfServerRunning($node)
 {
-	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshport -command "$python_cmd check-server.py && mv Runtime.log check-server.py.log -f" -runAsSudo
+	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshport -command "$python_cmd check-server.py && mv -f Runtime.log check-server.py.log" -runAsSudo
 	RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/check-server.py.log, /home/$user/iperf-server.txt" -downloadTo $node.LogDir -port $node.sshPort -username $node.user -password $node.password
 	RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/state.txt, /home/$user/Summary.log" -downloadTo $node.logdir -port $node.sshPort -username $node.user -password $node.password
 	$serverState = Get-Content "$($node.Logdir)\state.txt"
@@ -3701,7 +3701,7 @@ Function IsIperfServerRunning($node)
 Function IsIperfClientStarted($node, [string]$beginningText, [string]$endText)
 {
 	sleep 1
-	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshPort -command "mv Runtime.log start-client.py.log -f" -runAsSudo
+	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshPort -command "mv -f Runtime.log start-client.py.log" -runAsSudo
 	RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/start-client.py.log, /home/$user/iperf-client.txt" -downloadTo $node.LogDir -port $node.sshPort -username $node.user -password $node.password
 	RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/state.txt, /home/$user/Summary.log" -downloadTo $node.Logdir -port $node.sshPort -username $node.user -password $node.password
 	$clientState = Get-Content "$($node.Logdir)\state.txt"
@@ -5400,7 +5400,7 @@ Function StartIperfServerOnRemoteVM($remoteVM, $intermediateVM, $expectedServerI
 	$DeletePreviousLogs = RunLinuxCmdOnRemoteVM -intermediateVM $intermediateVM -remoteVM $remoteVM -remoteCommand "rm -rf /root/*.txt /root/*.log" -runAsSudo
 	$CommandOutput = RunLinuxCmdOnRemoteVM -intermediateVM $intermediateVM -remoteVM $remoteVM -remoteCommand $NewremoteVMcmd -runAsSudo -RunInBackGround
 	LogMsg "Checking if server started successfully or not ..."
-	$isServerStarted = RunLinuxCmdOnRemoteVM -intermediateVM $intermediateVM -remoteVM $remoteVM -remoteCommand "ps -ef | grep iperf -s | grep -v grep | wc -l" -runAsSudo
+	$isServerStarted = RunLinuxCmdOnRemoteVM -intermediateVM $intermediateVM -remoteVM $remoteVM -remoteCommand "ps -auxw | grep iperf -s | grep -v grep | wc -l" -runAsSudo
     $outlist = $isServerStarted.Split("`n")
     $index_value_seek = $outlist.IndexOf("OutputStart") + 1
 	$isServerStarted = [int]$outlist[$index_value_seek]
