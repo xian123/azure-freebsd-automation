@@ -83,12 +83,16 @@ if($isDeployed)
 						$vm1Default = $vm1
 						$vm2Default = $vm2
 						$nslookupResult1 = DoNslookupTest -vm1 $vm1 -vm2 $vm2
-						$digResult1 = DoDigTest -vm1 $vm1 -vm2 $vm2
-                        if ($detectedDistro -eq "FreeBSD")
-                        {
-                            $digResult1 = "PASS"
-                        }
-                        
+						#Skip dig test if distro is FreeBSD
+						if ($detectedDistro -eq "FreeBSD")
+						{
+							$digResult1 = "PASS"
+						}
+						else
+						{
+							$digResult1 = DoDigTest -vm1 $vm1 -vm2 $vm2
+						}
+
 						if(($nslookupResult1 -imatch "FAIL") -or ($digResult1 -imatch "FAIL"))
 						{
 							LogMsg "Try $($counter+1). Waiting 30 seconds more.."
@@ -144,12 +148,16 @@ if($isDeployed)
 						$nslookupResult = ""
 						$digResult = ""
 						$nslookupResult2 = DoNslookupTest -vm1 $vm1 -vm2 $vm2
-						$digResult2 = DoDigTest -vm1 $vm1 -vm2 $vm2
-                        if ($detectedDistro -eq "FreeBSD")
-                        {
-                            $digResult2 = "PASS"
-                        }
-                        
+						#Skip dig test if distro is FreeBSD
+						if ($detectedDistro -eq "FreeBSD")
+						{
+							$digResult2 = "PASS"
+						}
+						else
+						{
+							$digResult2 = DoDigTest -vm1 $vm1 -vm2 $vm2
+						}
+
 						if(($nslookupResult2 -ne "PASS") -or ($digResult2 -ne "PASS"))
 						{
 							LogMsg "Try $($counter+1). Waiting 30 seconds more.."
@@ -163,14 +171,14 @@ if($isDeployed)
 					}
 					while ((($nslookupResult2 -eq "FAIL") -or ($digResult2 -eq "FAIL")) -and $counter -le 10 )
 
-						if (($nslookupResult2 -eq "PASS") -and ($digResult2 -eq "PASS"))
-						{
-							$testResult = "PASS"
-						}
-						else
-						{
-							$testResult = "FAIL"
-						}
+					if (($nslookupResult2 -eq "PASS") -and ($digResult2 -eq "PASS"))
+					{
+						$testResult = "PASS"
+					}
+					else
+					{
+						$testResult = "FAIL"
+					}
 					LogMsg "VerifyChangedHostname : $testResult"
 				}
 
@@ -184,7 +192,16 @@ if($isDeployed)
 						LogMsg "VM2 Default hostname : $($vm2.hostname)"
 						LogMsg "VM2 Default fqdn : $($vm2.fqdn)"
 						$nslookupResult3 = DoNslookupTest -vm1 $vm1 -vm2 $vm2
-						$digResult3 = DoDigTest -vm1 $vm1 -vm2 $vm2
+						#Skip dig test if distro is FreeBSD
+						if ($detectedDistro -eq "FreeBSD")
+						{
+							$digResult3 = "FAIL"
+						}
+						else
+						{
+							$digResult3 = DoDigTest -vm1 $vm1 -vm2 $vm2
+						}
+
 						if(($nslookupResult3 -imatch "PASS") -or ($digResult3 -imatch "PASS"))
 						{
 							if($nslookupResult3 -eq "PASS")
@@ -244,7 +261,16 @@ if($isDeployed)
 						LogMsg "VM2 Default hostname : $($vm2.hostname)"
 						LogMsg "VM2 Default fqdn : $($vm2.fqdn)"
 						$nslookupResult4 = DoNslookupTest -vm1 $vm1 -vm2 $vm2
-						$digResult4 = DoDigTest -vm1 $vm1 -vm2 $vm2
+						#Skip dig test if distro is FreeBSD
+						if ($detectedDistro -eq "FreeBSD")
+						{
+							$digResult4 = "PASS"
+						}
+						else
+						{
+							$digResult4 = DoDigTest -vm1 $vm1 -vm2 $vm2
+						}
+
 						if(($nslookupResult4 -imatch "FAIL") -or ($digResult4 -imatch "FAIL"))
 						{
 							LogMsg "Try $($counter+1). Waiting 30 seconds more.."
@@ -258,14 +284,14 @@ if($isDeployed)
 					}
 					while ((($nslookupResult4 -eq "FAIL") -or ($digResult4 -eq "FAIL")) -and $counter -le 10 )
 
-						if (($nslookupResult4 -eq "PASS") -or ($digResult4 -eq "PASS"))
-						{
-							$testResult = "PASS"
-						}
-						else
-						{
-							$testResult = "FAIL"
-						}
+					if (($nslookupResult4 -eq "PASS") -or ($digResult4 -eq "PASS"))
+					{
+						$testResult = "PASS"
+					}
+					else
+					{
+						$testResult = "FAIL"
+					}
 					LogMsg "ResetHostnameToDefaultAndVerify : $testResult"
 				}
 			}

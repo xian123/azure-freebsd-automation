@@ -517,7 +517,7 @@ def AnalyseClientUpdateResult():
 #________________________________________________________________________________________________________________________________________________
 
 def isProcessRunning(processName):
-        temp = 'ps -ef'
+        temp = 'ps -auxw'
         outProcess = Run(temp)
         ProcessCount = outProcess.count('iperf -c')
         if (ProcessCount > 0):

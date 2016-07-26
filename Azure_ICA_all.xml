@@ -5395,9 +5395,6 @@
 				<Name>BVT-SWAP-CHECK</Name>
 			</test>
 			<test>
-				<Name>BVT-HVMODULES-CHECK</Name>
-			</test>
-			<test>
 				<Name>BVT-MTAB-ENTRY-CHECK</Name>
 			</test>
 			<test>
