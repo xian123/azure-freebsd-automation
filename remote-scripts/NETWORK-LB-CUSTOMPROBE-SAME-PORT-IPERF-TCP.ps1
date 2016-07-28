@@ -49,7 +49,7 @@ if ($isDeployed)
 	$client = CreateIperfNode -nodeIp $dtapServerIp -nodeSshPort $dtapServerSshport -nodeTcpPort $dtapServerTcpport -nodeIperfCmd $cmd3 -user $user -password $password -files $currentTestData.files -logDir $LogDir
 	$resultArr = @()
 	$result = "", ""
-	$Value = 2
+	$Value = 10
 
 	foreach ($mode in $currentTestData.TestMode.Split(",")) 
 	{
@@ -91,17 +91,18 @@ if ($isDeployed)
 
 			StartIperfServer $server1
 			StartIperfServer $server2
-
+			sleep($wait)
+			
 			$isServer1Started = IsIperfServerStarted $server1
 			$isServer2Started = IsIperfServerStarted $server2
-			sleep($wait)
-
+			
 			if(($isServer1Started -eq $true) -and ($isServer2Started -eq $true))
 			{
 				LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) ..."
 #>>>On confirmation, of server starting, let's start iperf client...
 				$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 				StartIperfClient $client
+				sleep 1
 				$ClientStopped = GetStopWatchElapasedTime $stopWatch "ss"
 				$isClientStarted = IsIperfClientStarted $client
 				$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo TestComplete >> iperf-server.txt" -runAsSudo
@@ -160,7 +161,7 @@ if ($isDeployed)
 								LogMsg "Server1 Parallel Connection Count is $server1ConnCount"
 								LogMsg "Server2 Parallel Connection Count is $server2ConnCount"
 								$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-								If ((($diff/$Value)*100) -lt 20)
+								If ((($diff/$Value)*100) -lt 50)
 								{
 									$testResult = "PASS"
 									LogMsg "Connection Counts are distributed evenly in both Servers"

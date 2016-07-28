@@ -425,6 +425,11 @@ def StopServer():
     RunLog.info("Killing iperf server if running ..")
     temp = Run("killall iperf")
 
+def StopClient():
+    RunLog.info("Killing iperf client if running ..")
+    temp1 = Run("killall iperf")
+    temp2 = Run("ps auxw | grep -ie start-client | grep -v grep | awk '{print  $2}' | xargs kill -9")
+
 def StartServer(server):
     StopServer()
     RunLog.info("Starting iperf server..")

@@ -9,5 +9,5 @@ from azuremodules import *
 
 global op
 
-StopServer()
+StopClient()
 
