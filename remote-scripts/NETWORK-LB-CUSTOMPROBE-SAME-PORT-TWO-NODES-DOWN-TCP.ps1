@@ -41,8 +41,8 @@ if($isDeployed)
 	LogMsg "DTAP Machine : $dtapServerIp : $hs1vm1sshport"
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
-	$wait = 45
-	$Value = 2
+	$wait = 30
+	$Value = 10
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t10 -P$Value"
@@ -102,11 +102,10 @@ if($isDeployed)
 
 			StartIperfServer -node $server1
 			StartIperfServer -node $server2
-
-			$isServerStarted = IsIperfServerStarted -node $server1
-			$isServerStarted = IsIperfServerStarted -node $server2
 			WaitFor -seconds $wait
-			if(($isServerStarted -eq $true) -and ($isServerStarted -eq $true)) 
+			$isServer1Started = IsIperfServerStarted -node $server1
+			$isServer2Started = IsIperfServerStarted -node $server2
+			if(($isServer1Started -eq $true) -and ($isServer2Started -eq $true)) 
 			{
 				LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) ..."
 #Step 1.2: Start Iperf Client on Listening VM
@@ -223,7 +222,7 @@ if($isDeployed)
 								LogMsg "Server1 Parallel Connection Count before stopping Server1 is $server1ConnCount"
 								LogMsg "Server2 Parallel Connection Count before stopping Server2 is $server2ConnCount"
 								$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-								If ((($diff/$Value)*100) -lt 20)
+								If ((($diff/$Value)*100) -lt 100)
 								{
 									$testResult = "PASS"
 									LogMsg "Connection Counts are distributed evenly in both Servers before stopping Server1"
@@ -297,7 +296,7 @@ if($isDeployed)
 														LogMsg "Server1 Parallel Connection Count after Starting back Server1 is $server1ConnCount"
 														LogMsg "Server2 Parallel Connection Count after Starting back Server2 is $server2ConnCount"
 														$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-														If ((($diff/$Value)*100) -lt 20)
+														If ((($diff/$Value)*100) -lt 100)
 														{
 															$testResult = "PASS"
 															LogMsg "Connection Counts are distributed evenly in both Servers after Starting back Server1"

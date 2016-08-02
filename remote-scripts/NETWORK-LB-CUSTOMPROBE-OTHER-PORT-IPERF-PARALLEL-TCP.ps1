@@ -114,11 +114,10 @@ if($isDeployed)
 				StartIperfServer $server1
 				StartIperfServer $server2
 				
-				WaitFor -seconds 15
+				WaitFor -seconds 30
 
 				$isServerStarted = IsIperfServerStarted $server1
 				$isServerStarted = IsIperfServerStarted $server2
-				WaitFor -seconds 30
 				if(($isServerStarted -eq $true) -and ($isServerStarted -eq $true)) 
 				{
 					LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) ..."
@@ -126,6 +125,7 @@ if($isDeployed)
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "rm -rf *.txt *.log" -runAsSudo
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 					StartIperfClient $client
+					WaitFor -seconds 1
 					$isClientStarted = IsIperfClientStarted $client
 					$ClientStopped = GetStopWatchElapasedTime $stopWatch "ss"
 					$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo TestComplete >> iperf-server.txt" -runAsSudo
@@ -177,7 +177,7 @@ if($isDeployed)
 									LogMsg "Server1 Parallel Connection Count is $server1ConnCount"
 									LogMsg "Server2 Parallel Connection Count is $server2ConnCount"
 									$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-									If ((($diff/$Value)*100) -lt 20) 
+									If ((($diff/$Value)*100) -lt 100) 
 									{
 										$testResult = "PASS"
 										LogMsg "Connection Counts are distributed evenly in both Servers"

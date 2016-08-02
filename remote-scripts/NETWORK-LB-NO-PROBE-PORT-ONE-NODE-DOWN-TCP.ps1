@@ -35,11 +35,12 @@ if ($isDeployed)
 	}
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
-	$wait=45
+	$wait=30
+	$Value = 10
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t20 -P$Value"
-	$Value = 2
+
 	$server1 = CreateIperfNode -nodeIp $hs1VIP -nodeSshPort $hs1vm1sshport -nodeTcpPort $hs1vm1tcpport -nodeIperfCmd $cmd1 -user $user -password $password -files $currentTestData.files -logDir $LogDir -nodeDip $hs1vm1.IpAddress
 	$server2 = CreateIperfNode -nodeIp $hs1VIP -nodeSshPort $hs1vm2sshport -nodeTcpPort $hs1vm2tcpport -nodeIperfCmd $cmd2 -user $user -password $password -files $currentTestData.files -logDir $LogDir -nodeDip $hs1vm2.IpAddress
 	$client = CreateIperfNode -nodeIp $dtapServerIp -nodeSshPort $dtapServerSshport -nodeTcpPort $dtapServerTcpport -nodeIperfCmd $cmd3 -user $user -password $password -files $currentTestData.files -logDir $LogDir
@@ -85,17 +86,17 @@ if ($isDeployed)
 			$lapTestStarted = GetStopWatchElapasedTime $stopWatch "ss"
 			StartIperfServer $server1
 			StartIperfServer $server2
-
-			$isServer1Started = IsIperfServerStarted $server1
-			$isServer2Started = IsIperfServerStarted $server2
 			LogMsg "Waiting for $wait sec to let both servers start"
 			WaitFor -seconds $wait
+			$isServer1Started = IsIperfServerStarted $server1
+			$isServer2Started = IsIperfServerStarted $server2
 			if(($isServer1Started -eq $true) -and ($isServer2Started -eq $true)) 
 			{
 				LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) ..."
 #Step 1.2: Start Iperf Client on Listening VM
 				$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 				StartIperfClient $client
+				Sleep 1
 				$isClientStarted = IsIperfClientStarted $client
 
 				if($isClientStarted -eq $true)
@@ -180,7 +181,7 @@ if ($isDeployed)
 								LogMsg "Server1 Parallel Connection Count before stopping Server1 is $server1ConnCount"
 								LogMsg "Server2 Parallel Connection Count before stopping Server1 is $server2ConnCount"
 								$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-								If ((($diff/$Value)*100) -lt 20)
+								If ((($diff/$Value)*100) -lt 100)
 								{
 									$testResult = "PASS"
 									LogMsg "Connection Counts are distributed evenly in both Servers before stopping Server1"
@@ -237,7 +238,7 @@ if ($isDeployed)
 													LogMsg "Server1 Parallel Connection Count after Starting back Server1 is $server1ConnCount"
 													LogMsg "Server2 Parallel Connection Count after Starting back Server1 is $server2ConnCount"
 													$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-													If ((($diff/2)*100) -lt 20)
+													If ((($diff/2)*100) -lt 100)
 													{
 														$testResult = "PASS"
 														LogMsg "Connection Counts are distributed evenly in both Servers after Starting back Server1"

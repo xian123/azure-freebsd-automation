@@ -40,8 +40,8 @@ if ($isDeployed)
 	LogMsg "DTAP Machine : $dtapServerIp : $hs1vm1sshport"
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
-	$wait=45
-	$Value = 6
+	$wait=30
+	$Value = 10
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t10 -P$Value"
@@ -109,18 +109,18 @@ if ($isDeployed)
 			$server2.cmd = $cmd22
 			StartIperfServer -node $server1
 			StartIperfServer -node $server2
+			sleep($wait)
 			$isServer1Started = IsIperfServerStarted -node $server1
 			$isServer2Started = IsIperfServerStarted -node $server2 
 			Write-host $isServer1Started 
 			Write-host $isServer2Started 
-
-			sleep($wait)
 			if(($isServer1Started -eq $true) -and ($isServer2Started -eq $true))
 			{
 				LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) ..."
 #Step1.2: Start Iperf Client on Listening VM
 				$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 				StartIperfClient $client
+				sleep 1
 				$isClientStarted = IsIperfClientStarted -node $client
 				$ClientStopped_1 = GetStopWatchElapasedTime $stopWatch "ss"
 				if($isClientStarted -eq $true) 
@@ -164,6 +164,7 @@ if ($isDeployed)
 					sleep($wait)
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "echo Client Started 2 >> iperf-client.txt" -runAsSudo
 					StartIperfClient $client
+					sleep 1
 					$isClientStarted = IsIperfClientStarted $client
 					$ClientStopped_2 = GetStopWatchElapasedTime $stopWatch "ss"
 					$server1State = IsIperfServerRunning $server1
@@ -309,7 +310,7 @@ if ($isDeployed)
 																LogMsg "Server1 Parallel Connection Count after Starting back Server1 is $server1ConnCount"
 																LogMsg "Server2 Parallel Connection Count after Starting back Server1 is $server2ConnCount"
 																$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-																If ((($diff/$Value)*100) -lt 20)
+																If ((($diff/$Value)*100) -lt 100)
 																{
 																	$testResult = "PASS"
 																	LogMsg "Connection Counts are distributed evenly in both Servers after Starting back Server1"

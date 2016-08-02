@@ -48,7 +48,7 @@ if ($isDeployed)
 	$client = CreateIperfNode -nodeIp $dtapServerIp -nodeSshPort $dtapServerSshport -nodeTcpPort $dtapServerTcpport -nodeIperfCmd $cmd3 -user $user -password $password -files $currentTestData.files -logDir $LogDir
 	$resultArr = @()
 	$result = "", ""
-	$Value = 2
+	$Value = 10
 
 	foreach ($mode in $currentTestData.TestMode.Split(",")) 
 	{
@@ -88,10 +88,9 @@ if ($isDeployed)
 
 			StartIperfServer $server1
 			StartIperfServer $server2
-
+			Sleep($wait)
 			$isServer1Started = IsIperfServerStarted $server1
 			$isServer2Started = IsIperfServerStarted $server2
-			Sleep($wait)
 			if(($isServer1Started -eq $true) -and ($isServer2Started -eq $true)) 
 			{
 				LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) for probe messages..."

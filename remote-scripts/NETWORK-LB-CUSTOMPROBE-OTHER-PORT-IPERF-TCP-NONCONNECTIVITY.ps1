@@ -41,7 +41,7 @@ if ($isDeployed)
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 	
 	$testPort = $hs1vm1tcpport + 10
-	$pSize = 6
+	$pSize = 10
 	$cmd1="$python_cmd start-server.py -p $testPort && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $testPort && mv -f Runtime.log start-server.py.log"
 	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $testPort -t10 -P$pSize"
@@ -93,16 +93,16 @@ if ($isDeployed)
 			$server2.cmd = $cmd22
 			StartIperfServer $server1
 			StartIperfServer $server2
-			
+			WaitFor -seconds 30
 			$isServerStarted = IsIperfServerStarted $server1
 			$isServerStarted = IsIperfServerStarted $server2
-			WaitFor -seconds 30
 			if(($isServerStarted -eq $true) -and ($isServerStarted -eq $true))
 			{
 				LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) ..."
 #>>>On confirmation, of server starting, let's start iperf client...
 				$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 				StartIperfClient $client
+				WaitFor -seconds 1
 				$isClientStarted = IsIperfClientStarted $client
 				$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo TestComplete >> iperf-server.txt" -runAsSudo
 				$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "echo TestComplete >> iperf-server.txt" -runAsSudo

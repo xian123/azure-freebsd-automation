@@ -134,7 +134,7 @@ if ($isDeployed)
 							LogMsg "Server1 Parallel Connection Count is $server1ConnCount"
 							LogMsg "Server2 Parallel Connection Count is $server2ConnCount"
 							$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-							If ((($diff/$Value)*100) -lt 50) 
+							If ((($diff/$Value)*100) -lt 100) 
 							{
 								$testResult = "PASS"
 								LogMsg "Connection Counts are distributed evenly in both Servers"
