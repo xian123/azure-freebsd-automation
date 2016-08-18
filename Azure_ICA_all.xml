@@ -3639,7 +3639,7 @@
 			<testName>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-PARALLEL-TCP</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-PARALLEL-TCP.ps1</testScriptps1>
-			<SubtestValues>2,4</SubtestValues>
+			<SubtestValues>8,16</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>PublicEndpoint</setupType>
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
@@ -3668,7 +3668,7 @@
 			<testName>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-PARALLEL-UDP</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-PARALLEL-UDP.ps1</testScriptps1>
-			<SubtestValues>2,4</SubtestValues>
+			<SubtestValues>8,16</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>PublicEndpoint</setupType>
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
@@ -3749,7 +3749,7 @@
 			<testName>NETWORK-IE-TCP-PARALLEL-SINGLE-HS</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-IE-TCP-PARALLEL-SINGLE-HS.ps1</testScriptps1>
-			<SubtestValues>2,4</SubtestValues>
+			<SubtestValues>8,16</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>IEndpointSingleHS</setupType>
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
@@ -3764,7 +3764,7 @@
 			<testName>NETWORK-IE-UDP-PARALLEL-SINGLE-HS</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-IE-UDP-PARALLEL-SINGLE-HS.ps1</testScriptps1>
-			<SubtestValues>2,4</SubtestValues>
+			<SubtestValues>8,16</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>IEndpointSingleHS</setupType>
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
@@ -3892,7 +3892,7 @@
 			<testName>NETWORK-INPUT-ENDPOINT-IPERF-PARALLEL-TCP</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-INPUT-ENDPOINT-IPERF-PARALLEL-TCP.ps1</testScriptps1>
-			<SubtestValues>2,4</SubtestValues>
+			<SubtestValues>8,16</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>PublicEndpoint</setupType>
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
@@ -3907,7 +3907,7 @@
 			<testName>NETWORK-INPUT-ENDPOINT-IPERF-PARALLEL-UDP</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-INPUT-ENDPOINT-IPERF-PARALLEL-UDP.ps1</testScriptps1>
-			<SubtestValues>2,4</SubtestValues>
+			<SubtestValues>8,16</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>PublicEndpoint</setupType>
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
@@ -3967,7 +3967,7 @@
 			<testScript></testScript>
 			<testScriptps1>NETWORK-LB-NO-PROBE-PORT-IPERF-TCP-PARALLEL.ps1</testScriptps1>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
-			<SubtestValues>8,10</SubtestValues>
+			<SubtestValues>8,16</SubtestValues>
 			<setupType>LoadBalancedNoCP</setupType>
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
 			<TestType></TestType>
@@ -4063,7 +4063,7 @@
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPSP_002</TestID>
-			<SubtestValues>6,8</SubtestValues>
+			<SubtestValues>8,16</SubtestValues>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
 		</test>
@@ -4078,7 +4078,7 @@
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_CPSP_007</TestID>
-			<SubtestValues>6,8</SubtestValues>
+			<SubtestValues>8,16</SubtestValues>
 			<TestMode>VIP,URL</TestMode>
 			<Priority>P0</Priority>
 		</test>
@@ -5607,12 +5607,64 @@
 				<Name>NETWORK-IDNS-TWOHS-RESOLVE-BY-FQDN</Name>
 			</test>
 		</Cycle>
+		
+		<!--All network with LB tests -->
+		<Cycle>
+			<cycleName>NETWORKLB</cycleName>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-IPERF-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-IPERF-PARALLEL-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-IPERF-TCP-NONCONNECTIVITY</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-ONE-NODE-DOWN-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-TWO-NODES-DOWN-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-IPERF-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-IPERF-PARALLEL-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-IPERF-TCP-NONCONNECTIVITY</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-ONE-NODE-DOWN-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-TWO-NODES-DOWN-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-NO-PROBE-PORT-IPERF-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-NO-PROBE-PORT-IPERF-NON-CONNETIVITY</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-NO-PROBE-PORT-NO-PROBE-MESSAGES</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-NO-PROBE-PORT-IPERF-TCP-PARALLEL</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-NO-PROBE-PORT-ONE-NODE-DOWN-TCP</Name>
+			</test>
+			<test>
+				<Name>NETWORK-LB-NO-PROBE-PORT-TWO-NODE-DOWN-TCP</Name>
+			</test>
+		</Cycle>
 
 
-		<!-- All network tests -->
+		<!-- All network without LB tests -->
 		<Cycle>
 			<cycleName>NETWORK</cycleName>
-
 			<test>
 				<Name>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-TCP</Name>
 			</test>
@@ -5628,7 +5680,6 @@
 			<test>
 				<Name>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-PARALLEL-UDP</Name>
 			</test>
-
 			<test>
 				<Name>NETWORK-INPUT-ENDPOINT-IPERF-TCP</Name>
 			</test>
@@ -5656,7 +5707,6 @@
 			<test>
 				<Name>NETWORK-INPUT-ENDPOINT-IPERF-NODE-STOPPED-UDP</Name>
 			</test>
-
 			<test>
 				<Name>NETWORK-IE-TCP-SINGLE-HS</Name>
 			</test>
@@ -5686,56 +5736,6 @@
 			</test>
 			<test>
 				<Name>NETWORK-IE-PING-NON-CONN-TWO-HS</Name>
-			</test>
-
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-IPERF-TCP</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-IPERF-PARALLEL-TCP</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-IPERF-TCP-NONCONNECTIVITY</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-ONE-NODE-DOWN-TCP</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-SAME-PORT-TWO-NODES-DOWN-TCP</Name>
-			</test>
-
-			<test>
-				<Name>NETWORK-LB-NO-PROBE-PORT-IPERF-TCP</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-NO-PROBE-PORT-IPERF-NON-CONNETIVITY</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-NO-PROBE-PORT-NO-PROBE-MESSAGES</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-NO-PROBE-PORT-IPERF-TCP-PARALLEL</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-NO-PROBE-PORT-ONE-NODE-DOWN-TCP</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-NO-PROBE-PORT-TWO-NODE-DOWN-TCP</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-IPERF-TCP</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-IPERF-PARALLEL-TCP</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-IPERF-TCP-NONCONNECTIVITY</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-ONE-NODE-DOWN-TCP</Name>
-			</test>
-			<test>
-				<Name>NETWORK-LB-CUSTOMPROBE-OTHER-PORT-TWO-NODES-DOWN-TCP</Name>
 			</test>
 			<test>
 				<Name>NETWORK-IDNS-SINGLEHS-CHANGED-HOSTNAME</Name>

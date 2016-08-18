@@ -41,7 +41,7 @@ if ($isDeployed)
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
 	$wait=30
-	$Value = 10
+	$Value = 16
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd3=""
@@ -78,7 +78,7 @@ if ($isDeployed)
 			$server1.logDir = $LogDir + "\$mode" + "\Server1"
 			$server2.logDir = $LogDir + "\$mode" + "\Server2"
 			$client.logDir = $LogDir + "\$mode"
-			$client.cmd = "$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t10 -P$Value"
+			$client.cmd = "$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
 			LogMsg "Test Started for Parallel Connections $Value"
 			RemoteCopy -uploadTo $server1.ip -port $server1.sshPort -files $server1.files -username $server1.user -password $server1.password -upload
 			RemoteCopy -uploadTo $server2.Ip -port $server2.sshPort -files $server2.files -username $server2.user -password $server2.password -upload
@@ -113,9 +113,9 @@ if ($isDeployed)
 			StartIperfServer $server1
 			StartIperfServer $server2
 			sleep($wait)
-			$isServerStarted = IsIperfServerStarted $server1
-			$isServerStarted = IsIperfServerStarted $server2
-			if(($isServerStarted -eq $true) -and ($isServerStarted -eq $true))
+			$isServer1Started = IsIperfServerStarted $server1
+			$isServer2Started = IsIperfServerStarted $server2
+			if(($isServer1Started -eq $true) -and ($isServer2Started -eq $true))
 			{
 				LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) ..."
 #Step1.2: Start Iperf Client on Listening VM

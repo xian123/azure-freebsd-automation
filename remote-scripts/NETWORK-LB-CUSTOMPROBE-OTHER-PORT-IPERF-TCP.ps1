@@ -60,14 +60,15 @@ if($isDeployed)
 		try
 		{
 			$testResult = $null
+			$iperfConnections = 16
 			LogMsg "Starting test in $mode mode.."
 			if(($mode -eq "IP") -or ($mode -eq "VIP") -or ($mode -eq "DIP"))
 			{#.........................................................................Client command will decided according to TestMode....
-				$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P10" 
+				$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$iperfConnections" 
 			}
 			if(($mode -eq "URL") -or ($mode -eq "Hostname"))
 			{
-				$cmd3="$python_cmd start-client.py -c $hs1ServiceUrl -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P10"
+				$cmd3="$python_cmd start-client.py -c $hs1ServiceUrl -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$iperfConnections"
 			}
 			mkdir $LogDir\$mode\Server1 -ErrorAction SilentlyContinue | out-null
 			mkdir $LogDir\$mode\Server2 -ErrorAction SilentlyContinue | out-null
@@ -172,7 +173,7 @@ if($isDeployed)
 									LogMsg "Server1 Parallel Connection Count is $server1ConnCount"
 									LogMsg "Server2 Parallel Connection Count is $server2ConnCount"
 									$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-									If ((($diff/2)*100) -lt 100) 
+									If ((($diff/$iperfConnections)*100) -lt 100) 
 									{
 										$testResult = "PASS"
 										LogMsg "Server Verification : level4 : Connection Counts are distributed evenly in both Servers."

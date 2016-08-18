@@ -37,8 +37,6 @@ if ($isDeployed)
 	LogMsg "DTAP Machine : $dtapServerIp : $hs1vm1sshport"
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
-	$wait=30
-
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
 
@@ -47,8 +45,8 @@ if ($isDeployed)
 	$client = CreateIperfNode -nodeIp $dtapServerIp -nodeSshPort $dtapServerSshport -nodeTcpPort $dtapServerTcpport -nodeIperfCmd $cmd3 -user $user -password $password -files $currentTestData.files -logDir $LogDir
 	$resultArr = @()
 	$result = "", ""
-	$Value = 10
-
+	$Value = 16
+	
 	foreach ($mode in $currentTestData.TestMode.Split(",")) 
 	{
 		mkdir $LogDir\$mode -ErrorAction SilentlyContinue | out-null
@@ -85,13 +83,15 @@ if ($isDeployed)
 
 			StartIperfServer $server1
 			StartIperfServer $server2
-			Sleep($wait)
+			Sleep 10
 			$isServer1Started = IsIperfServerStarted $server1
 			$isServer2Started = IsIperfServerStarted $server2
 
 			if(($isServer1Started -eq $true) -and ($isServer2Started -eq $true)) 
 			{
 				LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) ..."
+				#On confirmation, wait 30 seconds for probe messages
+				sleep 30
 #>>>On confirmation, of server starting, let's start iperf client...
 				$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 				StartIperfClient $client

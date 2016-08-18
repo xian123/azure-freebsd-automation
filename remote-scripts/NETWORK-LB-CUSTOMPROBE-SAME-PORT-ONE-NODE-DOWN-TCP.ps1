@@ -40,11 +40,12 @@ if ($isDeployed)
 	LogMsg "DTAP Machine : $dtapServerIp : $hs1vm1sshport"
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
-	$wait=30
+	$wait=40
 	$Value = 10
+	$testTime = 20
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
-	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t20 -P$Value"
+	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$testTime -P$Value"
 
 	$server1 = CreateIperfNode -nodeIp $hs1VIP -nodeSshPort $hs1vm1sshport -nodeTcpPort $hs1vm1tcpport -nodeIperfCmd $cmd1 -user $user -password $password -files $currentTestData.files -logDir $LogDir -nodeDip $hs1vm1.IpAddress
 	$server2 = CreateIperfNode -nodeIp $hs1VIP -nodeSshPort $hs1vm2sshport -nodeTcpPort $hs1vm2tcpport -nodeIperfCmd $cmd2 -user $user -password $password -files $currentTestData.files -logDir $LogDir -nodeDip $hs1vm2.IpAddress
@@ -63,11 +64,11 @@ if ($isDeployed)
 			mkdir $LogDir\$mode\Server2 -ErrorAction SilentlyContinue | out-null
 			if(($mode -eq "IP") -or ($mode -eq "VIP") -or ($mode -eq "DIP"))
 			{
-				$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P2" 
+				$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value" 
 			}
 			if(($mode -eq "URL") -or ($mode -eq "Hostname"))
 			{
-				$cmd3="$python_cmd start-client.py -c $hs1ServiceUrl -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P2"
+				$cmd3="$python_cmd start-client.py -c $hs1ServiceUrl -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
 			}
 			$server1.logDir = $LogDir + "\$mode" + "\Server1"
 			$server2.logDir = $LogDir + "\$mode" + "\Server2"
@@ -103,10 +104,10 @@ if ($isDeployed)
 				$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 				StartIperfClient $client
 				$isClientStarted = IsIperfClientStarted $client
-
 				if($isClientStarted -eq $true)
 				{
 #Step 2: Stop Iperf client
+					sleep ($testTime)
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "$python_cmd stop-client.py" -runAsSudo
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "echo Client Stopped 1 >> iperf-client.txt" -runAsSudo
 
@@ -120,7 +121,7 @@ if ($isDeployed)
 					WaitFor -seconds $wait
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "echo Client Started 1 >> iperf-client.txt" -runAsSudo
 					StartIperfClient $client
-
+					sleep ($testTime)
 #Step5 :  Stop Iperf Client Again 
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "$python_cmd stop-client.py" -runAsSudo
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "echo Client Stopped 2 >> iperf-client.txt" -runAsSudo
@@ -136,6 +137,14 @@ if ($isDeployed)
 					StartIperfClient $client
 					sleep 1
 					$isClientStarted = IsIperfClientStarted $client
+					if($isClientStarted -eq $true)
+					{
+						sleep ($testTime)
+					}
+					else
+					{
+						LogErr "Failured detected in client connection."
+					}
 
 					$server1State = IsIperfServerRunning $server1
 					$server2State = IsIperfServerRunning $server2
@@ -287,7 +296,7 @@ if ($isDeployed)
 																LogMsg "Server1 Parallel Connection Count after Starting back Server1 is $server1ConnCount"
 																LogMsg "Server2 Parallel Connection Count after Starting back Server1 is $server2ConnCount"
 																$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-																If ((($diff/2)*100) -lt 20)
+																If ((($diff/$Value)*100) -lt 100)
 																{
 																	$testResult = "PASS"
 																	LogMsg "Connection Counts are distributed evenly in both Servers after Starting back Server1"

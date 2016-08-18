@@ -3145,16 +3145,16 @@ Function IperfClientServerUDPTestParallel($server,$client)
 						}
 						If ($dataLoss -lt 30) {
 							$testResult = "PASS"
-							LogMsg "DataTransfer Loss $dataLoss % is Less Than 30%"
-							$udpLoss= GetUdpLoss -logFile $serverLog -beg "Test Started" -end "TestComplete"
-							LogMsg "UDP Loss is $udpLoss"
+							LogMsg "DataTransfer Loss ${dataLoss}% is less than 30%"
+							$udpLoss= GetUdpLoss -logFile $serverLog
+							LogMsg "UDP Loss is ${udpLoss}%"
 							If ($udpLoss -gt 30) {
 								$testResult = "FAIL"
-								LogErr "UDP Loss $udpLoss is greater than 30%"
+								LogErr "UDP Loss ${udpLoss}% is greater than 30%"
 							} 
 						} else {
 							$testResult = "FAIL"
-							LogErr "DataTransfer Loss $dataLoss % is Less Than 30%"
+							LogErr "DataTransfer Loss ${dataLoss}% is greater than 30%"
 						}				
 					} else {
 						$testResult = "FAIL"
@@ -3218,12 +3218,12 @@ Function IperfClientServerUDPDatagramTest($server,$client, [switch] $VNET)
 				$testResult = "PASS"
 				$iperfclientLogPath = $client.logDir + "\iperf-client.txt"
 				$iperfserverLogPath = $server.logDir + "\iperf-server.txt"
-				$udpLoss = GetUdpLoss  -logfile $iperfclientLogPath -beg "Test Started" -end "TestComplete"
+				$udpLoss = GetUdpLoss  -logfile $iperfclientLogPath
 				$isServerConnected = AnalyseIperfServerConnectivity -logfile $iperfserverLogPath -beg "Test Started" -end "Test Complete"
 				
 				if ($udpLoss -gt  30)
 				{
-					LogErr "UDP loss is greater than 30%"
+					LogErr "UDP loss ${udpLoss}% is greater than 30%"
 					$testResult = "FAIL"
 				}
 				if (!$isServerConnected)
@@ -3902,28 +3902,38 @@ Function GetTotalUdpServerTransfer([string] $logFile,[string] $beg,[string] $end
 	return $dataTransfer
 }
 
-Function GetUdpLoss([string] $logFile, [string] $beg,[string] $end)
+Function GetUdpLoss([string] $logFile)
 {
-	$match=GetStringMatchObject -logFile $logFile -beg $beg -end $end -str "\([\d,\d.\d]*%\)$"
-	$arr = @()
-	foreach ($item in $match) {
-		$item = $item.ToString()
-		$str2=@($item.Split(" ",[StringSplitOptions]'RemoveEmptyEntries'))
-		foreach ($a in $str2) {
-			if($a.Contains("%"))
+	$lines = Get-Content $logFile
+	$pattern = "\d+\/ *\d+"
+	$Lost = 0
+	$Total = 0
+	foreach( $line in $lines )
+	{
+		Try{
+			if( $line -match $pattern )
 			{
-#$i=$str2.IndexOf($a)
-#$a=$str2[$i]
-				$a= $a.Replace("%", "")
-				$a= $a.Replace("(", "")
-				$a= $a.Replace(")", "")
-#$num=$b[0].Split("(")
-				$arr += $a
+				$str = ($matches[0]).Trim().Replace(" ", "")
+				$strArray = $str.Split("/")
+				$Lost += [int]$strArray[0]
+				$Total += [int]$strArray[1]
 			}
 		}
-		$sum = ($arr | Measure-Object -Sum).Sum
+		catch{
+			LogMsg "Warning: Ignore one record: $line"
+		}
 	}
-	return $sum
+	
+	LogMsg "The sum of lost is $Lost"
+	LogMsg "The sum of total is $Total"
+	if( $Total -eq 0 )
+	{
+		LogErr "The sum of total should not be 0"
+		return 100
+	}
+	else{
+		return [int](($Lost/$Total)*100)
+	}
 }
 
 Function GetDataTxed([string] $logFile,[string] $beg,[string] $end, [string] $ptrn) 

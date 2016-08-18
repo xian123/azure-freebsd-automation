@@ -38,8 +38,6 @@ if ($isDeployed)
 	LogMsg "DTAP Machine : $dtapServerIp : $hs1vm1sshport"
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
-	$wait=30
-
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
 
@@ -49,13 +47,14 @@ if ($isDeployed)
 	$resultArr = @()
 	$result = "", ""
 	$Value = 10
-
+	
 	foreach ($mode in $currentTestData.TestMode.Split(",")) 
 	{
 		mkdir $LogDir\$mode -ErrorAction SilentlyContinue | out-null
 
 		try
 		{
+			$wait=30
 			$testResult = $null
 			LogMsg "Starting test for $Value parallel connections in $mode mode.."
 			LogMsg "Trying to access non defined TCP port ... $hs1vm1tcpport."
@@ -88,14 +87,14 @@ if ($isDeployed)
 
 			StartIperfServer $server1
 			StartIperfServer $server2
-			Sleep($wait)
+			Sleep 10
 			$isServer1Started = IsIperfServerStarted $server1
 			$isServer2Started = IsIperfServerStarted $server2
 			if(($isServer1Started -eq $true) -and ($isServer2Started -eq $true)) 
 			{
 				LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) for probe messages..."
-#>>>On confirmation, of server starting, wait 30 seconds for probe messages
-				WaitFor -seconds 30
+#>>>On confirmation, of server starting, wait $wait seconds for probe messages
+				WaitFor -seconds $wait
 				$server1State = IsIperfServerRunning $server1
 				$server2State = IsIperfServerRunning $server2
 				if(($server1State -eq $true) -or ($server2State -eq $true)) 

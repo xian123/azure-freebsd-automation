@@ -39,7 +39,7 @@ if ($isDeployed)
 	$Value = 10
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
-	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t20 -P$Value"
+	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
 
 	$server1 = CreateIperfNode -nodeIp $hs1VIP -nodeSshPort $hs1vm1sshport -nodeTcpPort $hs1vm1tcpport -nodeIperfCmd $cmd1 -user $user -password $password -files $currentTestData.files -logDir $LogDir -nodeDip $hs1vm1.IpAddress
 	$server2 = CreateIperfNode -nodeIp $hs1VIP -nodeSshPort $hs1vm2sshport -nodeTcpPort $hs1vm2tcpport -nodeIperfCmd $cmd2 -user $user -password $password -files $currentTestData.files -logDir $LogDir -nodeDip $hs1vm2.IpAddress
@@ -57,11 +57,11 @@ if ($isDeployed)
 			mkdir $LogDir\$mode\Server2 -ErrorAction SilentlyContinue | out-null
 			if(($mode -eq "IP") -or ($mode -eq "VIP") -or ($mode -eq "DIP"))
 			{#.........................................................................Client command will decided according to TestMode....
-				$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P2" 
+				$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value" 
 			}
 			if(($mode -eq "URL") -or ($mode -eq "Hostname"))
 			{
-				$cmd3="$python_cmd start-client.py -c $hs1ServiceUrl -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P2"
+				$cmd3="$python_cmd start-client.py -c $hs1ServiceUrl -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
 			}
 			$server1.logDir = $LogDir + "\$mode" + "\Server1"
 			$server2.logDir = $LogDir + "\$mode" + "\Server2"
@@ -238,7 +238,7 @@ if ($isDeployed)
 													LogMsg "Server1 Parallel Connection Count after Starting back Server1 is $server1ConnCount"
 													LogMsg "Server2 Parallel Connection Count after Starting back Server1 is $server2ConnCount"
 													$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-													If ((($diff/2)*100) -lt 100)
+													If ((($diff/$Value)*100) -lt 100)
 													{
 														$testResult = "PASS"
 														LogMsg "Connection Counts are distributed evenly in both Servers after Starting back Server1"

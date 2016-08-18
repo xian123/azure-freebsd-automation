@@ -41,7 +41,7 @@ if($isDeployed)
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
 	$testPort = $hs1vm1tcpport + 10
-	$pSize = 10
+	$pSize = 16
 	$cmd1="$python_cmd start-server.py -p $testPort && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $testPort && mv -f Runtime.log start-server.py.log"
 

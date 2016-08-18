@@ -41,10 +41,10 @@ if ($isDeployed)
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
 	$wait=30
-	$Value = 10
+	$Value = 16
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
-	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t10 -P$Value"
+	$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
 	$cmd11="$python_cmd start-server-without-stopping.py -p $hs1vm1ProbePort -log iperf-probe.txt"
 	$cmd22="$python_cmd start-server-without-stopping.py -p $hs1vm2ProbePort -log iperf-probe.txt"
 	
@@ -68,11 +68,11 @@ if ($isDeployed)
 			mkdir $LogDir\$mode\Server2 -ErrorAction SilentlyContinue | out-null
 			if(($mode -eq "IP") -or ($mode -eq "VIP") -or ($mode -eq "DIP"))
 			{#.........................................................................Client command will decided according to TestMode....
-				$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P2" 
+				$cmd3="$python_cmd start-client.py -c $hs1VIP -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value" 
 			}
 			if(($mode -eq "URL") -or ($mode -eq "Hostname"))
 			{
-				$cmd3="$python_cmd start-client.py -c $hs1ServiceUrl -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P2"
+				$cmd3="$python_cmd start-client.py -c $hs1ServiceUrl -p $hs1vm1tcpport -t$iperfTimeoutSeconds -P$Value"
 			}
 			$server1.logDir = $LogDir + "\$mode" + "\Server1"
 			$server2.logDir = $LogDir + "\$mode" + "\Server2"
@@ -225,7 +225,7 @@ if ($isDeployed)
 								LogMsg "Server1 Parallel Connection Count before stopping Server1 is $server1ConnCount"
 								LogMsg "Server2 Parallel Connection Count before stopping Server1 is $server2ConnCount"
 								$diff = [Math]::Abs($server1ConnCount - $server2ConnCount)
-								If ((($diff/2)*100) -lt 20)
+								If ((($diff/$Value)*100) -lt 100)
 								{
 									$testResult = "PASS"
 									LogMsg "Connection Counts are distributed evenly in both Servers before stopping Server1"
@@ -265,10 +265,10 @@ if ($isDeployed)
 												LogMsg "Iperf server on Server1 is stopped in this state ,CP and LB Port are different, hence no custom Probe observed on LB port"
 												$testResult= "PASS"
 #Verify Connectivity on Server2 , server2 should be connected to all the streams from Client between Server1 stopped and Server Started on Server1
-												if ($server2ConnCount -ne 2)
+												if ($server2ConnCount -ne $Value)
 												{
 													Write-Host "Server2 Connection count : $server2ConnCount"
-													LogErr "Iperf Server on Server2 is running, and these connection streams are observed $server2ConnCount instead of 2"
+													LogErr "Iperf Server on Server2 is running, and these connection streams are observed $server2ConnCount instead of $Value"
 													$testResult= "FAIL"
 												}
 												else

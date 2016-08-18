@@ -41,7 +41,7 @@ if ($isDeployed)
 	$hs1vm1tcpport = $hs1vm1tcpport + 25
 	$hs1vm2tcpport = $hs1vm2tcpport + 25
 	$dtapServerTcpport = $dtapServerTcpport + 25
-	$wait=30
+	$wait=20
 
 	$cmd1="$python_cmd start-server.py -p $hs1vm1tcpport && mv -f Runtime.log start-server.py.log"
 	$cmd2="$python_cmd start-server.py -p $hs1vm2tcpport && mv -f Runtime.log start-server.py.log"
@@ -51,7 +51,7 @@ if ($isDeployed)
 	$client = CreateIperfNode -nodeIp $dtapServerIp -nodeSshPort $dtapServerSshport -nodeTcpPort $dtapServerTcpport -nodeIperfCmd $cmd3 -user $user -password $password -files $currentTestData.files -logDir $LogDir
 	$resultArr = @()
 	$result = "", ""
-	$Value = 10
+	$Value = 16
 
 	foreach ($mode in $currentTestData.TestMode.Split(",")) 
 	{

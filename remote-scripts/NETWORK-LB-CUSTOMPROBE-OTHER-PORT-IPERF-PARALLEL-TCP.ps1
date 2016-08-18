@@ -114,13 +114,15 @@ if($isDeployed)
 				StartIperfServer $server1
 				StartIperfServer $server2
 				
-				WaitFor -seconds 30
+				WaitFor -seconds 10
 
-				$isServerStarted = IsIperfServerStarted $server1
-				$isServerStarted = IsIperfServerStarted $server2
-				if(($isServerStarted -eq $true) -and ($isServerStarted -eq $true)) 
+				$isServer1Started = IsIperfServerStarted $server1
+				$isServer2Started = IsIperfServerStarted $server2
+				if(($isServer1Started -eq $true) -and ($isServer2Started -eq $true)) 
 				{
 					LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $($client.tcpPort) ..."
+					#On confirmation, wait 30 seconds for probe messages
+					sleep 30
 #>>>On confirmation, of server starting, let's start iperf client...
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "rm -rf *.txt *.log" -runAsSudo
 					$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
@@ -158,9 +160,9 @@ if($isDeployed)
 							$testResult = "PASS"
 							$server1Log= $server1.LogDir + "\iperf-server.txt"
 							$server2Log= $server2.LogDir + "\iperf-server.txt"
-							$isServerConnected1 = AnalyseIperfServerConnectivity $server1Log "Test Started" "TestComplete"
-							$isServerConnected2 = AnalyseIperfServerConnectivity $server2Log "Test Started" "TestComplete"
-							If (($isServerConnected1) -and ($isServerConnected2))
+							$isServer1Connected = AnalyseIperfServerConnectivity $server1Log "Test Started" "TestComplete"
+							$isServer2Connected = AnalyseIperfServerConnectivity $server2Log "Test Started" "TestComplete"
+							If (($isServer1Connected) -and ($isServer2Connected))
 							{
 								$testResult = "PASS"
 								$connectStr1="$($server1.DIP)\sport\s\d*\sconnected with $($client.ip)\sport\s\d"
