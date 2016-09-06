@@ -17,7 +17,7 @@ if ($isDeployed)
 		if ( $UseAzureResourceManager )
 		{
 			$stopVM = Stop-AzureRmVM -ResourceGroupName $AllVMData.ResourceGroupName -Name $AllVMData.RoleName -Force -StayProvisioned -Verbose
-			if ( $stopVM.Status -eq "Succeeded" )
+			if ( $stopVM.Status -eq "Succeeded"  -or  $stopVM.StatusCode -eq "OK" )
 			{
 				$isStopped = $true
 			}
