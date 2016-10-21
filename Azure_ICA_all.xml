@@ -5315,12 +5315,12 @@
 		  <TestID>AzureRHUIStress_001</TestID>
 		</test>
         <test>
-			<testName>ICA-RHUI-ALL-REGION-TEST</testName>
+		<testName>ICA-RHUI-ALL-REGION-TEST</testName>
 		    <entrytestScript>start-rhui-stress-test-in-background.py</entrytestScript>
 		    <downloadtestScript>RHUI-STRESS-DOWNLOAD.py</downloadtestScript>
 		    <testScript>ICA-RHUI-ALL-REGION-TEST.py</testScript>
 			<testScriptPs1>ICA-RHUI-ALL-REGION-TEST.ps1</testScriptPs1>
-		  <files>.\remote-scripts\azuremodules.py,.\remote-scripts\RHUI-STRESS-DOWNLOAD.py,.\remote-scripts\start-rhui-stress-test-in-background.py,.\remote-scripts\ICA-RHUI-ALL-REGION-TEST.py</files>
+		    <files>.\remote-scripts\azuremodules.py,.\remote-scripts\RHUI-STRESS-DOWNLOAD.py,.\remote-scripts\start-rhui-stress-test-in-background.py,.\remote-scripts\ICA-RHUI-ALL-REGION-TEST.py</files>
 			<setupType>BVTDeployment</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
@@ -5339,6 +5339,24 @@
  			    <pkg>gcc</pkg> 
  			    <timeout>100</timeout>			 
             </parameters> 
+			<TestID></TestID>
+		</test>
+		<test>
+			<testName>ICA-TRIM-TEST</testName>
+			<testScript>ICA-TRIM-TEST.py</testScript>
+			<testScriptPs1>ICA-TRIM-TEST.ps1</testScriptPs1>
+			<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ICA-TRIM-TEST.py</files>
+			<setupType>BVTDeployment</setupType>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<Publisher>MicrosoftOSTC</Publisher>
+			<Offer>FreeBSD</Offer>
+			<Sku>10.3</Sku>
+			<Version>latest</Version>
+			<FileSystem>ZFS</FileSystem>
+			<DataDiskSize>2</DataDiskSize>
+			<Count>50</Count>
 			<TestID></TestID>
 		</test>
 			<test>
@@ -5923,6 +5941,13 @@
 			</test>
 		</Cycle>
 
+		<Cycle>
+			<cycleName>ICA-TRIM-TEST</cycleName>
+		<!--You can add individual tests here and run them for debugging purpose. You can also add new cycles. -->
+			<test>
+				<Name>ICA-TRIM-TEST</Name>
+			</test>
+		</Cycle>
 
 		<Cycle>
 			<cycleName>DEBUG</cycleName>
