@@ -1,6 +1,6 @@
 <#-------------Create Deployment Start------------------#>
 Import-Module .\TestLibs\RDFELibs.psm1 -Force
-Set-Alias -Name java -Value (Join-Path $env:JAVA_HOME 'bin\java.exe')
+Set-Alias -Name java -Value (Join-Path 'C:\Program Files\Java\jdk1.8.0_111' 'bin\java.exe')
 
 Function GetBillableSize ($key, $name, $url)
 {
