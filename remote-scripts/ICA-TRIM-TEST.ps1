@@ -31,7 +31,7 @@ if($isDeployed)
         $disksize = $currentTestData.DataDiskSize
         $DistroName = DetectLinuxDistro -VIP $hs1VIP -SSHport $hs1vm1sshport -testVMUser $user -testVMPassword $password
         $diskName = "freebsdtrimtest" + (get-random)
-        $toolpath ="D:\Git Code\rocket\java\Azure-Storage-Test\target\azure-storage-usage-1.0-SNAPSHOT.jar"
+        $toolpath ="C:\Git Code\rocket\java\Azure-Storage-Test\target\azure-storage-usage-1.0-SNAPSHOT.jar"
 
         if($UseAzureResourceManager)
         {
