@@ -87,7 +87,7 @@ if($isDeployed)
 
         LogMsg "*************Before create file, get billable size*************"
         $beforesize =  GetBillableSize $key $name "$diskurl/$diskName.vhd"
-        LogMsg "Before create file, the size is: $beforesize[-1]"
+        LogMsg "Before create file, the size is: $($beforesize[-1])"
 
         # after initialize the disk
         if($currentTestData.FileSystem -eq "UFS")
@@ -105,7 +105,7 @@ if($isDeployed)
 
         LogMsg "*************After create file, get billable size*************"
         $aftercreatefilesize = GetBillableSize $key $name "$diskurl/$diskName.vhd"
-        LogMsg "After create file, the size is: $aftercreatefilesize[-1]"
+        LogMsg "After create file, the size is: $($aftercreatefilesize[-1])"
         
         LogMsg "*************Delete file begin*************"   
         RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf $location/test_trim" -runAsSudo 
@@ -117,7 +117,7 @@ if($isDeployed)
 
         LogMsg "*************After delete file, get billable size*************"
         $afterdeletefilesize = GetBillableSize $key $name "$diskurl/$diskName.vhd"
-        LogMsg "After delete file, the size is: $afterdeletefilesize[-1]"
+        LogMsg "After delete file, the size is: $($afterdeletefilesize[-1])"
 
         #RemoteCopy -download -downloadFrom $hs1VIP -files "/home/$user/state.txt, /home/$user/Summary.log, /home/$user/$($currentTestData.testScript).log" -downloadTo $LogDir\$hs1vm1Hostname -port $hs1vm1sshport -username $user -password $password
         
