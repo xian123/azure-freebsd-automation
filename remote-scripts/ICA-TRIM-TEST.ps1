@@ -111,9 +111,10 @@ if($isDeployed)
         RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf $location/test_trim" -runAsSudo 
         LogMsg "*************Delete file end*************" 
 
-        LogMsg "*************Sleep 5 mins begin*************" 
-        sleep 300
-        LogMsg "*************Sleep 5 mins end*************"
+
+        LogMsg "*************Sleep 10 mins begin*************" 
+        sleep 600
+        LogMsg "*************Sleep 10 mins end*************"
 
         LogMsg "*************After delete file, get billable size*************"
         $afterdeletefilesize = GetBillableSize $key $name "$diskurl/$diskName.vhd"
