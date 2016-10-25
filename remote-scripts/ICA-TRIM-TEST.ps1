@@ -83,7 +83,10 @@ if($isDeployed)
         RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "$python_cmd $($currentTestData.testScript) -f $($currentTestData.FileSystem)" -runAsSudo 
         RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "mv Runtime.log $($currentTestData.testScript).log" -runAsSudo
         LogMsg "*************Initialize data disk end*************"
-
+        
+        LogMsg "*************Sleep 2 mins begin*************" 
+        sleep 120
+        LogMsg "*************Sleep 2 mins end*************"
 
         LogMsg "*************Before create file, get billable size*************"
         $beforesize =  GetBillableSize $key $name "$diskurl/$diskName.vhd"
