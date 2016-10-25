@@ -1,6 +1,6 @@
 <#-------------Create Deployment Start------------------#>
 Import-Module .\TestLibs\RDFELibs.psm1 -Force
-Set-Alias -Name java -Value (Join-Path 'C:\Program Files\Java\jdk1.8.0_111' 'bin\java.exe')
+Set-Alias -Name java -Value (Join-Path $env:JAVA_HOME 'bin\java.exe')
 
 Function GetBillableSize ($key, $name, $url)
 {
@@ -103,6 +103,7 @@ if($isDeployed)
         RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "dd if=/dev/random of=$location/test_trim  bs=10M count=$($currentTestData.Count)" -runAsSudo -runMaxAllowedTime 3600
         LogMsg "*************Create file end*************"
 
+        
         LogMsg "*************After create file, get billable size*************"
         $aftercreatefilesize = GetBillableSize $key $name "$diskurl/$diskName.vhd"
         LogMsg "After create file, the size is: $($aftercreatefilesize[-1])"
