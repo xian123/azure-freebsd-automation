@@ -154,7 +154,8 @@ if($isDeployed)
         $afterdeletefilesize = GetBillableSize $key $name "$diskurl/$diskName.vhd"
         LogMsg "After delete file, the size is: $($afterdeletefilesize[-1])"
         
-        $compareResult = CompareSize $beforeArray $afterArray
+        LogMsg "*************Compare Size*************"
+        $compareResult = CompareSize $beforecreatefilesize[-1] $afterdeletefilesize[-1]
 
         if($compareResult -eq $true)
         {
