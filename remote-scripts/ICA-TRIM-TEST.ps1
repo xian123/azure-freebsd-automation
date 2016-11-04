@@ -169,7 +169,7 @@ if($isDeployed)
 
   if($UseAzureResourceManager)
   {
-      Remove-AzureRmVM -VMName $hs1vm1Hostname -ResourceGroupName $resourcegroupname -Force  
+        
       DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed -ResourceGroups $isDeployed
 
       LogMsg "Delete os disk $osDiskUrl"
