@@ -55,10 +55,11 @@ if($isDeployed)
             $VirtualMachine = Get-AzureRmVM -ResourceGroupName $resourcegroupname  
             $index = $VirtualMachine.StorageProfile.OsDisk.Vhd.Uri.ToString().LastIndexOf('/')
             $diskurl = $VirtualMachine.StorageProfile.OsDisk.vhd.Uri.ToString().substring(0, $index)
-            Add-AzureRmVMDataDisk -VM $VirtualMachine -Name $diskName -VhdUri "$diskurl/$diskName.vhd" -LUN 0 -Caching None -DiskSizeinGB $disksize -CreateOption Empty
-            
+            Add-AzureRmVMDataDisk -VM $VirtualMachine -Name $diskName -VhdUri "$diskurl/$diskName.vhd" -LUN 0 -Caching None -DiskSizeinGB $disksize -CreateOption Empty      
             $AttachDataDisk = Update-AzureRmVM -ResourceGroupName $resourcegroupname -VM $VirtualMachine
-        
+            $dataDiskUrl= "$diskurl/$diskName.vhd"
+            $osDiskUrl= $VirtualMachine.StorageProfile.OsDisk.vhd.Uri.ToString()
+
             if ($AttachDataDisk.IsSuccessStatusCode -eq "True"  -or  $restartVM.StatusCode -eq "OK" )
 	        {
               LogMsg "Attach data $diskName.vhd successfully"
@@ -73,8 +74,7 @@ if($isDeployed)
             $index = $testVMsinService.VM.OSVirtualHardDisk.MediaLink.ToString().LastIndexOf('/')
             $diskurl = $testVMsinService.VM.OSVirtualHardDisk.MediaLink.ToString().substring(0, $index)
             $AttachDataDisk = Get-AzureVM  -ServiceName $testServiceData.ServiceName | Add-AzureDataDisk -CreateNew -MediaLocation "$diskurl/$diskName.vhd" -DiskLabel "data0" -LUN 0 -HostCaching None -DiskSizeInGB $disksize | Update-AzureVM
-            $dataDiskUrl= "$diskurl/$diskName.vhd"
-            $osDiskUrl=$testVMsinService.VM.OSVirtualHardDisk.MediaLink.ToString()
+
             if($AttachDataDisk.OperationStatus -eq "Succeeded")
             {
               LogMsg "Attach data $diskName.vhd successfully"
