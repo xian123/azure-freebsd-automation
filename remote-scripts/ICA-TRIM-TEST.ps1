@@ -174,13 +174,13 @@ if($isDeployed)
 
       LogMsg "Delete os disk $osDiskUrl"
       $osDiskContainerName = $osDiskUrl.Split('/')[-2]
-      $osDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $osDiskUri.Split('/')[2].Split('.')[0] }
-      $osDiskStorageAcct | Remove-AzureStorageBlob -Container $osDiskContainerName -Blob $osDiskUri.Split('/')[-1] -ea Ignore -Force
+      $osDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $osDiskUrl.Split('/')[2].Split('.')[0] }
+      $osDiskStorageAcct | Remove-AzureStorageBlob -Container $osDiskContainerName -Blob $osDiskUrl.Split('/')[-1] -ea Ignore -Force
 
       LogMsg "Delete data disk $dataDiskUrl"
       $dataDiskContainerName = $dataDiskUrl.Split('/')[-2]
-      $dataDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $osDiskUri.Split('/')[2].Split('.')[0] }
-      $dataDiskStorageAcct | Remove-AzureStorageBlob -Container $dataDiskContainerName -Blob $osDiskUri.Split('/')[-1] -ea Ignore -Force
+      $dataDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $dataDiskUrl.Split('/')[2].Split('.')[0] }
+      $dataDiskStorageAcct | Remove-AzureStorageBlob -Container $dataDiskContainerName -Blob $dataDiskUrl.Split('/')[-1] -ea Ignore -Force
   }
 
 return $result
