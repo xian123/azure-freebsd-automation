@@ -2697,7 +2697,7 @@ Function GetVMLogs($allVMData)
 			LogMsg "Collecting logs from IP : $testIP PORT : $testPort"	
 			RemoteCopy -upload -uploadTo $testIP -username $user -port $testPort -password $password -files '.\remote-scripts\LIS-LogCollector.sh'
 			RunLinuxCmd -username $user -password $password -ip $testIP -port $testPort -command 'chmod +x LIS-LogCollector.sh'
-			$out = RunLinuxCmd -username $user -password $password -ip $testIP -port $testPort -command './LIS-LogCollector.sh -v' -runAsSudo
+			$out = RunLinuxCmd -username $user -password $password -ip $testIP -port $testPort -command 'sh LIS-LogCollector.sh -v' -runAsSudo
 			LogMsg $out
 			RemoteCopy -download -downloadFrom $testIP -username $user -password $password -port $testPort -downloadTo $LogDir -files $LisLogFile
 			LogMsg "Logs collected successfully from IP : $testIP PORT : $testPort"
