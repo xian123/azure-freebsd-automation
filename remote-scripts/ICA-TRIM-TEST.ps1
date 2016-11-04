@@ -31,7 +31,7 @@ if($isDeployed)
         $disksize = $currentTestData.DataDiskSize
         $DistroName = DetectLinuxDistro -VIP $hs1VIP -SSHport $hs1vm1sshport -testVMUser $user -testVMPassword $password
         $diskName = "freebsdtrimtest" + (get-random)
-        $toolpath ="C:\Git Code\rocket\java\Azure-Storage-Test\target\azure-storage-usage-1.0-SNAPSHOT.jar"
+        $toolpath = Join-Path $env:Azure_Storage_Test_Tool 'azure-storage-usage-1.0-SNAPSHOT.jar'
 
         if($UseAzureResourceManager)
         {
@@ -47,12 +47,16 @@ if($isDeployed)
         RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
         
         LogMsg "*************Attach data disk begin*************"
+        $osDiskUrl=""
+        $dataDiskUrl=""
+
         if($UseAzureResourceManager)
         {
             $VirtualMachine = Get-AzureRmVM -ResourceGroupName $resourcegroupname  
             $index = $VirtualMachine.StorageProfile.OsDisk.Vhd.Uri.ToString().LastIndexOf('/')
             $diskurl = $VirtualMachine.StorageProfile.OsDisk.vhd.Uri.ToString().substring(0, $index)
             Add-AzureRmVMDataDisk -VM $VirtualMachine -Name $diskName -VhdUri "$diskurl/$diskName.vhd" -LUN 0 -Caching None -DiskSizeinGB $disksize -CreateOption Empty
+            
             $AttachDataDisk = Update-AzureRmVM -ResourceGroupName $resourcegroupname -VM $VirtualMachine
         
             if ($AttachDataDisk.IsSuccessStatusCode -eq "True"  -or  $restartVM.StatusCode -eq "OK" )
@@ -69,7 +73,8 @@ if($isDeployed)
             $index = $testVMsinService.VM.OSVirtualHardDisk.MediaLink.ToString().LastIndexOf('/')
             $diskurl = $testVMsinService.VM.OSVirtualHardDisk.MediaLink.ToString().substring(0, $index)
             $AttachDataDisk = Get-AzureVM  -ServiceName $testServiceData.ServiceName | Add-AzureDataDisk -CreateNew -MediaLocation "$diskurl/$diskName.vhd" -DiskLabel "data0" -LUN 0 -HostCaching None -DiskSizeInGB $disksize | Update-AzureVM
-
+            $dataDiskUrl= "$diskurl/$diskName.vhd"
+            $osDiskUrl=$testVMsinService.VM.OSVirtualHardDisk.MediaLink.ToString()
             if($AttachDataDisk.OperationStatus -eq "Succeeded")
             {
               LogMsg "Attach data $diskName.vhd successfully"
@@ -147,7 +152,6 @@ if($isDeployed)
           $testResult = "Aborted"
         }
         $resultArr += $testResult
-        
       }
   }
   else
@@ -163,12 +167,20 @@ if($isDeployed)
      Remove-AzureService -ServiceName $testServiceData.ServiceName -Force
   }
 
-  
   if($UseAzureResourceManager)
   {
+      Remove-AzureRmVM -VMName $hs1vm1Hostname -ResourceGroupName $resourcegroupname -Force  
       DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed -ResourceGroups $isDeployed
-      $context = New-AzureStorageContext -StorageAccountName $name -StorageAccountKey $key
-      Remove-AzureStorageBlob -Blob "$diskName.vhd" -Container vhds -Context $context 
+
+      LogMsg "Delete os disk $osDiskUrl"
+      $osDiskContainerName = $osDiskUrl.Split('/')[-2]
+      $osDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $osDiskUri.Split('/')[2].Split('.')[0] }
+      $osDiskStorageAcct | Remove-AzureStorageBlob -Container $osDiskContainerName -Blob $osDiskUri.Split('/')[-1] -ea Ignore -Force
+
+      LogMsg "Delete data disk $dataDiskUrl"
+      $dataDiskContainerName = $dataDiskUrl.Split('/')[-2]
+      $dataDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $osDiskUri.Split('/')[2].Split('.')[0] }
+      $dataDiskStorageAcct | Remove-AzureStorageBlob -Container $dataDiskContainerName -Blob $osDiskUri.Split('/')[-1] -ea Ignore -Force
   }
 
 return $result
