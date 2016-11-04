@@ -53,7 +53,8 @@ if($isDeployed)
         $resourcegroupname = $AllVMData.ResourceGroupName
         $disksize = $currentTestData.DataDiskSize
         $DistroName = DetectLinuxDistro -VIP $hs1VIP -SSHport $hs1vm1sshport -testVMUser $user -testVMPassword $password
-        $diskName = "freebsdtrimtest" + (get-random)
+        $date = get-date  
+        $diskName = "freebsdtrimtest" + (get-random) + $date.Year.ToString() +$date.Month.ToString() +$date.Day.ToString() +$date.Hour.ToString() +$date.Minute.ToString() +$date.Millisecond.ToString()
         $toolpath = Join-Path $env:Azure_Storage_Test_Tool 'azure-storage-usage-1.0-SNAPSHOT.jar'
 
         if($UseAzureResourceManager)
