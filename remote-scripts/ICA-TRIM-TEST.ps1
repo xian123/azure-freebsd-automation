@@ -27,9 +27,9 @@ Function CompareSize($before, $after)
         "MIB" {$beforeSize= [double]$beforeArray[0]*1024;break}
         "GIB" {$beforeSize= [double]$beforeArray[0]*1024*1024;break}
     }
-    LogMsg "*************In CompareSize method differPercent is $differPercent*************"
+    
     $differPercent =  $($(($afterSize - $beforeSize)/$beforeSize)*100)
-
+    LogMsg "*************In CompareSize method differPercent is $differPercent*************"
     return $($differPercent -le 20)
 }
 
