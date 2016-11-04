@@ -1,4 +1,3 @@
-<#-------------Create Deployment Start------------------#>
 Import-Module .\TestLibs\RDFELibs.psm1 -Force
 Set-Alias -Name java -Value (Join-Path $env:JAVA_HOME 'bin\java.exe')
 
@@ -8,6 +7,30 @@ Function GetBillableSize ($key, $name, $url)
     $line = Get-Content .\azure-storage-usage.log | select -Last 1
     $value = $line.Split('')[-3] + " " + $line.Split('')[-2]
     Return "$value"
+}
+
+Function CompareSize($before, $after)
+{
+    $afterArray =  $after.split('')
+    $beforeArray = $before.split('')
+    $afterSize=0
+    $beforeSize=0
+
+    switch($afterArray[1].ToUpper())
+    {
+        "MIB" {$afterSize= [double]$afterArray[0]*1024;break}
+        "GIB" {$afterSize= [double]$afterArray[0]*1024*1024;break}
+    }
+
+    switch($beforeArray[1].ToUpper())
+    {
+        "MIB" {$beforeSize= [double]$beforeArray[0]*1024;break}
+        "GIB" {$beforeSize= [double]$beforeArray[0]*1024*1024;break}
+    }
+    LogMsg "*************In CompareSize method differPercent is $differPercent*************"
+    $differPercent =  $($(($afterSize - $beforeSize)/$beforeSize)*100)
+
+    return $($differPercent -le 20)
 }
 
 $result = ""
@@ -61,7 +84,7 @@ if($isDeployed)
             $osDiskUrl= $VirtualMachine.StorageProfile.OsDisk.vhd.Uri.ToString()
 
             if ($AttachDataDisk.IsSuccessStatusCode -eq "True"  -or  $restartVM.StatusCode -eq "OK" )
-	        {
+	          {
               LogMsg "Attach data $diskName.vhd successfully"
               LogMsg "Disk size is $disksize"
             }
@@ -94,8 +117,8 @@ if($isDeployed)
         LogMsg "*************Sleep 2 mins end*************"
 
         LogMsg "*************Before create file, get billable size*************"
-        $beforesize =  GetBillableSize $key $name "$diskurl/$diskName.vhd"
-        LogMsg "Before create file, the size is: $($beforesize[-1])"
+        $beforecreatefilesize =  GetBillableSize $key $name "$diskurl/$diskName.vhd"
+        LogMsg "Before create file, the size is: $($beforecreatefilesize[-1])"
 
         # after initialize the disk
         if($currentTestData.FileSystem -eq "UFS")
@@ -130,14 +153,18 @@ if($isDeployed)
         LogMsg "*************After delete file, get billable size*************"
         $afterdeletefilesize = GetBillableSize $key $name "$diskurl/$diskName.vhd"
         LogMsg "After delete file, the size is: $($afterdeletefilesize[-1])"
-
-        #RemoteCopy -download -downloadFrom $hs1VIP -files "/home/$user/state.txt, /home/$user/Summary.log, /home/$user/$($currentTestData.testScript).log" -downloadTo $LogDir\$hs1vm1Hostname -port $hs1vm1sshport -username $user -password $password
         
-        $testResult = "Pass"
-        #Get-Content $LogDir\$hs1vm1Hostname\Summary.log
+        $compareResult = CompareSize $beforeArray $afterArray
+
+        if($compareResult -eq $true)
+        {
+          $testResult = "Pass"
+        }
+        else 
+        {
+          $testResult = "Fail"
+        }
         $testStatus = "TestCompleted"
-        #Get-Content $LogDir\$hs1vm1Hostname\state.txt
-        #log azure-storage-usage.txt
         LogMsg "Test result : $testResult"
       }
       catch
@@ -163,24 +190,32 @@ if($isDeployed)
   $result = GetFinalResultHeader -resultarr $resultArr
   if(!$UseAzureResourceManager)
   {
-     Remove-AzureVM -Name $hs1vm1Hostname -DeleteVHD -ServiceName $testServiceData.ServiceName 
-     Remove-AzureService -ServiceName $testServiceData.ServiceName -Force
+     if($testResult -eq "Pass")
+     {
+        Remove-AzureVM -Name $hs1vm1Hostname -DeleteVHD -ServiceName $testServiceData.ServiceName 
+        Remove-AzureService -ServiceName $testServiceData.ServiceName -Force
+     }
+     else 
+     {
+        DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed -ResourceGroups $isDeployed
+     }
   }
-
+  
   if($UseAzureResourceManager)
   {
-        
       DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed -ResourceGroups $isDeployed
+      if($testResult -eq "Pass")
+      {
+        LogMsg "Delete os disk $osDiskUrl"
+        $osDiskContainerName = $osDiskUrl.Split('/')[-2]
+        $osDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $osDiskUrl.Split('/')[2].Split('.')[0] }
+        $osDiskStorageAcct | Remove-AzureStorageBlob -Container $osDiskContainerName -Blob $osDiskUrl.Split('/')[-1] -ea Ignore -Force
 
-      LogMsg "Delete os disk $osDiskUrl"
-      $osDiskContainerName = $osDiskUrl.Split('/')[-2]
-      $osDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $osDiskUrl.Split('/')[2].Split('.')[0] }
-      $osDiskStorageAcct | Remove-AzureStorageBlob -Container $osDiskContainerName -Blob $osDiskUrl.Split('/')[-1] -ea Ignore -Force
-
-      LogMsg "Delete data disk $dataDiskUrl"
-      $dataDiskContainerName = $dataDiskUrl.Split('/')[-2]
-      $dataDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $dataDiskUrl.Split('/')[2].Split('.')[0] }
-      $dataDiskStorageAcct | Remove-AzureStorageBlob -Container $dataDiskContainerName -Blob $dataDiskUrl.Split('/')[-1] -ea Ignore -Force
+        LogMsg "Delete data disk $dataDiskUrl"
+        $dataDiskContainerName = $dataDiskUrl.Split('/')[-2]
+        $dataDiskStorageAcct = Get-AzureRmStorageAccount | where { $_.StorageAccountName -eq $dataDiskUrl.Split('/')[2].Split('.')[0] }
+        $dataDiskStorageAcct | Remove-AzureStorageBlob -Container $dataDiskContainerName -Blob $dataDiskUrl.Split('/')[-1] -ea Ignore -Force
+      }
   }
 
 return $result
