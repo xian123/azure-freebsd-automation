@@ -53,6 +53,6 @@ def RunTest(command):
 
 
 if (IsFreeBSD()):
-    RunTest("swapinfo | grep /dev")
+    RunTest("ls /mnt/resource/")
 else:
     RunTest("swapon -s")

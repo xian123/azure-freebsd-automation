@@ -14,6 +14,10 @@ if ($isDeployed)
 		$hs1vm1Dip = $AllVMData.InternalIP
 
 		$OsImageSize = Get-AzureVMImage | where {$_.ImageName -eq $BaseOsImage} | % {$_.LogicalSizeInGB}
+		if ($OsImageSize -eq $null)
+		{
+			$OsImageSize = 30  #Default value
+		}
 		$OsImageSizeByte = $OsImageSize*1024*1024*1024
 
 
