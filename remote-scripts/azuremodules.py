@@ -125,11 +125,6 @@ def DetectDistro():
                 distribution = 'fedora'
                 break
 
-    if(distribution == 'unknown'):
-        if (Run("uname") == 'FreeBSD'):
-            distribution = 'freebsd'
-            version = Run("freebsd-version -u")
-
     return [distribution, version]
 
 def FileGetContents(filename):
