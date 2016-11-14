@@ -124,6 +124,12 @@ def DetectDistro():
             elif (re.match(r'.*Fedora.*',line,re.M|re.I)):
                 distribution = 'fedora'
                 break
+
+    if(distribution == 'unknown'):
+        if (Run("uname") == 'FreeBSD'):
+            distribution = 'freebsd'
+            version = Run("freebsd-version -u")
+
     return [distribution, version]
 
 def FileGetContents(filename):
