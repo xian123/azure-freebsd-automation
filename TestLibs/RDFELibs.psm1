@@ -73,7 +73,7 @@ Function DetectLinuxDistro($VIP, $SSHport, $testVMUser, $testVMPassword)
 	{
 		$tempout = RemoteCopy  -upload -uploadTo $VIP -port $SSHport -files ".\SetupScripts\DetectLinuxDistro.sh" -username $testVMUser -password $testVMPassword 2>&1 | Out-Null
 		$tempout = RunLinuxCmd -username $testVMUser -password $testVMPassword -ip $VIP -port $SSHport -command "chmod +x *.sh" -runAsSudo 2>&1 | Out-Null
-		$DistroName = RunLinuxCmd -username $testVMUser -password $testVMPassword -ip $VIP -port $SSHport -command "/home/$user/DetectLinuxDistro.sh" -runAsSudo
+		$DistroName = RunLinuxCmd -username $testVMUser -password $testVMPassword -ip $VIP -port $SSHport -command "sh /home/$user/DetectLinuxDistro.sh" -runAsSudo
 		LogMsg "Linux distro detected : $DistroName"	
 		if(($DistroName -imatch "Unknown") -or (!$DistroName))
 		{
