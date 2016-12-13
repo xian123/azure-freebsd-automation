@@ -5436,7 +5436,20 @@
             <SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
             <TestID>VRSS_001</TestID>
             <Priority>P0</Priority>
-        </test>            
+        </test> 
+        <test>
+			<testName>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ</testName>
+			<testScript>AddNewSCSIDisks.sh</testScript>
+			<testScriptps1>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ.ps1</testScriptps1>
+			<files>.\remote-scripts\AddNewSCSIDisks.sh</files>
+			<setupType>A4</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>
 			
 		</testsDefinition>
 	<testCycles>
@@ -6014,6 +6027,13 @@
 			</test>
 		</Cycle>
 
+        <Cycle>
+			<cycleName>DiskTestAgainstFreeBSD</cycleName>
+			<test>
+				<Name>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ</Name>
+			</test>
+		</Cycle>
+        
 		<Cycle>
 			<cycleName>DEBUG</cycleName>
 			<!--You can add individual tests here and run them for debugging purpose. You can also add new cycles. -->
