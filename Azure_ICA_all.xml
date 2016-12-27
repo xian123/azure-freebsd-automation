@@ -5379,7 +5379,23 @@
 				<!--Remote XML will be downloaded to automation server for analysis-->
 				<remoteXML></remoteXML>
 				<Priority>P0</Priority>
-			</test>			
+			</test>	
+
+			<test>
+				<testName>ICA-NTP-CHECK</testName>
+				<testScript>ICA-NTP-CHECK.py</testScript>
+				<testScriptPs1>ICA-NTP-CHECK.ps1</testScriptPs1>
+				<files>.\remote-scripts\azuremodules.py,.\remote-scripts\ICA-NTP-CHECK.py</files>
+				<setupType>BVTDeployment</setupType>
+				<TestType></TestType>
+				<TestFeature></TestFeature>
+				<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+				<Publisher>RedHat</Publisher>
+				<Offer>RHEL</Offer>
+				<Sku>7.2</Sku>
+				<Version>latest</Version>
+				<TestID></TestID>
+			</test>	
 			
 		</testsDefinition>
 	<testCycles>
