@@ -5964,6 +5964,13 @@
 				<Name>ICA-TRIM-TEST</Name>
 			</test>
 		</Cycle>
+		
+		<Cycle>
+			<cycleName>ICA-NTP-CHECK</cycleName>
+			<test>
+				<Name>ICA-NTP-CHECK</Name>
+			</test>
+		</Cycle>
 
 		<Cycle>
 			<cycleName>DEBUG</cycleName>
