@@ -140,7 +140,7 @@ if($isDeployed)
         }
 
         LogMsg "*************Create file begin*************"
-        RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "dd if=/dev/random of=$location/test_trim  bs=10M count=$($currentTestData.Count)" -runAsSudo -runMaxAllowedTime 3600
+        RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "dd if=/dev/random of=$location/test_trim  bs=10M count=$($currentTestData.Count)" -runAsSudo -runMaxAllowedTime 36000
         LogMsg "*************Create file end*************"
 
         LogMsg "*************Sleep 5 mins begin*************" 

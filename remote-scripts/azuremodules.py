@@ -124,6 +124,7 @@ def DetectDistro():
             elif (re.match(r'.*Fedora.*',line,re.M|re.I)):
                 distribution = 'fedora'
                 break
+
     return [distribution, version]
 
 def FileGetContents(filename):
