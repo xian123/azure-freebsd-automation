@@ -5437,19 +5437,32 @@
             <TestID>VRSS_001</TestID>
             <Priority>P0</Priority>
         </test> 
-        <test>
+		<test>
 			<testName>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ</testName>
 			<testScript>AddNewSCSIDisks.sh</testScript>
-			<testScriptps1>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ.ps1</testScriptps1>
+			<testScriptps1>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ-RANDOM.ps1</testScriptps1>
 			<files>.\remote-scripts\AddNewSCSIDisks.sh</files>
 			<setupType>A4</setupType>
-			<TestType></TestType>
+			<TestType>sequence</TestType>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID></TestID>
 			<SubtestValues></SubtestValues>
 			<Priority>P0</Priority>
-		</test>
+		</test>			
+		<test>
+			<testName>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-RANDOM</testName>
+			<testScript>AddNewSCSIDisks.sh</testScript>
+			<testScriptps1>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ-RANDOM.ps1</testScriptps1>
+			<files>.\remote-scripts\AddNewSCSIDisks.sh</files>
+			<setupType>A4</setupType>
+			<TestType>random</TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>	
 			
 		</testsDefinition>
 	<testCycles>
@@ -6031,6 +6044,9 @@
 			<cycleName>DiskTestAgainstFreeBSD</cycleName>
 			<test>
 				<Name>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ</Name>
+			</test>
+			<test>
+				<Name>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-RANDOM</Name>
 			</test>
 		</Cycle>
         

@@ -29,8 +29,28 @@ if ($isDeployed)
         $DataDiskUri=$storageAcc.PrimaryEndpoints.Blob.ToString() + "vhds/" + $vmName 
 
         #Max data disks are 16 for A4
-        $testLUNs= 0..15
-        $length = $testLUNs.Length
+		if( $currentTestData.TestType -eq "random" )
+		{
+			LogMsg "Add SCSI disks with random LUNs"
+			$length = 16
+			$testLUNs = @()
+			for( $i = 0; $i -lt $length; $i++ )
+			{
+				do 
+				{
+					$random = Get-Random
+					$lun = $random % $length
+				} while ( $lun -in $testLUNs )
+				$testLUNs += $lun
+			}
+		}
+		else
+		{
+			LogMsg "Add SCSI disks with sequential LUNs"
+			$testLUNs= 0..15
+			$length = $testLUNs.Length
+		}
+
         foreach ($newLUN in $testLUNs)
         {
             $diskSize = (($newLUN + 1)*10)
