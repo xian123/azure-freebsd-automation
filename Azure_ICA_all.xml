@@ -5404,7 +5404,7 @@
 			<Count>50</Count>
 			<TestID></TestID>
 		</test>
-		<test>
+        <test>
             <testName>ICA-PERF-ZOOKEEPER-TEST</testName>
             <testScript></testScript>
             <testScriptps1>ICA-PERF-ZOOKEEPER-TEST.ps1</testScriptps1>
@@ -5424,7 +5424,7 @@
             <!--Remote XML will be downloaded to automation server for analysis-->
             <remoteXML></remoteXML>
             <Priority>P0</Priority>
-		</test>	
+        </test>	
         <test>
             <testName>ICA-VERIFY-VRSS-TEST</testName>
             <testScript>ICA-VERIFY-VRSS-TEST.sh</testScript>
@@ -5462,7 +5462,22 @@
 			<TestID></TestID>
 			<SubtestValues></SubtestValues>
 			<Priority>P0</Priority>
-		</test>	
+		</test>
+        <test>
+            <testName>ICA-NTP-CHECK</testName>
+            <testScript>ICA-NTP-CHECK.py</testScript>
+            <testScriptPs1>ICA-NTP-CHECK.ps1</testScriptPs1>
+            <files>.\remote-scripts\azuremodules.py,.\remote-scripts\ICA-NTP-CHECK.py</files>
+            <setupType>BVTDeployment</setupType>
+            <TestType></TestType>
+            <TestFeature></TestFeature>
+            <SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+            <Publisher>RedHat</Publisher>
+            <Offer>RHEL</Offer>
+            <Sku>7.2</Sku>
+            <Version>latest</Version>
+            <TestID></TestID>
+        </test>	
 			
 		</testsDefinition>
 	<testCycles>
@@ -6031,10 +6046,9 @@
 				<Name>ICA-TRIM-TEST</Name>
 			</test>
 		</Cycle>
-        
+		
         <Cycle>
 			<cycleName>VRSS</cycleName>
-		<!--You can add individual tests here and run them for debugging purpose. You can also add new cycles. -->
 			<test>
 				<Name>ICA-VERIFY-VRSS-TEST</Name>
 			</test>
@@ -6050,6 +6064,13 @@
 			</test>
 		</Cycle>
         
+		<Cycle>
+			<cycleName>ICA-NTP-CHECK</cycleName>
+			<test>
+				<Name>ICA-NTP-CHECK</Name>
+			</test>
+		</Cycle>
+
 		<Cycle>
 			<cycleName>DEBUG</cycleName>
 			<!--You can add individual tests here and run them for debugging purpose. You can also add new cycles. -->
