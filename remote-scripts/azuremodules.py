@@ -422,9 +422,15 @@ def GetServerCommand():
 
 #_________________________________________________________________________________________________________________________________________________
 
+#Stop iperf server
 def StopServer():
     RunLog.info("Killing iperf server if running ..")
     temp = Run("killall iperf")
+
+#Stop iperf server
+def StopNetperfServer():
+    RunLog.info("Killing netserver server if running ..")
+    temp = Run("killall netserver")
 
 def StopClient():
     RunLog.info("Killing iperf client if running ..")
@@ -460,17 +466,46 @@ def StartServer(server):
         Run("echo yes > isServerStarted.txt")
         UpdateState('Aborted')
 
+
+def StartNetperfServer(server):
+    StopNetperfServer()
+    RunLog.info("Starting netserver server..")
+    temp = Run(server)
+    tmp = Run("sleep 1")
+    iperfstatus = open('iperf-server.txt', 'r')
+    output = iperfstatus.read()
+    #print output
+    RunLog.info("Checking if server is started..")
+    if ("listening" in output) :
+        str_out = str.split(output)
+        #len_out = len(str_out)
+        for each in str_out :
+            #print(each)
+            if each == "listening" :
+                if (IsFreeBSD()):
+            		iperfPID = Run("ps ax | grep netserver | grep -v grep | awk '{print $1}'")
+            	else:
+                	iperfPID = Run('pidof netperf')
+                RunLog.info("Server started successfully. PID : %s", iperfPID)
+                Run('echo "yes" > isServerStarted.txt')
+        #UpdateState('TestCompleted')
+
+    else :
+        RunLog.error('Server Failed to start..')
+        Run("echo yes > isServerStarted.txt")
+        UpdateState('Aborted')
 #_______________________________________________________________________________________________________________________________________________
 
 def AnalyseClientUpdateResult():
         iperfstatus = open('iperf-client.txt', 'r')
+        # status = open(filename, 'r')
         output = iperfstatus.read()
         #print output
         Failure = 0
         RunLog.info("Checking if client was connected to server..")
         if ("connected" in output) :
                 if ("TestInComplete" in output):
-                        RunLog.error('Client was successfully connected but, iperf process failed to exit.')
+                        RunLog.error('Client was successfully connected, but related process failed to exit.')
                         Failure = Failure + 1
                 if("failed" in output):
                         RunLog.error("Client connected with some failed connections!")
@@ -525,7 +560,7 @@ def AnalyseClientUpdateResult():
 def isProcessRunning(processName):
         temp = 'ps -auxw'
         outProcess = Run(temp)
-        ProcessCount = outProcess.count('iperf -c')
+        ProcessCount = outProcess.count(processName)
         if (ProcessCount > 0):
                 return "True"
         else:

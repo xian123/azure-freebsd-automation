@@ -423,6 +423,67 @@
 					</VirtualMachine>
 				</HostedService>
 			</NetPerf1HS2VM>
+			
+			<NetperfEndpoint>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<EndPoints>
+							<Name>TCPtest</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>12865</LocalPort>
+							<PublicPort>12865</PublicPort>
+							<LoadBalanced>False</LoadBalanced>
+						</EndPoints>
+						<EndPoints>
+							<Name>UDPtest</Name>
+							<Protocol>udp</Protocol>
+							<LocalPort>990</LocalPort>
+							<PublicPort>990</PublicPort>
+							<LoadBalanced>False</LoadBalanced>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+				<HostedService>
+					<Tag>DTAP</Tag>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Small</InstanceSize>
+						<ARMInstanceSize>Basic_A1</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<EndPoints>
+							<Name>TCPtest</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>12865</LocalPort>
+							<PublicPort>12865</PublicPort>
+							<LoadBalanced>False</LoadBalanced>
+						</EndPoints>
+						<EndPoints>
+							<Name>UDPtest</Name>
+							<Protocol>udp</Protocol>
+							<LocalPort>990</LocalPort>
+							<PublicPort>990</PublicPort>
+							<LoadBalanced>False</LoadBalanced>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>				
+			</NetperfEndpoint>
 
             <VRSS1HS2VM>
 				<isDeployed>NO</isDeployed>
@@ -3699,7 +3760,7 @@
 			<testName>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-DIFF-DATAGRAM-UDP</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-DIFF-DATAGRAM-UDP.ps1</testScriptps1>
-			<SubtestValues>100,300,500,700,900,1100,1300,1420</SubtestValues>
+			<SubtestValues>300,500,700,900,1100,1300,1420</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>PublicEndpoint</setupType>
 			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
@@ -3727,7 +3788,7 @@
 			<testName>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-MSS-TCP</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-OUTBOUND-ACCESS-IPERF-DTAP-MSS-TCP.ps1</testScriptps1>
-			<SubtestValues>100,300,500,700,900,1100,1300,1420</SubtestValues>
+			<SubtestValues>300,500,700,900,1100,1300,1420</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>PublicEndpoint</setupType>
 			<TestType></TestType>
@@ -3967,7 +4028,7 @@
 			<testName>NETWORK-INPUT-ENDPOINT-DIFF-DATAGRAM-UDP</testName>
 			<testScript></testScript>
 			<testScriptps1>NETWORK-INPUT-ENDPOINT-DIFF-DATAGRAM-UDP.ps1</testScriptps1>
-			<SubtestValues>100,300,500,700,900,1100,1300,1420</SubtestValues>
+			<SubtestValues>300,500,700,900,1100,1300,1420</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>PublicEndpoint</setupType>
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
@@ -3983,7 +4044,7 @@
 			<testScript></testScript>
 			<testScriptps1>NETWORK-IE-UDP-SINGLE-HS-DIFF-DATAGRAM.ps1</testScriptps1>
 			<TestMode>VIP,URL</TestMode>
-			<SubtestValues>100,300,500,700,900,1100,1300,1420</SubtestValues>
+			<SubtestValues>300,500,700,900,1100,1300,1420</SubtestValues>
 			<files>.\remote-scripts\start-server.py,.\remote-scripts\start-client.py,.\remote-scripts\check-server.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>IEndpointSingleHS</setupType>
 			<iperfTimeoutSeconds>10</iperfTimeoutSeconds>
@@ -5478,6 +5539,21 @@
             <Version>latest</Version>
             <TestID></TestID>
         </test>	
+		</test>
+			<test>
+			<testName>NETWORK-OUTBOUND-ACCESS-NETPERF-DTAP-DIFF-DATAGRAM-UDP</testName>
+			<testScript></testScript>
+			<testScriptps1>NETWORK-OUTBOUND-ACCESS-NETPERF-DTAP-DIFF-DATAGRAM-UDP.ps1</testScriptps1>
+			<SubtestValues>100</SubtestValues>
+			<files>.\remote-scripts\start-netperf-server.py,.\remote-scripts\start-netperf-client.py,.\remote-scripts\azuremodules.py</files>
+			<setupType>NetperfEndpoint</setupType>
+			<iperfTimeoutSeconds>20</iperfTimeoutSeconds>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureNetwork_Netper_001</TestID>
+			<Priority>P0</Priority>
+		</test>
 			
 		</testsDefinition>
 	<testCycles>
