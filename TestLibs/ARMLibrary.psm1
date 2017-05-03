@@ -222,8 +222,21 @@ if($storageAccount)
 { 
  $StorageAccountName = $storageAccount
 }
+
 LogMsg "Getting Storage Account : $StorageAccountName details ..."
-$StorageAccountType = (Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).Sku.Tier.ToString()
+do 
+{
+	try
+	{
+		$StorageAccountType = (Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).Sku.Tier.ToString()
+	}
+	catch
+	{
+		LogMsg "Getting Storage Account Type failed and try again."
+	}
+}
+while( -not $StorageAccountType)
+
 if($StorageAccountType -match 'Premium')
 {
     $StorageAccountType = "Premium_LRS"
