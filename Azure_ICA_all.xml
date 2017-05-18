@@ -5553,15 +5553,26 @@
 			<SupportedExecutionModes>AzureServiceManagement,AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_Netper_001</TestID>
 			<Priority>P0</Priority>
-		</test>
-			
+		</test>		
+		<test>
+			<testName>ICA-DEPLOYMENT-ALL-REGIONS-TEST</testName> 
+			<testScript></testScript> 
+			<testScriptps1>ICA-DEPLOYMENT-ALL-REGIONS-TEST.ps1</testScriptps1> 
+			<setupType></setupType> 
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes> 
+			<Priority>P0</Priority> 
+		 </test>			
 		</testsDefinition>
+		
 	<testCycles>
 		<!-- Setup related tests -->
 		<Cycle>
 			<cycleName>DEPLOYMENT</cycleName>
 			<test>
 				<Name>ICA-DEPLOYMENT-ALL-SIZES-LOOP-TEST</Name>
+			</test>
+			<test>
+				<Name>ICA-DEPLOYMENT-ALL-REGIONS-TEST</Name>
 			</test>
 		</Cycle>
 
