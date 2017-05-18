@@ -81,8 +81,11 @@ if ($isDeployed)
             $testResultOfAddDisks = "FAIL"
         }
         
-        $diskNumsBeforRemoveVHD = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "camcontrol devlist | wc -l" -runAsSudo
-        
+        $temp = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "camcontrol devlist | wc -l" -runAsSudo
+        $temp = $temp.Split(" ")
+        $diskNumsBeforRemoveVHD = $temp[$temp.length - 1]
+		LogMsg "The sum of disks before removing: $diskNumsBeforRemoveVHD"
+		
         #To delete the VHDs 
         $testResultOfRemoveDisks = "PASS"
         foreach ($newLUN in $testLUNs)
@@ -91,20 +94,24 @@ if ($isDeployed)
             sleep 10
             Update-AzureRmVM -ResourceGroupName $rgNameOfVM  -VM $vmdiskadd
             
-            $currentDiskNums = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "camcontrol devlist | wc -l" -runAsSudo
-            $diffNum =  $diskNumsBeforRemoveVHD - $currentDiskNums
+            $temp = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "camcontrol devlist | wc -l" -runAsSudo
+			$temp = $temp.Split(" ")
+			$currentDiskNums = $temp[$temp.length - 1]
+			LogMsg "The current disks: $currentDiskNums"
+            $diffNum = [int]( $diskNumsBeforRemoveVHD - $currentDiskNums )
             if( $diffNum -ne 1 )
             {
                 $testResultOfRemoveDisks = "FAIL"
                 LogMsg "Remove the VHDs failed @LUN is $newLUN"
-                LogMsg "diskNumsBeforRemoveVHD: $diskNumsBeforRemoveVHD   "
-                LogMsg "currentDiskNums: $currentDiskNums   "
             }
             $diskNumsBeforRemoveVHD = $diskNumsBeforRemoveVHD - 1
         
         }
 
-        $out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "camcontrol devlist | wc -l" -runAsSudo
+        $temp = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "camcontrol devlist | wc -l" -runAsSudo
+		$temp = $temp.Split(" ")
+		$out = $temp[$temp.length - 1]
+		LogMsg "The current disks: $out"
 		if( $out -eq 3  -and $testResultOfAddDisks -eq "PASS" -and  $testResultOfRemoveDisks -eq "PASS" )
         {
             $testResult = "PASS"
