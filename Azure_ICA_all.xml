@@ -5561,7 +5561,56 @@
 			<setupType></setupType> 
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes> 
 			<Priority>P0</Priority> 
-		 </test>			
+		</test>
+		<test>
+			<testName>ICA-SIO-BSD-TEST</testName>
+			<testScript>bsd_sio.sh</testScript>
+			<testScriptps1>ICA-SIO-BSD-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\sio.tgz,.\remote-scripts\bsd_sio.sh</files>
+			<blockSizes>4k,8k</blockSizes>
+			<numThreads>1,8</numThreads>
+		<!-- 	<modes>seqw,seqr,ranr,ranw,seqranrw</modes> -->
+			<modes>seqw,seqr</modes>
+			<fileSize>4G</fileSize>
+			<runTimeSec>10</runTimeSec>
+			<setupType>A4</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P1</Priority>
+		</test>	
+		<test>
+			<testName>ICA-FIO-BSD-TEST</testName>
+			<testScript>bsd_fio.sh</testScript>
+			<testScriptps1>ICA-FIO-BSD-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\bsd_fio.sh,</files>
+			<!-- ioSizes in kiloBytes only 1,2,4,8,16,32,... ,1024. Don't add "k" after integer-->
+			<ioSizes>8</ioSizes>
+			<!-- you can specifiy que depths with commaa separated integer values. 1,2,4,16......-->
+			<queueDepths>16</queueDepths>
+			<TestFileSizeinGB>8</TestFileSizeinGB>
+			<blockSizes>4k,8k</blockSizes>
+			<iodepths>64,128</iodepths>
+			<numThreads>1,8</numThreads>
+		<!-- 	<modes>write,read,randread,randwrite</modes> -->
+			<modes>write,read</modes>
+			<fileSize>4G</fileSize>
+			<runTimeSec>10</runTimeSec>
+			<!-- if ioengine is empty here, libaio will be used as default io engine-->
+			<ioengine>posixaio</ioengine>
+			<runtimeSeconds>60</runtimeSeconds>
+			<SubtestValues>Here_some_text_is_required_due_to_automation_structure</SubtestValues>
+			<setupType>A4</setupType>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P1</Priority>
+		</test>	
+		 
 		</testsDefinition>
 		
 	<testCycles>
