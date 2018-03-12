@@ -29,7 +29,7 @@ if ($isDeployed)
         $DataDiskUri=$storageAcc.PrimaryEndpoints.Blob.ToString() + "vhds/" + $vmName 
 
 		
-		$diskSize = 10
+		$diskSize = 200
 		$newLUN = 1
 		$newDiskName = "freebsdTestVHD"
 		LogMsg "Adding disk ---- LUN: $newLUN   DiskSize: $diskSize GB"
@@ -42,15 +42,23 @@ if ($isDeployed)
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
 		
 		$NumberOfDisksAttached = 1
-		LogMsg "Executing : bash $($currentTestData.testScript) $NumberOfDisksAttached"
-		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript) $NumberOfDisksAttached" -runAsSudo
-
+		# LogMsg "Executing : bash $($currentTestData.testScript) $NumberOfDisksAttached"
+		# RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript) $NumberOfDisksAttached" -runAsSudo
 		# $diskPath = "/mnt"
-		$diskPath = "/dev/da2"
-        $fileSize = currentTestData.fileSize
-        $ioengine = currentTestData.ioengine
-        $runTime = currentTestData.runtimeSeconds
 		
+		$diskPath = "/dev/da2"
+        $fileSize = $currentTestData.fileSize        
+        $runTime = $currentTestData.runtimeSeconds
+		
+		if ($currentTestData.ioengine)
+		{
+			$ioengine = $currentTestData.ioengine
+		}
+		else
+		{
+			$ioengine = "posixaio"
+		}
+
         #Actual Test Starts here..
         foreach ( $blockSize in $currentTestData.blockSizes.split(","))
         {
@@ -102,12 +110,14 @@ if ($isDeployed)
 							$resultArr += $testResult
 							$resultSummary +=  CreateResultSummary -testResult $testResult -metaData $metaData -checkValues "PASS,FAIL,ABORTED" -testName $currentTestData.testName
 						}				
-					}
+						
+					}				 
+					
 				}
             }
         }
-    }
-		
+
+	}
 	catch
 	{
 		$ErrorMessage =  $_.Exception.Message
