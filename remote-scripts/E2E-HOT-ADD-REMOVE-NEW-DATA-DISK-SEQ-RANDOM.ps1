@@ -92,18 +92,87 @@ if ($isDeployed)
 		$diskNumsBeforRemoveVHD = $diskNumsBeforRemoveVHD -replace "[^0-9]" , ''
 		LogMsg "There are $diskNumsBeforRemoveVHD disks after adding new disks"
 		
+		$statusOfAddDisksBeforeRestartVM = "PASS"
 		$diff = [int]($diskNumsBeforRemoveVHD - [int]$diskNumsBeforAddVHD )
 		if( $diff -ne [int]$maxDisks )
 		{
-			$testResultOfAddDisks = "FAIL"
+			$statusOfAddDisksBeforeRestartVM = "FAIL"
 			$testResult = "FAIL"
 			$total = [int]$diskNumsBeforAddVHD + [int]$maxDisks
 			LogMsg "Add new disk failed. It should be $total, but it's $diskNumsBeforRemoveVHD."
 		}
-        else
+		
+		$isRestarted = $false
+        if( $statusOfAddDisksBeforeRestartVM -eq "PASS")
+		{			
+			LogMsg "Trying to restart $($AllVMData.RoleName)..."
+			if ( $UseAzureResourceManager )
+			{
+				$restartVM = Restart-AzureRmVM -ResourceGroupName $AllVMData.ResourceGroupName -Name $AllVMData.RoleName -Verbose
+				if ( $restartVM.Status -eq "Succeeded"  -or  $restartVM.StatusCode -eq "OK" )
+				{
+					$isSSHOpened = isAllSSHPortsEnabledRG -AllVMDataObject $AllVMData
+					if ( $isSSHOpened -eq "True" )
+					{
+						$isRestarted = $true
+					}
+					else
+					{
+						LogErr "VM is not available after restart"
+					}
+				}
+				else
+				{
+					LogErr "Restart Failed. Operation ID : $($restartVM.OperationId)"
+				}
+			}
+			else
+			{
+				$out = RestartAllDeployments -DeployedServices $isDeployed
+				$isRestarted = $?
+			}
+			
+			if ($isRestarted)
+			{
+				LogMsg "Virtual machine restart successful."			
+			}
+			else
+			{
+				LogErr "Virtual machine restart failed."
+				$testResult = "FAIL"
+				
+			}
+		}
+		
+		
+		if($isRestarted)
 		{
-			$testResultOfAddDisks = "PASS"
-			if( $currentTestData.writeDisk -eq "yes" )
+			$diskNumsAfterRestarVM = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "camcontrol devlist | wc -l" -runAsSudo
+			sleep 1
+			$diskNumsAfterRestarVM = $diskNumsAfterRestarVM -replace "[^0-9]" , ''
+			LogMsg "There are $diskNumsAfterRestarVM disks after restarting the VM"
+			if( $diskNumsAfterRestarVM -ne $diskNumsBeforRemoveVHD )
+			{
+				$testResultOfAddDisks = "FAIL"
+				$testResult = "FAIL"
+				LogMsg "Add new disk failed. It should be $diskNumsBeforRemoveVHD, but it's $diskNumsAfterRestarVM after restarting the VM."
+			}
+			else
+			{
+				$testResultOfAddDisks = "PASS"
+			}
+		}
+		else
+		{
+			$testResultOfAddDisks = "FAIL"
+			$testResult = "FAIL"
+		}
+		
+		
+		
+		if( $testResultOfAddDisks -eq "PASS" )
+		{
+		    if( $currentTestData.writeDisk -eq "yes" )
 			{		
 				RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 				RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
@@ -121,9 +190,12 @@ if ($isDeployed)
 				{
 					LogMsg "Write disks failed"
 					$testResultOfAddDisks = "FAIL"
+					$testResult = "FAIL"
 				}			
 			}
 		}
+			
+		
 				
 		if( $testResultOfAddDisks -eq "PASS" )
 		{
