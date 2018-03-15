@@ -5505,6 +5505,7 @@
 			<files>.\remote-scripts\AddNewSCSIDisks.sh</files>
 			<setupType>A4</setupType>
 			<TestType>sequence</TestType>
+			<writeDisk>no</writeDisk>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID></TestID>
@@ -5518,6 +5519,21 @@
 			<files>.\remote-scripts\AddNewSCSIDisks.sh</files>
 			<setupType>A4</setupType>
 			<TestType>random</TestType>
+			<writeDisk>no</writeDisk>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-RANDOM-BGINWITHLUN1</testName>
+			<testScript>AddNewSCSIDisks.sh</testScript>
+			<testScriptps1>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ-RANDOM.ps1</testScriptps1>
+			<files>.\remote-scripts\AddNewSCSIDisks.sh</files>
+			<setupType>A4</setupType>
+			<TestType>randomBeginWithLun1</TestType>
+			<writeDisk>no</writeDisk>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID></TestID>
@@ -6192,6 +6208,9 @@
 			<test>
 				<Name>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-RANDOM</Name>
 			</test>
+			<test>
+				<Name>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-RANDOM-BGINWITHLUN1</Name>
+			</test>			
 		</Cycle>
         
 		<Cycle>
