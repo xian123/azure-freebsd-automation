@@ -181,6 +181,44 @@ function SendEmail([XML] $xmlConfig, $body)
 	Send-mailMessage -to $to -from $from -subject $subject -body $body -smtpserver $smtpServer -BodyAsHtml
 }
 
+
+
+####################################################
+#Get the sio test mode, such as rand read, rand write and so on
+####################################################
+Function GetSIOMode($mode)
+{
+	$result = "-1 -1"
+	switch ( $mode )
+	{
+		"seqw"
+		{
+			$result = "0 0"
+		}
+		"seqr"
+		{
+			$result = "100 0"
+		}
+		"ranr"
+		{
+			$result = "100 100"
+		}
+		"ranw"
+		{
+			$result = "0 100"
+		}
+		"seqranrw"
+		{
+			$result = "50 50"
+		}
+	}
+	
+	return $result
+
+}
+
+
+
 ####################################################
 #SystemStart ()
 # Operation : Starts the VHD provisioning Virtual Machine 

@@ -29,10 +29,10 @@ if ($isDeployed)
         $DataDiskUri=$storageAcc.PrimaryEndpoints.Blob.ToString() + "vhds/" + $vmName 
 
 		
-		$diskSize = 10
+		$diskSize = 100
 		$newLUN = 1
 		$newDiskName = "freebsdTestVHD"
-		 LogMsg "Adding disk ---- LUN: $newLUN   DiskSize: $diskSize GB"
+		LogMsg "Adding disk ---- LUN: $newLUN   DiskSize: $diskSize GB"
 		Add-AzureRmVMDataDisk -CreateOption empty -DiskSizeInGB $diskSize -Name $newDiskName -VhdUri $DataDiskUri-Data.vhd -VM $vmdiskadd -Caching ReadWrite -lun $newLUN 
         
  
@@ -55,7 +55,7 @@ if ($isDeployed)
 		LogMsg "Executing : Install sio"
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf sio.tgz -C /root" -runAsSudo
 		
-		$sioTestSize = $currentTestData.fileSize
+		$testFileSize = $currentTestData.fileSize
 		$sioRunTime = $currentTestData.runTimeSec
 		$sioFileName = "/dev/da2"
 		
@@ -73,15 +73,18 @@ if ($isDeployed)
 						{
 						  Throw "The mode doesn't support. Check the mode and try again"
 						}
-												
-						$sioOutputFile = "sio-output-${mode}-${blocksize}-${numThread}.log"
-						$command = "nohup /root/sio/sio_ntap_freebsd $testMode $blockSize $sioTestSize $sioRunTime $numThread $sioFileName -direct > $sioOutputFile "
+						
+						$blockSizeInKB=$blocksize.split("k")[0].trim()
+						$fileSizeInGB=$testFileSize.split("g")[0].trim()
+						
+						$sioOutputFile = "${blockSizeInKB}-$fileSizeInGB-${numThread}-${mode}-${sioRunTime}-freebsd.sio.log"
+						$command = "nohup /root/sio/sio_ntap_freebsd $testMode $blockSize $testFileSize $sioRunTime $numThread $sioFileName -direct > $sioOutputFile "
 						$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo
 						WaitFor -seconds 10
 						$isSioStarted  = (( RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cat $sioOutputFile" ) -imatch "Version")
 						if ( $isSioStarted )
 						{ 
-							LogMsg "SIO Test Started successfully for mode : ${mode}, blockSize : $blockSize, numThread : $numThread, FileSize : $sioTestSize and Runtime = $sioRunTime seconds.."
+							LogMsg "SIO Test Started successfully for mode : ${mode}, blockSize : $blockSize, numThread : $numThread, FileSize : $testFileSize and Runtime = $sioRunTime seconds.."
 							WaitFor -seconds 60 
 						}
 						else

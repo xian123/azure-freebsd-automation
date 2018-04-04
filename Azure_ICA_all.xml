@@ -5582,12 +5582,14 @@
 			<testScript>bsd_sio.sh</testScript>
 			<testScriptps1>ICA-SIO-BSD-TEST.ps1</testScriptps1>
 			<files>.\remote-scripts\sio.tgz,.\remote-scripts\bsd_sio.sh</files>
-			<blockSizes>4k,8k</blockSizes>
-			<numThreads>1,8</numThreads>
-		<!-- 	<modes>seqw,seqr,ranr,ranw,seqranrw</modes> -->
+			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
+			<blockSizes>4k</blockSizes>
+			<numThreads>1</numThreads>
+		    <!-- 	<modes>seqw,seqr,ranr,ranw,seqranrw</modes> -->
 			<modes>seqw,seqr</modes>
-			<fileSize>4G</fileSize>
-			<runTimeSec>10</runTimeSec>
+			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
+			<fileSize>16g</fileSize>
+			<runTimeSec>600</runTimeSec>
 			<setupType>A4</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
