@@ -48,7 +48,7 @@ if ($isDeployed)
 		
 		$diskPath = "/dev/da2"
         $fileSize = $currentTestData.fileSize        
-        $runTime = $currentTestData.runtimeSeconds
+        $runTime = $currentTestData.runTimeSec
 		
 		if ($currentTestData.ioengine)
 		{
@@ -56,7 +56,7 @@ if ($isDeployed)
 		}
 		else
 		{
-			$ioengine = "posixaio"
+			$ioengine = "libaio"
 		}
 
         #Actual Test Starts here..
@@ -70,7 +70,9 @@ if ($isDeployed)
 					{
 						try 
 						{
-							$fioOutputFile = "fio-output-${testmode}-${blocksize}-${numThread}-${iodepths}.log"
+							$blockSizeInKB=$blocksize.split("k")[0].trim()
+							$fileSizeInGB=$fileSize.split("g")[0].trim()							
+							$fioOutputFile = "$blockSizeInKB-$iodepth-${ioengine}-$fileSizeInGB-$numThread-$testMode-${runTime}-freebsd.fio.log"
 							$fioCommonOptions="--size=${fileSize} --direct=1 --ioengine=${ioengine} --filename=${diskPath} --overwrite=1 --iodepth=$iodepth --runtime=${runTime}"
 							$command="fio ${fioCommonOptions} --readwrite=$testmode --bs=$blockSize --numjobs=$numThread --name=fiotest --output=$fioOutputFile"
 							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo
