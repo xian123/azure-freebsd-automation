@@ -155,11 +155,11 @@ def IsUbuntu():
         cmd = "cat /etc/issue"
         tmp=Run(cmd)
         return ("Ubuntu" in tmp)
-		
+        
 def IsFreeBSD():
-		cmd = "uname -s"
-		tmp = Run(cmd)
-		return ("FreeBSD" in tmp)
+        cmd = "uname -s"
+        tmp = Run(cmd)
+        return ("FreeBSD" in tmp)
 
 def Run(cmd):
         proc=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -250,146 +250,146 @@ def YumPackageInstall(package):
     return False
 
 def AptgetPackageInstall(package,dbpasswd = "root"):
-	RunLog.info("Installing Package: " + package)
-	# Identify the package for Ubuntu
-	# We Haven't installed mysql-secure_installation for Ubuntu Distro
-	if (package == 'mysql-server'):
-		RunLog.info( "apt-get function package:" + package) 		
-		cmds = ("export DEBIAN_FRONTEND=noninteractive","echo mysql-server mysql-server/root_password select " + dbpasswd + " | debconf-set-selections", "echo mysql-server mysql-server/root_password_again select " + dbpasswd  + "| debconf-set-selections", "apt-get install -y  --force-yes mysql-server")
-		output = ExecMultiCmdsLocalSudo(cmds)
-	else:
-		output = Run("apt-get install -y  --force-yes "+package)
-	
-	outputlist = re.split("\n", output)	
+    RunLog.info("Installing Package: " + package)
+    # Identify the package for Ubuntu
+    # We Haven't installed mysql-secure_installation for Ubuntu Distro
+    if (package == 'mysql-server'):
+        RunLog.info( "apt-get function package:" + package)         
+        cmds = ("export DEBIAN_FRONTEND=noninteractive","echo mysql-server mysql-server/root_password select " + dbpasswd + " | debconf-set-selections", "echo mysql-server mysql-server/root_password_again select " + dbpasswd  + "| debconf-set-selections", "apt-get install -y  --force-yes mysql-server")
+        output = ExecMultiCmdsLocalSudo(cmds)
+    else:
+        output = Run("apt-get install -y  --force-yes "+package)
+    
+    outputlist = re.split("\n", output)    
  
-	unpacking = False
-	setting_up = False
+    unpacking = False
+    setting_up = False
 
-	for line in outputlist:
-		#package is already installed
-		if (re.match(re.escape(package) + r' is already the newest version', line, re.M|re.I)):
-			RunLog.info(package + ": package is already installed."+line)
-			return True
-		#package installation check 1	
-		elif (re.match(r'Unpacking.*'+ re.escape(package) + r'.*', line, re.M|re.I)):
-			unpacking = True
-		#package installation check 2
-		elif (re.match(r'Setting up '+ re.escape(package) + r" \(.*" , line, re.M|re.I)):
-			setting_up = True
-		#Package installed successfully
-		if (setting_up and unpacking):
-			RunLog.info(package+": package installed successfully.")
-			return True
-		#package is not found on the repository
-		elif (re.match(r'E: Unable to locate package '+ re.escape(package), line, re.M|re.I)):
-			break
-		#package installation failed due to server unavailability
-		elif (re.match(r'E: Unable to fetch some archives', line, re.M|re.I)):
-			break
-		
-	#Consider package installation failed if non of the above matches.
-	RunLog.info(package + ": package installation failed!\n")
-	RunLog.info("Error log: "+output)
-	return False
+    for line in outputlist:
+        #package is already installed
+        if (re.match(re.escape(package) + r' is already the newest version', line, re.M|re.I)):
+            RunLog.info(package + ": package is already installed."+line)
+            return True
+        #package installation check 1    
+        elif (re.match(r'Unpacking.*'+ re.escape(package) + r'.*', line, re.M|re.I)):
+            unpacking = True
+        #package installation check 2
+        elif (re.match(r'Setting up '+ re.escape(package) + r" \(.*" , line, re.M|re.I)):
+            setting_up = True
+        #Package installed successfully
+        if (setting_up and unpacking):
+            RunLog.info(package+": package installed successfully.")
+            return True
+        #package is not found on the repository
+        elif (re.match(r'E: Unable to locate package '+ re.escape(package), line, re.M|re.I)):
+            break
+        #package installation failed due to server unavailability
+        elif (re.match(r'E: Unable to fetch some archives', line, re.M|re.I)):
+            break
+        
+    #Consider package installation failed if non of the above matches.
+    RunLog.info(package + ": package installation failed!\n")
+    RunLog.info("Error log: "+output)
+    return False
 
 def ZypperPackageInstall(package):
-	RunLog.info( "\nzypper_package_install: " + package)
+    RunLog.info( "\nzypper_package_install: " + package)
 
-	output = Run("zypper --non-interactive in "+package)
-	outputlist = re.split("\n", output)
-		
-	for line in outputlist:
-		#Package or package dependencies installed successfully
-		if (re.match(r'.*Installing: '+r'.*done', line, re.M|re.I)):
-			RunLog.info((package+": package installed successfully.\n"+line))
-			return True
-		#package or provider of package is already installed
-		elif (re.match(r'.*\''+re.escape(package)+r'\' is already installed', line, re.M|re.I)):
-			RunLog.info((package + ": package is already installed.\n"+line))
-			return True
-		#package is not found on the repository
-		elif (re.match(r'^No provider of \''+ re.escape(package) + r'\' found', line, re.M|re.I)):
-			break
+    output = Run("zypper --non-interactive in "+package)
+    outputlist = re.split("\n", output)
+        
+    for line in outputlist:
+        #Package or package dependencies installed successfully
+        if (re.match(r'.*Installing: '+r'.*done', line, re.M|re.I)):
+            RunLog.info((package+": package installed successfully.\n"+line))
+            return True
+        #package or provider of package is already installed
+        elif (re.match(r'.*\''+re.escape(package)+r'\' is already installed', line, re.M|re.I)):
+            RunLog.info((package + ": package is already installed.\n"+line))
+            return True
+        #package is not found on the repository
+        elif (re.match(r'^No provider of \''+ re.escape(package) + r'\' found', line, re.M|re.I)):
+            break
 
-	#Consider package installation failed if non of the above matches.
-	RunLog.error((package + ": package installation failed!\n"+output))
-	return False
+    #Consider package installation failed if non of the above matches.
+    RunLog.error((package + ": package installation failed!\n"+output))
+    return False
 
 def ZypperPackageRemove(package):
-	RunLog.info( "\nzypper_package_remove: " + package)
+    RunLog.info( "\nzypper_package_remove: " + package)
 
-	output = Run("zypper --non-interactive remove "+package)
-	outputlist = re.split("\n", output)
-		
-	for line in outputlist:
-		#Package removed successfully
-		if (re.match(r'.*Removing '+re.escape(package)+r'.*done', line, re.M|re.I)):
-			RunLog.info((package+": package removed successfully.\n"+line))
-			return True
-		#package is not installed
-		elif (re.match(r'\''+re.escape(package)+r'\' is not installed', line, re.M|re.I)):
-			RunLog.info((package + ": package is not installed.\n"+line))
-			return True
-		#package is not found on the repository
-		elif (re.match(r'\''+re.escape(package)+r'\' not found in package names', line, re.M|re.I)):
-			return True
+    output = Run("zypper --non-interactive remove "+package)
+    outputlist = re.split("\n", output)
+        
+    for line in outputlist:
+        #Package removed successfully
+        if (re.match(r'.*Removing '+re.escape(package)+r'.*done', line, re.M|re.I)):
+            RunLog.info((package+": package removed successfully.\n"+line))
+            return True
+        #package is not installed
+        elif (re.match(r'\''+re.escape(package)+r'\' is not installed', line, re.M|re.I)):
+            RunLog.info((package + ": package is not installed.\n"+line))
+            return True
+        #package is not found on the repository
+        elif (re.match(r'\''+re.escape(package)+r'\' not found in package names', line, re.M|re.I)):
+            return True
 
-	#Consider package remove failed if non of the above matches.
-	RunLog.error((package + ": package remove failed!\n"+output))
-	return False
-	
+    #Consider package remove failed if non of the above matches.
+    RunLog.error((package + ": package remove failed!\n"+output))
+    return False
+    
 def InstallPackage(package):
-	RunLog.info( "\nInstall_package: "+package)
-	[current_distro, distro_version] = DetectDistro()
-	if (("ubuntu" in current_distro) or  ("Debian" in current_distro)):
-		return AptgetPackageInstall(package)
-	elif (("rhel" in current_distro) or ("Oracle" in current_distro) or ("centos" in current_distro) or ("fedora" in current_distro)):
-		return YumPackageInstall(package)
-	elif (("SUSE" in current_distro) or ("opensuse" in current_distro) or ("sles" in current_distro)):
-		return ZypperPackageInstall(package)
-	else:
-		RunLog.error((package + ": package installation failed!"))
-		RunLog.info((current_distro + ": Unrecognised Distribution OS Linux found!"))
-		return False
+    RunLog.info( "\nInstall_package: "+package)
+    [current_distro, distro_version] = DetectDistro()
+    if (("ubuntu" in current_distro) or  ("Debian" in current_distro)):
+        return AptgetPackageInstall(package)
+    elif (("rhel" in current_distro) or ("Oracle" in current_distro) or ("centos" in current_distro) or ("fedora" in current_distro)):
+        return YumPackageInstall(package)
+    elif (("SUSE" in current_distro) or ("opensuse" in current_distro) or ("sles" in current_distro)):
+        return ZypperPackageInstall(package)
+    else:
+        RunLog.error((package + ": package installation failed!"))
+        RunLog.info((current_distro + ": Unrecognised Distribution OS Linux found!"))
+        return False
 
 def InstallDeb(file_path):
-	RunLog.info( "\nInstalling package: "+file_path)
-	output = Run("dpkg -i "+file_path+" 2>&1")
-	RunLog.info(output)
-	outputlist = re.split("\n", output)
+    RunLog.info( "\nInstalling package: "+file_path)
+    output = Run("dpkg -i "+file_path+" 2>&1")
+    RunLog.info(output)
+    outputlist = re.split("\n", output)
 
-	for line in outputlist:
-		#package is already installed
-		if(re.match("installation successfully completed", line, re.M|re.I)):
-			RunLog.info(file_path + ": package installed successfully."+line)
-			return True			
-			
-	RunLog.info(file_path+": Installation failed"+output)
-	return False
+    for line in outputlist:
+        #package is already installed
+        if(re.match("installation successfully completed", line, re.M|re.I)):
+            RunLog.info(file_path + ": package installed successfully."+line)
+            return True            
+            
+    RunLog.info(file_path+": Installation failed"+output)
+    return False
 
 def InstallRpm(file_path, package_name):
-	RunLog.info( "\nInstalling package: "+file_path)
-	output = Run("rpm -ivh --nodeps "+file_path+" 2>&1")
-	RunLog.info(output)
-	outputlist = re.split("\n", output)
-	package = re.split("/", file_path )[-1]
-	matchObj = re.match( r'(.*?)\.rpm', package, re.M|re.I)
-	package = matchObj.group(1)
-	
-	for line in outputlist:
-		#package is already installed
-		if (re.match(r'.*package'+re.escape(package) + r'.*is already installed', line, re.M|re.I)):
-			RunLog.info(file_path + ": package is already installed."+line)
-			return True
-		elif(re.match(re.escape(package) + r'.*######', line, re.M|re.I)):
-			RunLog.info(package + ": package installed successfully."+line)
-			return True
-		elif(re.match(re.escape(package_name) + r'.*######', line, re.M|re.I)): 
-			RunLog.info(package + ": package installed successfully."+line) 
-			return True 
-			
-	RunLog.info(file_path+": Installation failed"+output)
-	return False
+    RunLog.info( "\nInstalling package: "+file_path)
+    output = Run("rpm -ivh --nodeps "+file_path+" 2>&1")
+    RunLog.info(output)
+    outputlist = re.split("\n", output)
+    package = re.split("/", file_path )[-1]
+    matchObj = re.match( r'(.*?)\.rpm', package, re.M|re.I)
+    package = matchObj.group(1)
+    
+    for line in outputlist:
+        #package is already installed
+        if (re.match(r'.*package'+re.escape(package) + r'.*is already installed', line, re.M|re.I)):
+            RunLog.info(file_path + ": package is already installed."+line)
+            return True
+        elif(re.match(re.escape(package) + r'.*######', line, re.M|re.I)):
+            RunLog.info(package + ": package installed successfully."+line)
+            return True
+        elif(re.match(re.escape(package_name) + r'.*######', line, re.M|re.I)): 
+            RunLog.info(package + ": package installed successfully."+line) 
+            return True 
+            
+    RunLog.info(file_path+": Installation failed"+output)
+    return False
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -437,6 +437,10 @@ def StopClient():
     temp1 = Run("killall iperf")
     temp2 = Run("ps auxw | grep -ie start-client | grep -v grep | awk '{print  $2}' | xargs kill -9")
 
+def StopKQNetperfServer():
+    RunLog.info("Killing kqnetperf server if running ..")
+    temp = Run("ps auxw | grep -ie kq_netperf | grep -v grep | awk '{print $2}' | xargs kill -9")
+    
 def StartServer(server):
     StopServer()
     RunLog.info("Starting iperf server..")
@@ -454,9 +458,9 @@ def StartServer(server):
             #print(each)
             if each == "listening" :
                 if (IsFreeBSD()):
-            		iperfPID = Run("ps ax | grep iperf | grep -v grep | awk '{print $1}'")
-            	else:
-                	iperfPID = Run('pidof iperf')
+                    iperfPID = Run("ps ax | grep iperf | grep -v grep | awk '{print $1}'")
+                else:
+                    iperfPID = Run('pidof iperf')
                 RunLog.info("Server started successfully. PID : %s", iperfPID)
                 Run('echo "yes" > isServerStarted.txt')
         #UpdateState('TestCompleted')
@@ -483,9 +487,9 @@ def StartNetperfServer(server):
             #print(each)
             if each == "listening" :
                 if (IsFreeBSD()):
-            		iperfPID = Run("ps ax | grep netserver | grep -v grep | awk '{print $1}'")
-            	else:
-                	iperfPID = Run('pidof netperf')
+                    iperfPID = Run("ps ax | grep netserver | grep -v grep | awk '{print $1}'")
+                else:
+                    iperfPID = Run('pidof netperf')
                 RunLog.info("Server started successfully. PID : %s", iperfPID)
                 Run('echo "yes" > isServerStarted.txt')
         #UpdateState('TestCompleted')
@@ -494,6 +498,28 @@ def StartNetperfServer(server):
         RunLog.error('Server Failed to start..')
         Run("echo yes > isServerStarted.txt")
         UpdateState('Aborted')
+        
+
+def StartKQNetperfServer(server):
+    StopKQNetperfServer()
+    RunLog.info("Starting kqnetperf server..")
+    temp = Run(server)
+    tmp = Run("sleep 1")
+    #print(output)
+    perfstatus = open('kqnetperf-server.txt', 'r')
+    output = perfstatus.read()
+    #print output
+    RunLog.info("Checking if kqnetperf is started..")
+    perfPID = Run(" ps auxw | grep -ie kq_netperf | grep -v grep | awk '{print $2}'")
+    if perfPID != "None" :
+        RunLog.info("KQNetperf Server started successfully. PID : %s", perfPID)
+        Run('echo "yes" > isKqnetperfServerStarted.txt')
+    else :
+        RunLog.error('KQNetperf Server Failed to start..')
+        Run("echo yes > isKqnetperfServerStarted.txt")
+        UpdateState('Aborted')
+
+        
 #_______________________________________________________________________________________________________________________________________________
 
 def AnalyseClientUpdateResult():
@@ -553,6 +579,10 @@ def AnalyseClientUpdateResult():
                         RunLog.error("Unlisted error. Check logs for more information...!")
                         ResultLog.info('FAIL')
                         UpdateState("TestCompleted")
+
+def AnalyseClientUpdateResult():
+    UpdateState("TestCompleted")
+
 
 
 #________________________________________________________________________________________________________________________________________________

@@ -2545,7 +2545,7 @@ Function DoTestCleanUp($result, $testName, $DeployedServices, $ResourceGroups, [
 						else
 						{
 							$RGdetails = Get-AzureRmResourceGroup -Name $group
-							if ( ( $RGdetails.Tags -ne $null ) -and (  $RGdetails.Tags[0].Name -eq $preserveKeyword ) -and (  $RGdetails.Tags[0].Value -eq "yes" ))
+							if ( ($RGdetails.Tags -ne $null ) -and (  $RGdetails.Tags[0].Name -eq $preserveKeyword ) -and (  $RGdetails.Tags[0].Value -eq "yes" ))
 							{
 								LogMsg "Skipping Cleanup of preserved resource group."
 								LogMsg "Collecting VM logs.."
@@ -3086,6 +3086,7 @@ Function IperfClientServerTestParallel($server,$client)
 	return $testResult
 }
 
+
 Function IperfClientServerUDPTestParallel($server,$client)
 {
 	RemoteCopy -uploadTo $server.ip -port $server.sshPort -files $server.files -username $server.user -password $server.password -upload
@@ -3181,6 +3182,109 @@ Function IperfClientServerUDPTestParallel($server,$client)
 		RemoteCopy -download -downloadFrom $client.ip -files "/home/$user/iperf-server.txt" -downloadTo $client.LogDir -port $client.sshPort -username $client.user -password $client.password
 		$testResult = "Aborted"
 	}
+	return $testResult
+}
+
+
+
+Function KQperfClientServerTest($server,$client)
+{
+	RemoteCopy -uploadTo $server.ip -port $server.sshPort -files $server.files -username $server.user -password $server.password -upload
+	RemoteCopy -uploadTo $client.Ip -port $client.sshPort -files $client.files -username $client.user -password $client.password -upload
+	$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "rm -rf *.txt *.log" -runAsSudo
+	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "rm -rf *.txt *.log" -runAsSudo
+	$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "chmod +x *" -runAsSudo
+	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "chmod +x *" -runAsSudo
+
+	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started | tee kqnetperf-server.txt" -runAsSudo
+	StartKQperfServer $server
+	$isServerStarted = IsKQperfServerStarted $server
+	if($isServerStarted -eq $true)
+	{
+		LogMsg "kqnetperf Server started successfully."
+		$tcpport = $server.tcpPort
+		$command = "sockstat -4 -l | grep -i kq_recvser |grep -v $tcpport | grep -v grep | awk '{print `$6}' | sed -e 's/.*://' | xargs"
+		$ports = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command $command -runAsSudo
+		$priority = 1010
+		foreach( $port in $ports.split(" ") )
+		{
+			$priority+=1
+			$port = $port  -replace "[^0-9]" , ''
+			LogMsg "Port of KQServer: $port"
+			
+			$groupName = $server.groupName
+			$nsg = Get-AzureRmNetworkSecurityGroup -ResourceGroupName $groupName 
+			Add-AzureRmNetworkSecurityRuleConfig -NetworkSecurityGroup $nsg `
+			-Name https-$port `
+			-Description "Allow" `
+			-Access Allow `
+			-Protocol Tcp `
+			-Direction Inbound `
+			-Priority $priority `
+			-SourceAddressPrefix * `
+			-SourcePortRange * `
+			-DestinationAddressPrefix * `
+			-DestinationPortRange $port | out-null
+
+			Set-AzureRmNetworkSecurityGroup -NetworkSecurityGroup $nsg  | out-null		
+		
+		}
+		
+#>>>On confirmation, of server starting, let's start kqnetperf client...
+		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | tee kqnetperf-client.txt" -runAsSudo
+		StartKQperfClient $client
+		$isClientStarted = IsKQperfClientStarted $client
+		$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo TestComplete | tee -a kqnetperf-server.txt" -runAsSudo
+		if($isClientStarted -eq $true)
+		{
+		    #Wait client complete
+			$timeOut = 180
+            $isClientFinished = IsKQperfClientFinished $client
+			while(  $isClientFinished -eq $false -and $timeOut -gt 0 )
+			{
+				# LogMsg "Wait the client test finished"
+				sleep 20
+				$isClientFinished = IsKQperfClientFinished $client
+				$timeOut = $timeOut - 1
+			}
+			
+			if( $isClientFinished -eq $false )
+			{
+				LogMsg "Test Finished..!"
+				$testResult = "FAIL"
+			}
+			else
+			{
+				#TODO
+				$testResult = "PASS"
+			}
+			
+		} else {
+			LogErr "Failured detected in client connection."
+			RemoteCopy -download -downloadFrom $server.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $server.LogDir -port $server.sshPort -username $server.user -password $server.password
+			LogMsg "Test Finished..!"
+			$testResult = "FAIL"
+		}
+		
+        #Delete the new ports
+		foreach( $port in $ports.split(" ") )
+		{
+			$port = $port  -replace "[^0-9]" , ''
+			LogMsg "Port of KQServer: $port"
+			
+			$groupName = $server.groupName
+		    Remove-AzureRmNetworkSecurityGroup -Name "https-$port" -ResourceGroupName $groupName   -Force  | out-null		
+		}
+		
+		
+
+	} else	{
+		LogErr "Unable to start kqnetperf-server. Aborting test."
+		RemoteCopy -download -downloadFrom $server.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $server.LogDir -port $server.sshPort -username $server.user -password $server.password
+		RemoteCopy -download -downloadFrom $client.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $client.LogDir -port $client.sshPort -username $client.user -password $client.password
+		$testResult = "Aborted"
+	}	
+		
 	return $testResult
 }
 
@@ -3653,6 +3757,7 @@ Function CreateIperfNode
 			[string] $nodeDip,
 			[string] $nodeHostname,
 			[string] $nodeUrl,
+			[string] $groupName,
 			[string] $logDir)
 
 	$objNode = New-Object -TypeName PSObject
@@ -3669,6 +3774,7 @@ Function CreateIperfNode
 	Add-Member -InputObject $objNode -MemberType NoteProperty -Name Hostname -Value $nodeHostname -Force
 	Add-Member -InputObject $objNode -MemberType NoteProperty -Name URL -Value $nodeUrl -Force
 	Add-Member -InputObject $objNode -MemberType NoteProperty -Name udpPort -Value $nodeUdpPort -Force
+	Add-Member -InputObject $objNode -MemberType NoteProperty -Name groupName -Value $groupName -Force
 	return $objNode
 }
 
@@ -3727,28 +3833,42 @@ Function CreatePingNode
 	return $objNode
 }
 
+
 Function StartIperfServer($node)
 {	
 	$currentDir = $PWD.Path
-	LogMsg "Starting iperf Server on $($node.ip)"
+	LogMsg "Starting Server on $($node.ip)"
 	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshport -command $node.cmd -runAsSudo -RunInBackGround
 	sleep 1
 }
 
+Function StartKQperfServer($node)
+{	
+    StartIperfServer $node
+}
+
 Function StartIperfClient($node)
 {
-	LogMsg "Starting iperf Client on $($node.ip)"
+	LogMsg "Starting Client on $($node.ip)"
 	$out = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshport -command $node.cmd -runAsSudo
 	sleep 3
 }
 
+Function StartKQperfClient($node)
+{	
+    StartIperfClient $node
+}
+
+
+
+
 Function IsIperfServerStarted($node, $expectedServerInstances = 1, $textToFind="iperf -s")
 {
 	#RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/start-server.py.log" -downloadTo $node.LogDir -port $node.sshPort -username $node.user -password $node.password
-	LogMsg "Verifying if server is started or not.."
+	LogMsg "Verifying if $textToFind is started or not.."
 	$iperfout = RunLinuxCmd -username $node.user -password $node.password -ip $node.ip -port $node.sshPort -command "ps -auxw | grep $textToFind | grep -v grep | wc -l" -runAsSudo
 	$iperfout = [int]$iperfout[-1].ToString()
-	LogMsg "Total iperf/netperf server running instances : $($iperfout)"	
+	LogMsg "Total $textToFind running instances : $($iperfout)"	
 	if($iperfout -ge $expectedServerInstances)
 	{
 		return $true
@@ -3758,6 +3878,41 @@ Function IsIperfServerStarted($node, $expectedServerInstances = 1, $textToFind="
 		return $false
 	}
 }
+
+Function IsKQperfServerStarted($node)
+{	
+    return IsIperfServerStarted $node 1 "kq_netperf/kq_recvserv"
+}
+
+
+Function CheckKQperfClientStatus($node, [string]$textBeSearched)
+{	
+    RemoteCopy -download -downloadFrom $node.ip -files "/home/$user/kqnetperf-client.txt" -downloadTo $node.LogDir -port $node.sshPort -username $node.user -password $node.password
+	$connectStingCount = GetStringMatchCount -logFile "$($node.LogDir)\kqnetperf-client.txt"  -str $textBeSearched
+	if ($connectStingCount -gt 0)
+	{
+		$retVal = $true
+	}
+	else
+	{
+	    $retVal = $false
+	}
+	
+	return $retVal	
+}
+
+
+Function IsKQperfClientStarted($node)
+{	
+	return CheckKQperfClientStatus $node "sending test"	
+}
+
+Function IsKQperfClientFinished($node)
+{	
+	return CheckKQperfClientStatus $node "TestComplete"	
+}
+
+
 
 Function IsIperfServerRunning($node)
 {
