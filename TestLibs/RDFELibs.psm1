@@ -3187,7 +3187,7 @@ Function IperfClientServerUDPTestParallel($server,$client)
 
 
 
-Function KQperfClientServerTest($server,$client)
+Function KQperfClientServerTest($server,$client,$timeOutInSecs)
 {
 	RemoteCopy -uploadTo $server.ip -port $server.sshPort -files $server.files -username $server.user -password $server.password -upload
 	RemoteCopy -uploadTo $client.Ip -port $client.sshPort -files $client.files -username $client.user -password $client.password -upload
@@ -3238,14 +3238,14 @@ Function KQperfClientServerTest($server,$client)
 		if($isClientStarted -eq $true)
 		{
 		    #Wait client complete
-			$timeOut = 180
+			$timeOut = 180 + $timeOutInSecs
             $isClientFinished = IsKQperfClientFinished $client
 			while(  $isClientFinished -eq $false -and $timeOut -gt 0 )
 			{
 				# LogMsg "Wait the client test finished"
-				sleep 20
+				sleep 10
 				$isClientFinished = IsKQperfClientFinished $client
-				$timeOut = $timeOut - 1
+				$timeOut = $timeOut - 10
 			}
 			
 			if( $isClientFinished -eq $false )
@@ -3904,12 +3904,12 @@ Function CheckKQperfClientStatus($node, [string]$textBeSearched)
 
 Function IsKQperfClientStarted($node)
 {	
-	return CheckKQperfClientStatus $node "sending test"	
+	return CheckKQperfClientStatus $node "TestStarted"	
 }
 
 Function IsKQperfClientFinished($node)
 {	
-	return CheckKQperfClientStatus $node "TestComplete"	
+	return CheckKQperfClientStatus $node "Total:"	
 }
 
 

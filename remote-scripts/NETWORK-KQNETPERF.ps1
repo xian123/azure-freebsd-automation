@@ -32,6 +32,8 @@ if($isDeployed)
 	$server = CreateIperfNode -nodeIp $dtapServerIp -nodeSshPort $dtapServerSshport -nodeTcpPort $dtapServerTcpport -nodeIperfCmd $cmd1 -user $user -password $password -files $currentTestData.files -logDir $LogDir -groupName $serverGroupName
 	$client = CreateIperfNode -nodeIp $hs1VIP -nodeSshPort $hs1vm1sshport -nodeTcpPort $hs1vm1tcpport -nodeIperfCmd $cmd2 -user $user -password $password -files $currentTestData.files -logDir $LogDir -groupName $clientGroupName
 
+	RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "date >  summary.record;uname -a >>  summary.record" -runAsSudo
+	
 	RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 	RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
 	
@@ -66,7 +68,7 @@ if($isDeployed)
 				$server.logDir = $LogDir + "\$connection"
 				$client.logDir = $LogDir + "\$connection"
 				$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "rm -rf kqnetperf-server.txt" -runAsSudo
-				$testResult = KQperfClientServerTest $server $client
+				$testResult = KQperfClientServerTest $server $client  $runTimeSec
 				
 				#Rename the client log
 				Copy-Item "$($client.LogDir)\kqnetperf-client.txt"   "$($client.LogDir)\$connection-$thread-$runTimeSec-freebsd.kq.log"	
@@ -89,6 +91,12 @@ if($isDeployed)
 			}
 		}
 
+	}
+	
+	if( $testResult -eq "PASS" )
+	{
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "mv summary.record  summary.log " -runAsSudo
+		RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "summary.log" -downloadTo $LogDir -download
 	}
 }
 else

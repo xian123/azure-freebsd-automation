@@ -45,6 +45,7 @@ if ($isDeployed)
 		LogMsg "Executing : bash $($currentTestData.testScript) $NumberOfDisksAttached"
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript) $NumberOfDisksAttached" -runAsSudo
 
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "date >  summary.log;uname -a >>  summary.log" -runAsSudo
 		
 		# LogMsg "Executing : Install gcc"
 		# RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "echo "y" | pkg install gcc" -runAsSudo
@@ -79,7 +80,8 @@ if ($isDeployed)
 						
 						$sioOutputFile = "${blockSizeInKB}-$fileSizeInGB-${numThread}-${mode}-${sioRunTime}-freebsd.sio.log"
 						$command = "nohup /root/sio/sio_ntap_freebsd $testMode $blockSize $testFileSize $sioRunTime $numThread $sioFileName -direct > $sioOutputFile "
-						$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo
+						$runMaxAllowedTime = [int]$sioRunTime + 180
+						$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo -runMaxAllowedTime  $runMaxAllowedTime
 						WaitFor -seconds 10
 						$isSioStarted  = (( RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cat $sioOutputFile" ) -imatch "Version")
 						if ( $isSioStarted )
@@ -100,10 +102,7 @@ if ($isDeployed)
 						}
 						LogMsg "Great! SIO test is finished now."
 						RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "$sioOutputFile" -downloadTo $LogDir -download
-						# Rename-Item -Path "$LogDir\SioConsoleOutput.log" -NewName "SIOLOG-${iosize}k-$queDepth.log" -Force | Out-Null
-						# LogMsg "Sio Logs saved at :  $LogDir\SIOLOG-${iosize}k-$queDepth.log"
-						# LogMsg "Removing all log files from test VM."
-						# $out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf *.log" -runAsSudo
+
 						$testResult = "PASS"
 					}
 					catch
@@ -124,6 +123,10 @@ if ($isDeployed)
             }
         }
 		
+		if( $testResult -eq "PASS" )
+		{
+			RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "summary.log" -downloadTo $LogDir -download
+		}
 	}
 	catch
 	{

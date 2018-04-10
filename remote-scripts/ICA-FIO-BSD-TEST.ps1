@@ -41,6 +41,8 @@ if ($isDeployed)
 		RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
 		
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "date >  summary.log;uname -a >>  summary.log" -runAsSudo
+		
 		$NumberOfDisksAttached = 1
 		# LogMsg "Executing : bash $($currentTestData.testScript) $NumberOfDisksAttached"
 		# RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript) $NumberOfDisksAttached" -runAsSudo
@@ -75,7 +77,8 @@ if ($isDeployed)
 							$fioOutputFile = "$blockSizeInKB-$iodepth-${ioengine}-$fileSizeInGB-$numThread-$testMode-${runTime}-freebsd.fio.log"
 							$fioCommonOptions="--size=${fileSize} --direct=1 --ioengine=${ioengine} --filename=${diskPath} --overwrite=1 --iodepth=$iodepth --runtime=${runTime}"
 							$command="fio ${fioCommonOptions} --readwrite=$testmode --bs=$blockSize --numjobs=$numThread --name=fiotest --output=$fioOutputFile"
-							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo
+							$runMaxAllowedTime = [int]$runTime + 180
+							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo -runMaxAllowedTime  $runMaxAllowedTime
 							WaitFor -seconds 10
 							$isFioStarted  = (( RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cat $fioOutputFile" ) -imatch "Starting")
 							if ( $isFioStarted )
@@ -118,6 +121,11 @@ if ($isDeployed)
 				}
             }
         }
+		
+		if( $testResult -eq "PASS" )
+		{
+			RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "summary.log" -downloadTo $LogDir -download
+		}
 
 	}
 	catch
@@ -147,5 +155,5 @@ $result = GetFinalResultHeader -resultarr $resultArr
 #Clean up the setup
 DoTestCleanUp -result $result -testName $currentTestData.testName -deployedServices $isDeployed -ResourceGroups $isDeployed
 
-#Return the result and summery to the test suite script..
+#Return the result to the test suite script..
 return $result

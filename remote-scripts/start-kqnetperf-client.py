@@ -23,7 +23,7 @@ if args.nthreads != None :
     command = command + ' -t' + str(args.nthreads)
 if args.time != None:
     command = command + ' -l' + str(args.time)
-finalCommand = 'nohup ' + command + '  >  kqnetperf-client.txt  2>&1 &'
+finalCommand = 'nohup ' + command + '  >>  kqnetperf-client.txt  2>&1 &'
 
 
 
@@ -53,7 +53,7 @@ def RunTest(client):
         #Run('echo "ProcessRunning" >> kqnetperf-client.txt')
 
 client = finalCommand
-#Run('echo "TestStarted" > kqnetperf-client.txt')
-RunTest(client)
-Run('echo "TestComplete" >> kqnetperf-client.txt')
+Run('echo "TestStarted" > kqnetperf-client.txt')
+Run(client)
+# Run('echo "TestComplete" >> kqnetperf-client.txt')
 # AnalyseKQnetperfClientUpdateResult()
