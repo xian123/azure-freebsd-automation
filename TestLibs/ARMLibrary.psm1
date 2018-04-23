@@ -1402,6 +1402,8 @@ Function DeployResourceGroups ($xmlConfig, $setupType, $Distro, $getLogsIfFailed
         catch
         {
             LogMsg "Exception detected. Source : DeployVMs()"
+            $ErrorMessage =  $_.Exception.Message
+            Write-Host "EXCEPTION : $ErrorMessage"   
             $retValue = $NULL
         }
     }
