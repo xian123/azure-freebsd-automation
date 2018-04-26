@@ -40,6 +40,14 @@
 			<!--<Location>"Preferred_Location"</Location>-->
 			<AffinityGroup>Your_Affinity_Group</AffinityGroup>
 		</General>
+		<database>
+			<server></server>
+			<user></user>
+			<password></password>
+			<dbname></dbname>
+			<dbtable></dbtable>
+			<testTag></testTag>
+		</database>
 		<CSUpload>
 			<!-- Note : Please fill the subscription Id , Thumbprint and Service management link accordingly.Following details are for Production Cluster-->
 			<Subscription>"SubscriptionID=Your_Azure_Subscription_ID;CertificateThumbprint=Certificate_Associated_with_your_Azure_Subscription;ServiceManagementEndpoint=https://management.core.windows.net"</Subscription>
@@ -5649,7 +5657,7 @@
 			<testName>ICA-FIO-BSD-TEST</testName>
 			<testScript>bsd_fio.sh</testScript>
 			<testScriptps1>ICA-FIO-BSD-TEST.ps1</testScriptps1>
-			<files>.\remote-scripts\bsd_fio.sh</files>
+			<files>.\remote-scripts\report.tgz,.\remote-scripts\bsd_fio.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<!-- The maximum value is 128k -->
 			<blockSizes>4k,128k</blockSizes>
