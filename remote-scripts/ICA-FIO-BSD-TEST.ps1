@@ -129,12 +129,13 @@ if ($isDeployed)
 									$dataTableName = $env:databaseDbtable
 								}
 
-								$TestCaseName = "fio"
+								
 								if ($dataSource -And $user -And $password -And $database -And $dataTableName) 
 								{
 								
 								    $connectionString = "Server=$dataSource;uid=$user; pwd=$password;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 
+									$TestCaseName = "fio"
 									$avg_iops = 0
 									$max_iops = 0
 									$TestMode = ""
@@ -301,7 +302,7 @@ if ($isDeployed)
 									}
 									else 
 									{
-										LogErr "Uploading the test results cancelled due to zero output for some results!"
+										LogErr "Uploading the test results cancelled due to wrong database configuration."
 										$testResult = "FAIL"
 									}
 								

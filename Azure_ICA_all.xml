@@ -5636,7 +5636,7 @@
 			<testName>ICA-SIO-BSD-TEST</testName>
 			<testScript>bsd_sio.sh</testScript>
 			<testScriptps1>ICA-SIO-BSD-TEST.ps1</testScriptps1>
-			<files>.\remote-scripts\sio.tgz,.\remote-scripts\bsd_sio.sh</files>
+			<files>.\remote-scripts\report.tgz,.\remote-scripts\sio.tgz,.\remote-scripts\bsd_sio.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<blockSizes>4k</blockSizes>
 			<numThreads>1</numThreads>

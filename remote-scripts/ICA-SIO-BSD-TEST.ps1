@@ -100,10 +100,175 @@ if ($isDeployed)
 							$isSioFinished = (( RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cat $sioOutputFile" ) -imatch "Threads")
 							WaitFor -seconds 20
 						}
-						LogMsg "Great! SIO test is finished now."
-						RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "$sioOutputFile" -downloadTo $LogDir -download
+						
+						
+						if( $isSioFinished )
+						{
+							LogMsg "Great! SIO test is finished now."
+							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "mkdir /usr/sio" -runAsSudo
+							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp $sioOutputFile  /usr/sio" -runAsSudo
+							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp summary.log /usr" -runAsSudo
+				
+							RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
+							RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "python /usr/report/sioTestEntry.py" -runAsSudo
+							
+							RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "result.log" -downloadTo $LogDir -download
+							RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "$sioOutputFile" -downloadTo $LogDir -download
+							
+							LogMsg "Uploading the test results.."
+							if( $xmlConfig.config.Azure.database.server )
+							{
+								$dataSource = $xmlConfig.config.Azure.database.server
+								$user = $xmlConfig.config.Azure.database.user
+								$password = $xmlConfig.config.Azure.database.password
+								$database = $xmlConfig.config.Azure.database.dbname
+								$dataTableName = $xmlConfig.config.Azure.database.dbtable
+							}
+							else
+							{
+								$dataSource = $env:databaseServer
+								$user = $env:databaseUser
+								$password = $env:databasePassword
+								$database = $env:databaseDbname
+								$dataTableName = $env:databaseDbtable
+							}
+							
+							if ($dataSource -And $user -And $password -And $database -And $dataTableName) 
+							{
+								$connectionString = "Server=$dataSource;uid=$user; pwd=$password;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+								$KernelVersion = ""
+								$InstanceSize = ""
+								$bandwidth_KBps = 0
+								$BlockSize_KB = 0
+								$IOs = 0
+								$DataPath = "No Need"
+								$HostType = "MS Azure"
+								$TestFileName = "TODO"
+								$FileSize_KB = 0
+								$IOPS = 0
+								$TestMode = ""
+								$GuestOS = "FreeBSD"
+								$NumThread = 0
+								$RuntimeSec = 0
+								$TestCaseName = "sio"
+								
+								$LogContents = Get-Content -Path "$LogDir\result.log"
+								foreach ($line in $LogContents)
+								{
+									if ( $line -imatch "KernelVersion:" )
+									{
+										$KernelVersion = $line.Split(":")[1].trim()
+									}
+									
+									if ( $line -imatch "InstanceSize:" )
+									{
+										$InstanceSize = $line.Split(":")[1].trim()
+									}
+									
+									if ( $line -imatch "bandwidth_KBps:" )
+									{
+										$bandwidth_KBps = [int]($line.Split(":")[1].trim())
+									}	
+									
+									if ( $line -imatch "BlockSize_KB:" )
+									{
+										$BlockSize_KB = [int]($line.Split(":")[1].trim())
+									}
+									
+									if ( $line -imatch "IOs:" )
+									{
+										$IOs = [int]($line.Split(":")[1].trim())
+									}
+									
+									if ( $line -imatch "FileSize_KB:" )
+									{
+										$FileSize_KB = [int]($line.Split(":")[1].trim())
+									}
+									
+									if ( $line -cmatch "IOPS:" )
+									{
+										"This line is: $line"
+										$IOPS = [float]($line.Split(":")[1].trim())
+									}
+									
+									if ( $line -imatch "TestMode:" )
+									{
+										$TestMode = $line.Split(":")[1].trim()
+									}
+									
+									if ( $line -imatch "NumThread:" )
+									{
+										$NumThread = [int]($line.Split(":")[1].trim())
+									}
+									
+									if ( $line -imatch "RuntimeSec:" )
+									{
+										$RuntimeSec = [int]($line.Split(":")[1].trim())
+									}
+								}
 
-						$testResult = "PASS"
+								
+								$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,DataPath,TestDate,HostType,InstanceSize,GuestOS,"
+								$SQLQuery += "KernelVersion,BlockSize_KB,FileSize_KB,NumThread,TestMode,"
+								$SQLQuery += "iops,bandwidth_KBps,RuntimeSec,IOs,TestFileName) VALUES "
+									
+								$SQLQuery += "('$TestCaseName','$DataPath','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
+								$SQLQuery += "'$KernelVersion','$BlockSize_KB','$FileSize_KB','$NumThread',"
+								$SQLQuery += "'$TestMode','$iops','$bandwidth_KBps','$RuntimeSec','$IOs','$TestFileName')"
+			
+								LogMsg "SQLQuery:"
+								LogMsg  $SQLQuery
+								LogMsg  "ItemName                      Value"
+								LogMsg  "TestMode                      $TestMode"
+								LogMsg  "RuntimeSec                    $RuntimeSec"
+								LogMsg  "bandwidth_KBps                $bandwidth_KBps"
+								LogMsg  "BlockSize_KB                  $BlockSize_KB"
+								LogMsg  "FileSize_KB                   $FileSize_KB"
+								LogMsg  "IOPS                          $IOPS"
+								LogMsg  "NumThread                     $NumThread"
+								LogMsg  "KernelVersion                 $KernelVersion"
+								LogMsg  "InstanceSize                  $InstanceSize"
+								LogMsg  "TestDate                      $TestDate"
+								
+								$uploadResults = $true
+								#Check the result valid before uploading. TODO 
+								
+								if ($uploadResults)
+								{
+									$connection = New-Object System.Data.SqlClient.SqlConnection
+									$connection.ConnectionString = $connectionString
+									$connection.Open()
+
+									$command = $connection.CreateCommand()
+									$command.CommandText = $SQLQuery
+									$result = $command.executenonquery()
+									$connection.Close()
+									LogMsg "Uploading the test results done!!"
+								}
+								else 
+								{
+									LogErr "Uploading the test results cancelled due to zero/invalid output for some results!"
+									$testResult = "FAIL"
+								}
+								
+								
+								$testResult = "PASS"
+							}
+							else
+							{
+								LogErr "Uploading the test results cancelled due to wrong database configuration"
+								$testResult = "FAIL"
+							}								
+							
+
+							
+						}
+						else
+						{
+							$testResult = "FAIL"
+						}
+						
+						
 					}
 					catch
 					{
@@ -123,10 +288,7 @@ if ($isDeployed)
             }
         }
 		
-		if( $testResult -eq "PASS" )
-		{
-			RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "summary.log" -downloadTo $LogDir -download
-		}
+		
 	}
 	catch
 	{
