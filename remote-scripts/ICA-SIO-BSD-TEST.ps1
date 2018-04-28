@@ -141,9 +141,7 @@ if ($isDeployed)
 								$bandwidth_KBps = 0
 								$BlockSize_KB = 0
 								$IOs = 0
-								$DataPath = "No Need"
 								$HostType = "MS Azure"
-								$TestFileName = "TODO"
 								$FileSize_KB = 0
 								$IOPS = 0
 								$TestMode = ""
@@ -208,13 +206,13 @@ if ($isDeployed)
 								}
 
 								
-								$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,DataPath,TestDate,HostType,InstanceSize,GuestOS,"
+								$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,InstanceSize,GuestOS,"
 								$SQLQuery += "KernelVersion,BlockSize_KB,FileSize_KB,NumThread,TestMode,"
-								$SQLQuery += "iops,bandwidth_KBps,RuntimeSec,IOs,TestFileName) VALUES "
+								$SQLQuery += "iops,bandwidth_KBps,RuntimeSec,IOs) VALUES "
 									
-								$SQLQuery += "('$TestCaseName','$DataPath','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
+								$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
 								$SQLQuery += "'$KernelVersion','$BlockSize_KB','$FileSize_KB','$NumThread',"
-								$SQLQuery += "'$TestMode','$iops','$bandwidth_KBps','$RuntimeSec','$IOs','$TestFileName')"
+								$SQLQuery += "'$TestMode','$iops','$bandwidth_KBps','$RuntimeSec','$IOs')"
 			
 								LogMsg "SQLQuery:"
 								LogMsg  $SQLQuery
@@ -228,7 +226,6 @@ if ($isDeployed)
 								LogMsg  "NumThread                     $NumThread"
 								LogMsg  "KernelVersion                 $KernelVersion"
 								LogMsg  "InstanceSize                  $InstanceSize"
-								LogMsg  "TestDate                      $TestDate"
 								
 								$uploadResults = $true
 								#Check the result valid before uploading. TODO 
@@ -244,15 +241,14 @@ if ($isDeployed)
 									$result = $command.executenonquery()
 									$connection.Close()
 									LogMsg "Uploading the test results done!!"
+									$testResult = "PASS"
 								}
 								else 
 								{
 									LogErr "Uploading the test results cancelled due to zero/invalid output for some results!"
 									$testResult = "FAIL"
-								}
+								}								
 								
-								
-								$testResult = "PASS"
 							}
 							else
 							{

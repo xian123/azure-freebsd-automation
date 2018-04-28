@@ -5678,14 +5678,14 @@
 			<Priority>P1</Priority>
 		</test>	
 		<test>
-			<testName>NETWORK-KQNETPERF</testName>
+			<testName>ICA-KQ-BSD-TEST</testName>
 			<testScript></testScript>
-			<testScriptps1>NETWORK-KQNETPERF.ps1</testScriptps1>
+			<testScriptps1>ICA-KQ-BSD-TEST.ps1</testScriptps1>
 			<SubtestValues></SubtestValues>
 			<connections>16</connections>	
 			<threads>1</threads>
 			<runTimeSec>600</runTimeSec>
-			<files>.\remote-scripts\start-kqnetperf-server.py,.\remote-scripts\start-kqnetperf-client.py,.\remote-scripts\azuremodules.py,.\remote-scripts\kq_netperf.tgz</files>
+			<files>.\remote-scripts\report.tgz,.\remote-scripts\start-kqnetperf-server.py,.\remote-scripts\start-kqnetperf-client.py,.\remote-scripts\azuremodules.py,.\remote-scripts\kq_netperf.tgz</files>
 			<setupType>KQperfEndpoint</setupType>
 			<TestType></TestType>
 			<TestFeature></TestFeature>

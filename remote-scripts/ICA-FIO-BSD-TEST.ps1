@@ -158,13 +158,11 @@ if ($isDeployed)
 									$KernelVersion = ""
 									$InstanceSize = ""
 									$lat_usec = 0
-									$TestDate = "2018-04-25"
 									$IOEngine = ""
 									$GuestOS = "FreeBSD"
 									$HostType = "MS Azure"
 									$DiskSetup = "Single"
-									$DataPath = "No Need"
-									
+																	
 									$LogContents = Get-Content -Path "$LogDir\result.log"
 									foreach ($line in $LogContents)
 									{
@@ -242,12 +240,7 @@ if ($isDeployed)
 										if ( $line -imatch "lat_usec:" )
 										{
 											$lat_usec = [float]($line.Split(":")[1].trim())
-										}
-										
-										if ( $line -imatch "TestDate:" )
-										{
-											$TestDate = $line.Split(":")[1].trim()
-										}
+										}										
 										
 										if ( $line -imatch "IOEngine:" )
 										{
@@ -255,11 +248,11 @@ if ($isDeployed)
 										}
 								    }
 								
-								    $SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,DataPath,TestDate,HostType,InstanceSize,GuestOS,"
+								    $SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,InstanceSize,GuestOS,"
 								    $SQLQuery += "KernelVersion,DiskSetup,IOEngine,BlockSize_KB,FileSize_KB,QDepth,NumThread,TestMode,"
 								    $SQLQuery += "iops,min_iops,max_iops,avg_iops,stdev_iops,bandwidth_KBps,lat_usec,RuntimeSec) VALUES "
 									
-									$SQLQuery += "('$TestCaseName','$DataPath','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
+									$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
 									$SQLQuery += "'$KernelVersion','$DiskSetup','$IOEngine','$BlockSize_KB','$FileSize_KB','$QDepth','$NumThread',"
 									$SQLQuery += "'$TestMode','$iops','$min_iops','$max_iops','$avg_iops','$stdev_iops','$bandwidth_KBps','$lat_usec','$RuntimeSec')"
 			
@@ -283,11 +276,10 @@ if ($isDeployed)
 									LogMsg  "KernelVersion                 $KernelVersion"
 									LogMsg  "InstanceSize                  $InstanceSize"
 									LogMsg  "lat_usec                      $lat_usec"
-									LogMsg  "TestDate                      $TestDate"
 									LogMsg  "IOEngine                      $IOEngine"
 
 									$uploadResults = $true
-									
+									#Check the results validation ? TODO
 									if ($uploadResults)
 									{
 										$connection = New-Object System.Data.SqlClient.SqlConnection
@@ -299,24 +291,22 @@ if ($isDeployed)
 										$result = $command.executenonquery()
 										$connection.Close()
 										LogMsg "Uploading the test results done!!"
+										
+										LogMsg "Great! FIO test is finished now."
+										$testResult = "PASS"
 									}
 									else 
 									{
 										LogErr "Uploading the test results cancelled due to wrong database configuration."
 										$testResult = "FAIL"
-									}
-								
-								
-									LogMsg "Great! FIO test is finished now."
-									$testResult = "PASS"
+									}								
+									
 								}
 								else
 								{
 									LogErr "Uploading the test results cancelled due to zero throughput for some connections!!"
 									$testResult = "FAIL"
-								}
-								
-								
+								}							
 								
 							}
 							else
