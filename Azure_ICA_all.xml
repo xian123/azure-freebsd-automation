@@ -5650,6 +5650,7 @@
 			<setupType>DS14V2</setupType>
 			<TestType></TestType>
 			<DiskSetup>Single</DiskSetup>
+			<dataTableName>Perf_FreeBSD_Azure_Sio</dataTableName>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID></TestID>
@@ -5672,6 +5673,7 @@
 			<setupType>DS14V2</setupType>
 			<TestType></TestType>
 			<DiskSetup>RAID0</DiskSetup>
+			<dataTableName>Perf_FreeBSD_Azure_Sio</dataTableName>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID></TestID>
@@ -5697,6 +5699,7 @@
 			<setupType>DS14V2</setupType>
 			<TestType></TestType>
 			<DiskSetup>Single</DiskSetup>
+			<dataTableName>Perf_FreeBSD_Azure_Fio</dataTableName>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID></TestID>
@@ -5722,6 +5725,7 @@
 			<setupType>DS14V2</setupType>
 			<TestType></TestType>
 			<DiskSetup>RAID0</DiskSetup>
+			<dataTableName>Perf_FreeBSD_Azure_Fio</dataTableName>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID></TestID>
@@ -5738,6 +5742,7 @@
 			<runTimeSec>600</runTimeSec>
 			<files>.\remote-scripts\report.tgz,.\remote-scripts\start-kqnetperf-server.py,.\remote-scripts\start-kqnetperf-client.py,.\remote-scripts\azuremodules.py,.\remote-scripts\kq_netperf.tgz</files>
 			<setupType>KQperfEndpoint</setupType>
+			<dataTableName>Perf_FreeBSD_Azure_KQ</dataTableName>
 			<TestType></TestType>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>

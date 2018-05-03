@@ -147,6 +147,11 @@ if ($isDeployed)
 								$dataTableName = $env:databaseDbtable
 							}
 							
+							if( $dataTableName -eq $null )
+							{
+								$dataTableName = $currentTestData.dataTableName
+							}
+							
 							if ($dataSource -And $databaseUser -And $databasePassword -And $database -And $dataTableName) 
 							{
 								$connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
