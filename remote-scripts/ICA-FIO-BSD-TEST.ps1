@@ -133,25 +133,25 @@ if ($isDeployed)
 								if( $xmlConfig.config.Azure.database.server )
 								{
 									$dataSource = $xmlConfig.config.Azure.database.server
-									$user = $xmlConfig.config.Azure.database.user
-									$password = $xmlConfig.config.Azure.database.password
+									$databaseUser = $xmlConfig.config.Azure.database.user
+									$databasePassword = $xmlConfig.config.Azure.database.password
 									$database = $xmlConfig.config.Azure.database.dbname
 									$dataTableName = $xmlConfig.config.Azure.database.dbtable
 								}
 								else
 								{
 									$dataSource = $env:databaseServer
-									$user = $env:databaseUser
-									$password = $env:databasePassword
+									$databaseUser = $env:databaseUser
+									$databasePassword = $env:databasePassword
 									$database = $env:databaseDbname
 									$dataTableName = $env:databaseDbtable
 								}
 
 								
-								if ($dataSource -And $user -And $password -And $database -And $dataTableName) 
+								if ($dataSource -And $databaseUser -And $databasePassword -And $database -And $dataTableName) 
 								{
 								
-								    $connectionString = "Server=$dataSource;uid=$user; pwd=$password;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+								    $connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 
 									$TestCaseName = "fio"
 									$avg_iops = 0
