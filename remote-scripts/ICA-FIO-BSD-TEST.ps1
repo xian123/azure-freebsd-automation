@@ -14,41 +14,59 @@ if ($isDeployed)
 		$hs1ServiceUrl = $AllVMData.URL
 		$hs1vm1Dip = $AllVMData.InternalIP
         
-        $vmName = $AllVMData.RoleName
-        $rgNameOfVM = $AllVMData.ResourceGroupName
-        $storageAccountName =  $xmlConfig.config.Azure.General.ARMStorageAccount
-        
-        $rgNameOfBlob = Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $storageAccountName} | Select-Object -ExpandProperty ResourceGroupName
-        $storageAcc=Get-AzureRmStorageAccount -ResourceGroupName $rgNameOfBlob -Name $storageAccountName 
-
-        #Pulls the VM info for later 
-        $vmdiskadd=Get-AzurermVM -ResourceGroupName $rgNameOfVM -Name $vmName 
-
-        #Sets the URL string for where to store your vhd files
-        #Also adds the VM name to the beginning of the file name 
-        $DataDiskUri=$storageAcc.PrimaryEndpoints.Blob.ToString() + "vhds/" + $vmName 
-
+	
+		$vmName = $AllVMData.RoleName
+		$rgNameOfVM = $AllVMData.ResourceGroupName
+		$storageAccountName =  $xmlConfig.config.Azure.General.ARMStorageAccount
 		
-		$diskSize = 200
-		$newLUN = 1
-		$newDiskName = "freebsdTestVHD"
-		LogMsg "Adding disk ---- LUN: $newLUN   DiskSize: $diskSize GB"
-		Add-AzureRmVMDataDisk -CreateOption empty -DiskSizeInGB $diskSize -Name $newDiskName -VhdUri $DataDiskUri-Data.vhd -VM $vmdiskadd -Caching ReadWrite -lun $newLUN 
-        
- 
-        Update-AzureRmVM -ResourceGroupName $rgNameOfVM -VM $vmdiskadd
+		$rgNameOfBlob = Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $storageAccountName} | Select-Object -ExpandProperty ResourceGroupName
+		$storageAcc=Get-AzureRmStorageAccount -ResourceGroupName $rgNameOfBlob -Name $storageAccountName 
 
+		#Pulls the VM info for later 
+		$vmdiskadd=Get-AzurermVM -ResourceGroupName $rgNameOfVM -Name $vmName 
+
+		#Sets the URL string for where to store your vhd files
+		#Also adds the VM name to the beginning of the file name 
+		$DataDiskUri=$storageAcc.PrimaryEndpoints.Blob.ToString() + "vhds/" + $vmName 
+			
+		if ( $currentTestData.DiskSetup -eq "Single" )
+		{
+			$DiskSetup = "1 x 512G"
+			$diskPath = "/dev/da2"
+			$diskNums = 1
+		}
+		else
+		{
+			$DiskSetup = "12 x 513G RAID0"
+			$diskPath = "/dev/stripe/st0"
+			$diskNums = 12
+		}
+		
+		LogMsg "The disk setup is: $DiskSetup"
+		
+		$diskSize = 512
+		LogMsg "Add $diskNums disk(s) with $diskSize GB size."
+		$lenth = [int]$diskNums - 1
+		$testLUNs= 0..$lenth
+		foreach ($newLUN in $testLUNs)
+        {
+            Add-AzureRmVMDataDisk -CreateOption empty -DiskSizeInGB $diskSize -Name $vmName-$newLUN -VhdUri $DataDiskUri-Data$newLUN.vhd -VM $vmdiskadd -Caching ReadWrite -lun $newLUN 
+			sleep 1
+        }
+		
+		Update-AzureRmVM -ResourceGroupName $rgNameOfVM -VM $vmdiskadd
+		LogMsg "Wait 60 seconds to update azure vm after adding new disks."
+        sleep 60
+		
 		RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
 		
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "date >  summary.log;uname -a >>  summary.log" -runAsSudo
 		
-		$NumberOfDisksAttached = 1
-		# LogMsg "Executing : bash $($currentTestData.testScript) $NumberOfDisksAttached"
-		# RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript) $NumberOfDisksAttached" -runAsSudo
-		# $diskPath = "/mnt"
+		LogMsg "Executing : bash $($currentTestData.testScript)"
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript)" -runAsSudo
 		
-		$diskPath = "/dev/da2"
+		
         $fileSize = $currentTestData.fileSize        
         $runTime = $currentTestData.runTimeSec
 		
@@ -76,7 +94,7 @@ if ($isDeployed)
 							$fileSizeInGB=$fileSize.split("g")[0].trim()							
 							$fioOutputFile = "$blockSizeInKB-$iodepth-${ioengine}-$fileSizeInGB-$numThread-$testMode-${runTime}-freebsd.fio.log"
 							$fioCommonOptions="--size=${fileSize} --direct=1 --ioengine=${ioengine} --filename=${diskPath} --overwrite=1 --iodepth=$iodepth --runtime=${runTime}"
-							$command="fio ${fioCommonOptions} --readwrite=$testmode --bs=$blockSize --numjobs=$numThread --name=fiotest --output=$fioOutputFile"
+							$command="nohup fio ${fioCommonOptions} --readwrite=$testmode --bs=$blockSize --numjobs=$numThread --name=fiotest --output=$fioOutputFile"
 							$runMaxAllowedTime = [int]$runTime + 180
 							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo -runMaxAllowedTime  $runMaxAllowedTime
 							WaitFor -seconds 10
@@ -161,7 +179,7 @@ if ($isDeployed)
 									$IOEngine = ""
 									$GuestOS = "FreeBSD"
 									$HostType = "MS Azure"
-									$DiskSetup = "Single"
+								
 																	
 									$LogContents = Get-Content -Path "$LogDir\result.log"
 									foreach ($line in $LogContents)
@@ -230,6 +248,10 @@ if ($isDeployed)
 										if ( $line -imatch "KernelVersion:" )
 										{
 											$KernelVersion = $line.Split(":")[1].trim()
+											if( $KernelVersion.Length -gt 60 )
+											{
+												$KernelVersion = $KernelVersion.Substring(0,59)
+											}
 										}
 
 										if ( $line -imatch "InstanceSize:" )

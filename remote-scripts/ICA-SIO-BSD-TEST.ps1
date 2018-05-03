@@ -29,14 +29,35 @@ if ($isDeployed)
         $DataDiskUri=$storageAcc.PrimaryEndpoints.Blob.ToString() + "vhds/" + $vmName 
 
 		
-		$diskSize = 100
-		$newLUN = 1
-		$newDiskName = "freebsdTestVHD"
-		LogMsg "Adding disk ---- LUN: $newLUN   DiskSize: $diskSize GB"
-		Add-AzureRmVMDataDisk -CreateOption empty -DiskSizeInGB $diskSize -Name $newDiskName -VhdUri $DataDiskUri-Data.vhd -VM $vmdiskadd -Caching ReadWrite -lun $newLUN 
-        
+		if ( $currentTestData.DiskSetup -eq "Single" )
+		{
+			$DiskSetup = "1 x 512G"
+			$sioFileName = "/dev/da2"
+			$diskNums = 1
+		}
+		else
+		{
+			$DiskSetup = "12 x 513G RAID0"
+			$sioFileName = "/dev/stripe/st0"
+			$diskNums = 12
+		}
+		
+		LogMsg "The disk setup is: $DiskSetup"
+		
+		$diskSize = 512
+		LogMsg "Add $diskNums disk(s) with $diskSize GB size."
+		$lenth = [int]$diskNums - 1
+		$testLUNs= 0..$lenth
+		foreach ($newLUN in $testLUNs)
+        {
+            Add-AzureRmVMDataDisk -CreateOption empty -DiskSizeInGB $diskSize -Name $vmName-$newLUN -VhdUri $DataDiskUri-Data$newLUN.vhd -VM $vmdiskadd -Caching ReadWrite -lun $newLUN 
+			sleep 3
+        }
+ 
  
         Update-AzureRmVM -ResourceGroupName $rgNameOfVM -VM $vmdiskadd
+		LogMsg "Wait 60 seconds to update azure vm after adding new disks."
+        sleep 60
 
 		RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
@@ -47,18 +68,11 @@ if ($isDeployed)
 
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "date >  summary.log;uname -a >>  summary.log" -runAsSudo
 		
-		# LogMsg "Executing : Install gcc"
-		# RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "echo "y" | pkg install gcc" -runAsSudo
-		
-		# LogMsg "Executing : Install sio"
-		# RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf /root/sio.tgz -C /root;cd /root/sio;make freebsd" -runAsSudo
-		
 		LogMsg "Executing : Install sio"
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf sio.tgz -C /root" -runAsSudo
 		
 		$testFileSize = $currentTestData.fileSize
 		$sioRunTime = $currentTestData.runTimeSec
-		$sioFileName = "/dev/da2"
 		
 		#Actual Test Starts here..
         foreach ( $blockSize in $currentTestData.blockSizes.split(","))
@@ -156,6 +170,10 @@ if ($isDeployed)
 									if ( $line -imatch "KernelVersion:" )
 									{
 										$KernelVersion = $line.Split(":")[1].trim()
+										if( $KernelVersion.Length -gt 60 )
+										{
+										    $KernelVersion = $KernelVersion.Substring(0,59)
+										}										
 									}
 									
 									if ( $line -imatch "InstanceSize:" )

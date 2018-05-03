@@ -2857,7 +2857,8 @@
 				<HostedService>
 					<VirtualMachine>
 						<state></state>
-						<InstanceSize>Standard_DS2</InstanceSize>
+						<InstanceSize>Standard_DS14</InstanceSize>
+						<ARMInstanceSize>Standard_DS14</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -4940,6 +4941,7 @@
 			<runtimeSeconds>600</runtimeSeconds>
 			<SubtestValues>Here_some_text_is_required_due_to_automation_structure</SubtestValues>
 			<TestType></TestType>
+			<DiskSetup>Single</DiskSetup>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureServiceManagement</SupportedExecutionModes>
 			<TestID></TestID>
@@ -5645,8 +5647,31 @@
 			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
 			<fileSize>16g</fileSize>
 			<runTimeSec>600</runTimeSec>
-			<setupType>A4</setupType>
+			<setupType>DS14V2</setupType>
 			<TestType></TestType>
+			<DiskSetup>Single</DiskSetup>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P1</Priority>
+		</test>	
+		<test>
+			<testName>ICA-SIO-RAID0-BSD-TEST</testName>
+			<testScript>bsd_sio.sh</testScript>
+			<testScriptps1>ICA-SIO-BSD-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\report.tgz,.\remote-scripts\sio.tgz,.\remote-scripts\bsd_sio.sh</files>
+			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
+			<blockSizes>4k</blockSizes>
+			<numThreads>1</numThreads>
+		    <!-- 	<modes>seqw,seqr,ranr,ranw,seqranrw</modes> -->
+			<modes>seqw,seqr</modes>
+			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
+			<fileSize>16g</fileSize>
+			<runTimeSec>600</runTimeSec>
+			<setupType>DS14V2</setupType>
+			<TestType></TestType>
+			<DiskSetup>RAID0</DiskSetup>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID></TestID>
@@ -5669,8 +5694,34 @@
 			<runTimeSec>600</runTimeSec>
 			<!-- if ioengine is empty here, libaio will be used as default io engine-->
 			<ioengine>posixaio</ioengine>
-			<setupType>A8</setupType>
+			<setupType>DS14V2</setupType>
 			<TestType></TestType>
+			<DiskSetup>Single</DiskSetup>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID></TestID>
+			<SubtestValues></SubtestValues>
+			<Priority>P1</Priority>
+		</test>	
+		<test>
+			<testName>ICA-FIO-RAID0-BSD-TEST</testName>
+			<testScript>bsd_fio.sh</testScript>
+			<testScriptps1>ICA-FIO-BSD-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\report.tgz,.\remote-scripts\bsd_fio.sh</files>
+			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
+			<!-- The maximum value is 128k -->
+			<blockSizes>4k,128k</blockSizes>
+			<iodepths>1,2,4,8,16,32,64,128,256</iodepths>
+			<numThreads>1</numThreads>
+			<modes>read,randread,write,randwrite</modes>
+			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
+			<fileSize>16g</fileSize>
+			<runTimeSec>600</runTimeSec>
+			<!-- if ioengine is empty here, libaio will be used as default io engine-->
+			<ioengine>posixaio</ioengine>
+			<setupType>DS14V2</setupType>
+			<TestType></TestType>
+			<DiskSetup>RAID0</DiskSetup>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID></TestID>
