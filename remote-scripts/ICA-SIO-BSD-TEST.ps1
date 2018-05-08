@@ -168,6 +168,7 @@ if ($isDeployed)
 								$NumThread = 0
 								$RuntimeSec = 0
 								$TestCaseName = "azure_sio_perf"
+								$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
 								
 								$LogContents = Get-Content -Path "$LogDir\result.log"
 								foreach ($line in $LogContents)
@@ -230,11 +231,11 @@ if ($isDeployed)
 
 								
 								$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,InstanceSize,GuestOS,"
-								$SQLQuery += "KernelVersion,BlockSize_KB,FileSize_GB,NumThread,TestMode,"
+								$SQLQuery += "KernelVersion,DiskSetup,BlockSize_KB,FileSize_GB,NumThread,TestMode,"
 								$SQLQuery += "iops,bandwidth_KBps,RuntimeSec,IOs) VALUES "
 									
-								$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
-								$SQLQuery += "'$KernelVersion','$BlockSize_KB','$FileSize_GB','$NumThread',"
+								$SQLQuery += "('$TestCaseName','$TestDate','$HostType','$InstanceSize','$GuestOS',"
+								$SQLQuery += "'$KernelVersion','$DiskSetup','$BlockSize_KB','$FileSize_GB','$NumThread',"
 								$SQLQuery += "'$TestMode','$iops','$bandwidth_KBps','$RuntimeSec','$IOs')"
 			
 								LogMsg "SQLQuery:"
@@ -249,6 +250,8 @@ if ($isDeployed)
 								LogMsg  "NumThread                     $NumThread"
 								LogMsg  "KernelVersion                 $KernelVersion"
 								LogMsg  "InstanceSize                  $InstanceSize"
+								LogMsg  "DiskSetup                     $DiskSetup"
+								LogMsg  "TestDate                      $TestDate"
 								
 								$uploadResults = $true
 								#Check the result valid before uploading. TODO 
