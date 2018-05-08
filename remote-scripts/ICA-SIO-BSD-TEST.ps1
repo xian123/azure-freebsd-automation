@@ -156,18 +156,18 @@ if ($isDeployed)
 							{
 								$connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 								$KernelVersion = ""
-								$InstanceSize = ""
+								$InstanceSize = "Standard_DS14_v2"
 								$bandwidth_KBps = 0
 								$BlockSize_KB = 0
 								$IOs = 0
 								$HostType = "MS Azure"
-								$FileSize_KB = 0
+								$FileSize_GB = $testFileSize.split("g")[0].trim()
 								$IOPS = 0
 								$TestMode = ""
 								$GuestOS = "FreeBSD"
 								$NumThread = 0
 								$RuntimeSec = 0
-								$TestCaseName = "sio"
+								$TestCaseName = "azure_sio_perf"
 								
 								$LogContents = Get-Content -Path "$LogDir\result.log"
 								foreach ($line in $LogContents)
@@ -181,10 +181,10 @@ if ($isDeployed)
 										}										
 									}
 									
-									if ( $line -imatch "InstanceSize:" )
-									{
-										$InstanceSize = $line.Split(":")[1].trim()
-									}
+									# if ( $line -imatch "InstanceSize:" )
+									# {
+										# $InstanceSize = $line.Split(":")[1].trim()
+									# }
 									
 									if ( $line -imatch "bandwidth_KBps:" )
 									{
@@ -201,10 +201,10 @@ if ($isDeployed)
 										$IOs = [int]($line.Split(":")[1].trim())
 									}
 									
-									if ( $line -imatch "FileSize_KB:" )
-									{
-										$FileSize_KB = [int]($line.Split(":")[1].trim())
-									}
+									# if ( $line -imatch "FileSize_GB:" )
+									# {
+										# $FileSize_GB = [int]($line.Split(":")[1].trim())
+									# }
 									
 									if ( $line -cmatch "IOPS:" )
 									{
@@ -230,11 +230,11 @@ if ($isDeployed)
 
 								
 								$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,InstanceSize,GuestOS,"
-								$SQLQuery += "KernelVersion,BlockSize_KB,FileSize_KB,NumThread,TestMode,"
+								$SQLQuery += "KernelVersion,BlockSize_KB,FileSize_GB,NumThread,TestMode,"
 								$SQLQuery += "iops,bandwidth_KBps,RuntimeSec,IOs) VALUES "
 									
 								$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
-								$SQLQuery += "'$KernelVersion','$BlockSize_KB','$FileSize_KB','$NumThread',"
+								$SQLQuery += "'$KernelVersion','$BlockSize_KB','$FileSize_GB','$NumThread',"
 								$SQLQuery += "'$TestMode','$iops','$bandwidth_KBps','$RuntimeSec','$IOs')"
 			
 								LogMsg "SQLQuery:"
@@ -244,7 +244,7 @@ if ($isDeployed)
 								LogMsg  "RuntimeSec                    $RuntimeSec"
 								LogMsg  "bandwidth_KBps                $bandwidth_KBps"
 								LogMsg  "BlockSize_KB                  $BlockSize_KB"
-								LogMsg  "FileSize_KB                   $FileSize_KB"
+								LogMsg  "FileSize_GB                   $FileSize_GB"
 								LogMsg  "IOPS                          $IOPS"
 								LogMsg  "NumThread                     $NumThread"
 								LogMsg  "KernelVersion                 $KernelVersion"
@@ -264,6 +264,11 @@ if ($isDeployed)
 									$result = $command.executenonquery()
 									$connection.Close()
 									LogMsg "Uploading the test results done!!"
+									
+									#Delete the previous result
+									$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf /usr/sio" -runAsSudo
+									$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -f result.log" -runAsSudo
+									
 									$testResult = "PASS"
 								}
 								else 
@@ -293,6 +298,7 @@ if ($isDeployed)
 					{
 						$ErrorMessage =  $_.Exception.Message
 						LogMsg "EXCEPTION : $ErrorMessage"   
+						$testResult = "Aborted"
 					}
 					finally
 					{

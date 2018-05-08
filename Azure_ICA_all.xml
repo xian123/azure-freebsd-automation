@@ -5744,6 +5744,7 @@
 			<setupType>KQperfEndpoint</setupType>
 			<dataTableName>Perf_FreeBSD_Azure_KQ</dataTableName>
 			<TestType></TestType>
+			<DataPath>Synthetic</DataPath>
 			<TestFeature></TestFeature>
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID>AzureNetwork_Kqnetperf_01</TestID>

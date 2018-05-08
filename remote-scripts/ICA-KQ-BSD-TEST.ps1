@@ -51,6 +51,7 @@ if($isDeployed)
 	$runTimeSec= $currentTestData.runTimeSec	
 	$threads= $currentTestData.threads
 	$connections = $threads.Split(",")
+	$dataPath = $currentTestData.DataPath
 
 	foreach ($thread in $threads) 
 	{
@@ -165,10 +166,10 @@ if($isDeployed)
 
 						
 						$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,InstanceSize,GuestOS,"
-						$SQLQuery += "KernelVersion,RuntimeSec,MaxBWInMbps,MinBWInMbps,Connections,NumThread) VALUES "
+						$SQLQuery += "KernelVersion,RuntimeSec,MaxBWInMbps,MinBWInMbps,Connections,NumThread,DataPath) VALUES "
 						
 						$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
-						$SQLQuery += "'$KernelVersion','$RuntimeSec','$MaxBWInMbps','$MinBWInMbps','$Connections','$NumThread')"
+						$SQLQuery += "'$KernelVersion','$RuntimeSec','$MaxBWInMbps','$MinBWInMbps','$Connections','$NumThread','$dataPath')"
 
 						LogMsg "SQLQuery:"
 						LogMsg $SQLQuery
@@ -180,6 +181,7 @@ if($isDeployed)
 						"MaxBWInMbps                   $MaxBWInMbps"
 						"MinBWInMbps                   $MinBWInMbps"
 						"Connections                   $Connections"
+						"DataPath                      $dataPath"
 						
 						$uploadResults = $true
 						#Check the results validation ? TODO
@@ -194,6 +196,10 @@ if($isDeployed)
 							$result = $command.executenonquery()
 							$connection.Close()
 							LogMsg "Uploading the test results done!!"
+							
+							#Delete the previous result
+							RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf /usr/kqperf" -runAsSudo
+							RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -f result.log"   -runAsSudo
 							
 							$testResult = "PASS"
 						}
@@ -219,6 +225,7 @@ if($isDeployed)
 			{
 				$ErrorMessage =  $_.Exception.Message
 				LogMsg "EXCEPTION : $ErrorMessage"
+				$testResult = "Aborted"
 			}
 
 			Finally

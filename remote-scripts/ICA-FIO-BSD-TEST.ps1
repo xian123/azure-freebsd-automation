@@ -157,7 +157,7 @@ if ($isDeployed)
 								
 								    $connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 
-									$TestCaseName = "fio"
+									$TestCaseName = "azure_fio_perf"
 									$avg_iops = 0
 									$max_iops = 0
 									$TestMode = ""
@@ -173,12 +173,12 @@ if ($isDeployed)
 									$stdev_iops = 0
 									$QDepth = 0
 									$BlockSize_KB = 0
-									$FileSize_KB = 0
+									$FileSize_GB = $fileSize.split("g")[0].trim()
 									$IOPS = 0
 									$NumThread = 0
 									$min_iops = 0
 									$KernelVersion = ""
-									$InstanceSize = ""
+									$InstanceSize = "Standard_DS14_v2"
 									$lat_usec = 0
 									$IOEngine = ""
 									$GuestOS = "FreeBSD"
@@ -229,10 +229,10 @@ if ($isDeployed)
 											$BlockSize_KB = [int]($line.Split(":")[1].trim())
 										}
 
-										if ( $line -imatch "FileSize_KB:" )
-										{
-											$FileSize_KB = [int]($line.Split(":")[1].trim())
-										}
+										# if ( $line -imatch "FileSize_GB:" )
+										# {
+											# $FileSize_GB = [int]($line.Split(":")[1].trim())
+										# }
 
 										if ( $line -cmatch "IOPS:" )
 										{
@@ -258,10 +258,10 @@ if ($isDeployed)
 											}
 										}
 
-										if ( $line -imatch "InstanceSize:" )
-										{
-											$InstanceSize = $line.Split(":")[1].trim()
-										}
+										# if ( $line -imatch "InstanceSize:" )
+										# {
+											# $InstanceSize = $line.Split(":")[1].trim()
+										# }
 										
 										if ( $line -imatch "lat_usec:" )
 										{
@@ -275,11 +275,11 @@ if ($isDeployed)
 								    }
 								
 								    $SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,InstanceSize,GuestOS,"
-								    $SQLQuery += "KernelVersion,DiskSetup,IOEngine,BlockSize_KB,FileSize_KB,QDepth,NumThread,TestMode,"
+								    $SQLQuery += "KernelVersion,DiskSetup,IOEngine,BlockSize_KB,FileSize_GB,QDepth,NumThread,TestMode,"
 								    $SQLQuery += "iops,min_iops,max_iops,avg_iops,stdev_iops,bandwidth_KBps,lat_usec,RuntimeSec) VALUES "
 									
 									$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
-									$SQLQuery += "'$KernelVersion','$DiskSetup','$IOEngine','$BlockSize_KB','$FileSize_KB','$QDepth','$NumThread',"
+									$SQLQuery += "'$KernelVersion','$DiskSetup','$IOEngine','$BlockSize_KB','$FileSize_GB','$QDepth','$NumThread',"
 									$SQLQuery += "'$TestMode','$iops','$min_iops','$max_iops','$avg_iops','$stdev_iops','$bandwidth_KBps','$lat_usec','$RuntimeSec')"
 			
 									
@@ -295,7 +295,7 @@ if ($isDeployed)
 									LogMsg  "stdev_iops                    $stdev_iops"
 									LogMsg  "QDepth                        $QDepth"
 									LogMsg  "BlockSize_KB                  $BlockSize_KB"
-									LogMsg  "FileSize_KB                   $FileSize_KB"
+									LogMsg  "FileSize_GB                   $FileSize_GB"
 									LogMsg  "IOPS                          $IOPS"
 									LogMsg  "NumThread                     $NumThread"
 									LogMsg  "min_iops                      $min_iops"
@@ -319,6 +319,11 @@ if ($isDeployed)
 										LogMsg "Uploading the test results done!!"
 										
 										LogMsg "Great! FIO test is finished now."
+										
+										#Delete the previous result
+										$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf /usr/fio" -runAsSudo
+										$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -f result.log" -runAsSudo
+										
 										$testResult = "PASS"
 									}
 									else 
@@ -345,6 +350,7 @@ if ($isDeployed)
 						{
 							$ErrorMessage =  $_.Exception.Message
 							LogMsg "EXCEPTION : $ErrorMessage"   
+							$testResult = "Aborted"
 						}
 						finally
 						{
