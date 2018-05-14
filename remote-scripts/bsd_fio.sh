@@ -30,7 +30,7 @@ UpdateTestState $ICA_TESTRUNNING
 
 touch $HOME/summary.log
 
-
+echo Guest Distro: `uname -r` >> summary.log
 
 sum=`ls /dev/da* | wc -l`
 if [$sum -gt 10 ]; then

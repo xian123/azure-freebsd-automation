@@ -16,9 +16,23 @@ if ($isDeployed)
         
         $vmName = $AllVMData.RoleName
         $rgNameOfVM = $AllVMData.ResourceGroupName
-        $storageAccountName =  $xmlConfig.config.Azure.General.ARMStorageAccount
-        
-        $rgNameOfBlob = Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $storageAccountName} | Select-Object -ExpandProperty ResourceGroupName
+		
+		#The disks are stored in the below storage account.
+		$Date = Get-Date -format "yyyyMMddhhmmss"
+		$storageAccountName = $Date + (Get-Random -InputObject (1..1000))
+		$storageType = "Premium_LRS"
+		$location = $xmlConfig.config.Azure.General.Location
+		$location = $location.Replace('"',"")
+		
+		New-AzureRmStorageAccount -ResourceGroupName $rgNameOfVM -AccountName $storageAccountName -Location $location  -SkuName $storageType
+
+		#Create a container
+		$containerName = "vhds"
+		$srcStorageKey = (Get-AzureRmStorageAccountKey  -StorageAccountName $storageAccountName -ResourceGroupName $rgNameOfVM).Value[0]
+		$ctx = New-AzureStorageContext -StorageAccountName $storageAccountName  -StorageAccountKey  $srcStorageKey
+		New-AzureStorageContainer -Name $containerName  -Context $ctx
+		
+		$rgNameOfBlob = Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $storageAccountName} | Select-Object -ExpandProperty ResourceGroupName
         $storageAcc=Get-AzureRmStorageAccount -ResourceGroupName $rgNameOfBlob -Name $storageAccountName 
 
         #Pulls the VM info for later 
@@ -26,31 +40,31 @@ if ($isDeployed)
 
         #Sets the URL string for where to store your vhd files
         #Also adds the VM name to the beginning of the file name 
-        $DataDiskUri=$storageAcc.PrimaryEndpoints.Blob.ToString() + "vhds/" + $vmName 
+        $DataDiskUri=$storageAcc.PrimaryEndpoints.Blob.ToString() + $containerName + "/" + "DataDisk" 
 
 		
 		if ( $currentTestData.DiskSetup -eq "Single" )
 		{
-			$DiskSetup = "1 x 512G"
-			$sioFileName = "/dev/da2"
+			$DiskSetup = "1 x 513G"
+			$testFileName = "/dev/da2"
 			$diskNums = 1
 		}
 		else
 		{
 			$DiskSetup = "12 x 513G RAID0"
-			$sioFileName = "/dev/stripe/st0"
+			$testFileName = "/dev/stripe/st0"
 			$diskNums = 12
 		}
 		
 		LogMsg "The disk setup is: $DiskSetup"
 		
-		$diskSize = 512
+		$diskSize = 513
 		LogMsg "Add $diskNums disk(s) with $diskSize GB size."
 		$lenth = [int]$diskNums - 1
 		$testLUNs= 0..$lenth
 		foreach ($newLUN in $testLUNs)
         {
-            Add-AzureRmVMDataDisk -CreateOption empty -DiskSizeInGB $diskSize -Name $vmName-$newLUN -VhdUri $DataDiskUri-Data$newLUN.vhd -VM $vmdiskadd -Caching ReadWrite -lun $newLUN 
+            Add-AzureRmVMDataDisk -CreateOption empty -DiskSizeInGB $diskSize -Name $vmName-$newLUN -VhdUri $DataDiskUri-NO$newLUN.vhd -VM $vmdiskadd -Caching None -lun $newLUN 
 			sleep 3
         }
  
@@ -65,8 +79,7 @@ if ($isDeployed)
 		$NumberOfDisksAttached = 1
 		LogMsg "Executing : bash $($currentTestData.testScript) $NumberOfDisksAttached"
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript) $NumberOfDisksAttached" -runAsSudo
-
-		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "date >  summary.log;uname -a >>  summary.log" -runAsSudo
+		# RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "date >>  summary.log;uname -a >>  summary.log" -runAsSudo
 		
 		LogMsg "Executing : Install sio"
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf sio.tgz -C /root" -runAsSudo
@@ -93,8 +106,8 @@ if ($isDeployed)
 						$fileSizeInGB=$testFileSize.split("g")[0].trim()
 						
 						$sioOutputFile = "${blockSizeInKB}-$fileSizeInGB-${numThread}-${mode}-${sioRunTime}-freebsd.sio.log"
-						$command = "nohup /root/sio/sio_ntap_freebsd $testMode $blockSize $testFileSize $sioRunTime $numThread $sioFileName -direct > $sioOutputFile "
-						$runMaxAllowedTime = [int]$sioRunTime + 180
+						$command = "nohup /root/sio/sio_ntap_freebsd $testMode $blockSize $testFileSize $sioRunTime $numThread $testFileName -direct > $sioOutputFile "
+						$runMaxAllowedTime = [int]$sioRunTime * 10
 						$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo -runMaxAllowedTime  $runMaxAllowedTime
 						WaitFor -seconds 10
 						$isSioStarted  = (( RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cat $sioOutputFile" ) -imatch "Version")
@@ -156,6 +169,7 @@ if ($isDeployed)
 							{
 								$connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 								$KernelVersion = ""
+								$GuestDistro = ""
 								$InstanceSize = "Standard_DS14_v2"
 								$bandwidth_KBps = 0
 								$BlockSize_KB = 0
@@ -169,6 +183,7 @@ if ($isDeployed)
 								$RuntimeSec = 0
 								$TestCaseName = "azure_sio_perf"
 								$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
+								$HostBy = $location
 								
 								$LogContents = Get-Content -Path "$LogDir\result.log"
 								foreach ($line in $LogContents)
@@ -186,6 +201,12 @@ if ($isDeployed)
 									# {
 										# $InstanceSize = $line.Split(":")[1].trim()
 									# }
+									
+									if ( $line -imatch "GuestDistro:" )
+									{
+										$GuestDistro = $line.Split(":")[1].trim()
+									}
+							
 									
 									if ( $line -imatch "bandwidth_KBps:" )
 									{
@@ -230,11 +251,11 @@ if ($isDeployed)
 								}
 
 								
-								$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,InstanceSize,GuestOS,"
+								$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,HostBy,GuestDistro,InstanceSize,GuestOS,"
 								$SQLQuery += "KernelVersion,DiskSetup,BlockSize_KB,FileSize_GB,NumThread,TestMode,"
 								$SQLQuery += "iops,bandwidth_KBps,RuntimeSec,IOs) VALUES "
 									
-								$SQLQuery += "('$TestCaseName','$TestDate','$HostType','$InstanceSize','$GuestOS',"
+								$SQLQuery += "('$TestCaseName','$TestDate','$HostType','$HostBy','$GuestDistro','$InstanceSize','$GuestOS',"
 								$SQLQuery += "'$KernelVersion','$DiskSetup','$BlockSize_KB','$FileSize_GB','$NumThread',"
 								$SQLQuery += "'$TestMode','$iops','$bandwidth_KBps','$RuntimeSec','$IOs')"
 			
@@ -252,6 +273,8 @@ if ($isDeployed)
 								LogMsg  "InstanceSize                  $InstanceSize"
 								LogMsg  "DiskSetup                     $DiskSetup"
 								LogMsg  "TestDate                      $TestDate"
+								LogMsg  "HostBy                        $HostBy"
+								LogMsg  "GuestDistro                   $GuestDistro"
 								
 								$uploadResults = $true
 								#Check the result valid before uploading. TODO 

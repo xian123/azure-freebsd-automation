@@ -837,8 +837,8 @@
 				<HostedService>
 					<VirtualMachine>
 						<state></state>
-						<InstanceSize>A8</InstanceSize>
-						<ARMInstanceSize>Standard_A8_v2</ARMInstanceSize>
+						<InstanceSize>D15</InstanceSize>
+						<ARMInstanceSize>Standard_D15_v2</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -859,8 +859,8 @@
 					<Tag>DTAP</Tag>
 					<VirtualMachine>
 						<state></state>
-						<InstanceSize>A8</InstanceSize>
-						<ARMInstanceSize>Standard_A8_v2</ARMInstanceSize>
+						<InstanceSize>D15</InstanceSize>
+						<ARMInstanceSize>Standard_D15_v2</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
@@ -5646,7 +5646,7 @@
 			<modes>seqw,seqr</modes>
 			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
 			<fileSize>16g</fileSize>
-			<runTimeSec>600</runTimeSec>
+			<runTimeSec>120</runTimeSec>
 			<setupType>DS14V2</setupType>
 			<TestType></TestType>
 			<DiskSetup>Single</DiskSetup>
@@ -5669,7 +5669,7 @@
 			<modes>seqw,seqr</modes>
 			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
 			<fileSize>16g</fileSize>
-			<runTimeSec>600</runTimeSec>
+			<runTimeSec>120</runTimeSec>
 			<setupType>DS14V2</setupType>
 			<TestType></TestType>
 			<DiskSetup>RAID0</DiskSetup>
@@ -5687,13 +5687,13 @@
 			<files>.\remote-scripts\report.tgz,.\remote-scripts\bsd_fio.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<!-- The maximum value is 128k -->
-			<blockSizes>4k,8k,16k,32k,128k</blockSizes>
-			<iodepths>1,2,4,8,16,32,64,128,256</iodepths>
-			<numThreads>1</numThreads>
+			<blockSizes>4k,8k</blockSizes>
+			<iodepths>1,2,4,8,16,32,64,128,256,512,1024</iodepths>
+			<numThreads>1,8,16</numThreads>
 			<modes>read,randread,write,randwrite</modes>
 			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
 			<fileSize>16g</fileSize>
-			<runTimeSec>600</runTimeSec>
+			<runTimeSec>120</runTimeSec>
 			<!-- if ioengine is empty here, libaio will be used as default io engine-->
 			<ioengine>posixaio</ioengine>
 			<setupType>DS14V2</setupType>
@@ -5713,13 +5713,13 @@
 			<files>.\remote-scripts\report.tgz,.\remote-scripts\bsd_fio.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<!-- The maximum value is 128k -->
-			<blockSizes>4k,8k,16k,32k,128k</blockSizes>
-			<iodepths>1,2,4,8,16,32,64,128,256</iodepths>
-			<numThreads>1</numThreads>
+			<blockSizes>4k,8k</blockSizes>
+			<iodepths>1,2,4,8,16,32,64,128,256,512,1024</iodepths>
+			<numThreads>1,8,16</numThreads>
 			<modes>read,randread,write,randwrite</modes>
 			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
 			<fileSize>16g</fileSize>
-			<runTimeSec>600</runTimeSec>
+			<runTimeSec>120</runTimeSec>
 			<!-- if ioengine is empty here, libaio will be used as default io engine-->
 			<ioengine>posixaio</ioengine>
 			<setupType>DS14V2</setupType>
@@ -5734,13 +5734,13 @@
 		</test>	
 		<test>
 			<testName>ICA-KQ-BSD-TEST</testName>
-			<testScript></testScript>
+			<testScript>bsd_kq.sh</testScript>
 			<testScriptps1>ICA-KQ-BSD-TEST.ps1</testScriptps1>
 			<SubtestValues></SubtestValues>
-			<connections>16</connections>	
-			<threads>1</threads>
-			<runTimeSec>600</runTimeSec>
-			<files>.\remote-scripts\report.tgz,.\remote-scripts\start-kqnetperf-server.py,.\remote-scripts\start-kqnetperf-client.py,.\remote-scripts\azuremodules.py,.\remote-scripts\kq_netperf.tgz</files>
+			<connections>1</connections>	
+			<threads>1,2,4,8,16,32,64,128,256</threads>
+			<runTimeSec>120</runTimeSec>
+			<files>.\remote-scripts\bsd_kq.sh,.\remote-scripts\report.tgz,.\remote-scripts\start-kqnetperf-server.py,.\remote-scripts\start-kqnetperf-client.py,.\remote-scripts\azuremodules.py,.\remote-scripts\kq_netperf.tgz</files>
 			<setupType>KQperfEndpoint</setupType>
 			<dataTableName>Perf_FreeBSD_Azure_KQ</dataTableName>
 			<TestType></TestType>

@@ -36,6 +36,7 @@ if($isDeployed)
 	
 	RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 	RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
+	RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript)" -runAsSudo
 	
 	RemoteCopy -uploadTo $dtapServerIp -port $dtapServerSshport -files $currentTestData.files -username $user -password $password -upload
 	RunLinuxCmd -username $user -password $password -ip $dtapServerIp -port $dtapServerSshport -command "chmod +x *" -runAsSudo
@@ -46,11 +47,9 @@ if($isDeployed)
 	
 	$resultArr = @()
 	$result = "", ""
-	$Subtests= $currentTestData.connections
-	$connections = $Subtests.Split(",")	
+	$connections= $currentTestData.connections.Split(",")
 	$runTimeSec= $currentTestData.runTimeSec	
-	$threads= $currentTestData.threads
-	$connections = $threads.Split(",")
+	$threads= $currentTestData.threads.Split(",")
 	$dataPath = $currentTestData.DataPath
 
 	foreach ($thread in $threads) 
@@ -115,21 +114,29 @@ if($isDeployed)
 						$connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 						$TestCaseName = "kqperf"
 						$HostType = "MS Azure"
-						$InstanceSize = ""
+						$InstanceSize = "Standard_D15_v2"
 						$GuestOS = "FreeBSD"
 						$KernelVersion = ""
+						$GuestDistro = ""
 						$RuntimeSec = 0
 						$MinBWInMbps = 0
 						$MaxBWInMbps = 0
 						$Connections = 0
 						$NumThread = 0
+						$HostBy = $xmlConfig.config.Azure.General.Location
+						$HostBy = $HostBy.Replace('"',"")
 						
 						$LogContents = Get-Content -Path "$LogDir\result.log"
 						foreach ($line in $LogContents)
 						{
-							if ( $line -imatch "InstanceSize:" )
+							# if ( $line -imatch "InstanceSize:" )
+							# {
+								# $InstanceSize = $line.Split(":")[1].trim()
+							# }
+							
+							if ( $line -imatch "GuestDistro:" )
 							{
-								$InstanceSize = $line.Split(":")[1].trim()
+								$GuestDistro = $line.Split(":")[1].trim()
 							}
 							
 							if ( $line -imatch "KernelVersion:" )
@@ -165,10 +172,10 @@ if($isDeployed)
 						}
 
 						
-						$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,InstanceSize,GuestOS,"
+						$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,HostBy,GuestDistro,InstanceSize,GuestOS,"
 						$SQLQuery += "KernelVersion,RuntimeSec,MaxBWInMbps,MinBWInMbps,Connections,NumThread,DataPath) VALUES "
 						
-						$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$InstanceSize','$GuestOS',"
+						$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$HostBy','$GuestDistro','$InstanceSize','$GuestOS',"
 						$SQLQuery += "'$KernelVersion','$RuntimeSec','$MaxBWInMbps','$MinBWInMbps','$Connections','$NumThread','$dataPath')"
 
 						LogMsg "SQLQuery:"
@@ -182,6 +189,8 @@ if($isDeployed)
 						"MinBWInMbps                   $MinBWInMbps"
 						"Connections                   $Connections"
 						"DataPath                      $dataPath"
+						"HostBy                        $HostBy"
+						"GuestDistro                   $GuestDistro"
 						
 						$uploadResults = $true
 						#Check the results validation ? TODO
