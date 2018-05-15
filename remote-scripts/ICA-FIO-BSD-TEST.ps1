@@ -173,25 +173,14 @@ if ($isDeployed)
 								    $connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 
 									$TestCaseName = "azure_fio_perf"
-									$avg_iops = 0
-									$max_iops = 0
 									$TestMode = ""
 									$RuntimeSec = 0
 									$QDepth = 0
-									$bandwidth_KBps = 0
-									$avg_iops = 0
-									$max_iops = 0
-									$TestMode = ""
-									$RuntimeSec = 0
-									$QDepth = 0
-									$bandwidth_KBps = 0
-									$stdev_iops = 0
-									$QDepth = 0
+									$bandwidth_MBps = 0
 									$BlockSize_KB = 0
 									$FileSize_GB = $fileSize.split("g")[0].trim()
 									$IOPS = 0
 									$NumThread = 0
-									$min_iops = 0
 									$KernelVersion = ""
 									$GuestDistro = ""
 									$InstanceSize = "Standard_DS14_v2"
@@ -207,19 +196,9 @@ if ($isDeployed)
 									foreach ($line in $LogContents)
 									{
 									 
-										if ( $line -imatch "bandwidth_KBps:" )
+										if ( $line -imatch "bandwidth_MBps:" )
 										{
-											$bandwidth_KBps = [int]($line.Split(":")[1].trim())
-										}
-										
-										if ( $line -imatch "avg_iops:" )
-										{
-											$avg_iops = [float]($line.Split(":")[1].trim())
-										}
-										
-										if ( $line -imatch "max_iops:" )
-										{
-											$max_iops = [float]($line.Split(":")[1].trim())
+											$bandwidth_MBps = [float]($line.Split(":")[1].trim())
 										}
 										
 										if ( $line -imatch "TestMode:" )
@@ -235,11 +214,6 @@ if ($isDeployed)
 										if ( $line -imatch "QDepth:" )
 										{
 											$QDepth = [int]($line.Split(":")[1].trim())
-										}
-										
-										if ( $line -imatch "stdev_iops:" )
-										{
-											$stdev_iops = [float]($line.Split(":")[1].trim())
 										}
 										
 										if ( $line -imatch "BlockSize_KB:" )
@@ -260,11 +234,6 @@ if ($isDeployed)
 										if ( $line -imatch "NumThread:" )
 										{
 											$NumThread = [int]($line.Split(":")[1].trim())
-										}
-
-										if ( $line -imatch "min_iops:" )
-										{
-											$min_iops = [float]($line.Split(":")[1].trim())
 										}
 
 										if ( $line -imatch "KernelVersion:" )
@@ -299,29 +268,25 @@ if ($isDeployed)
 								
 								    $SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,HostBy,GuestDistro,InstanceSize,GuestOS,"
 								    $SQLQuery += "KernelVersion,DiskSetup,IOEngine,BlockSize_KB,FileSize_GB,QDepth,NumThread,TestMode,"
-								    $SQLQuery += "iops,min_iops,max_iops,avg_iops,stdev_iops,bandwidth_KBps,lat_usec,RuntimeSec) VALUES "
+								    $SQLQuery += "iops,bandwidth_MBps,lat_usec,RuntimeSec) VALUES "
 									
 									$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$HostBy','$GuestDistro','$InstanceSize','$GuestOS',"
 									$SQLQuery += "'$KernelVersion','$DiskSetup','$IOEngine','$BlockSize_KB','$FileSize_GB','$QDepth','$NumThread',"
-									$SQLQuery += "'$TestMode','$iops','$min_iops','$max_iops','$avg_iops','$stdev_iops','$bandwidth_KBps','$lat_usec','$RuntimeSec')"
+									$SQLQuery += "'$TestMode','$iops','$bandwidth_MBps','$lat_usec','$RuntimeSec')"
 			
 									
 									LogMsg "SQLQuery:"
 									LogMsg $SQLQuery
 									
 									LogMsg  "ItemName                      Value"
-									LogMsg  "avg_iops                      $avg_iops"
-									LogMsg  "max_iops                      $max_iops"
 									LogMsg  "TestMode                      $TestMode"
 									LogMsg  "RuntimeSec                    $RuntimeSec"
-									LogMsg  "bandwidth_KBps                $bandwidth_KBps"
-									LogMsg  "stdev_iops                    $stdev_iops"
+									LogMsg  "bandwidth_MBps                $bandwidth_MBps"
 									LogMsg  "QDepth                        $QDepth"
 									LogMsg  "BlockSize_KB                  $BlockSize_KB"
 									LogMsg  "FileSize_GB                   $FileSize_GB"
 									LogMsg  "IOPS                          $IOPS"
 									LogMsg  "NumThread                     $NumThread"
-									LogMsg  "min_iops                      $min_iops"
 									LogMsg  "KernelVersion                 $KernelVersion"
 									LogMsg  "InstanceSize                  $InstanceSize"
 									LogMsg  "lat_usec                      $lat_usec"
