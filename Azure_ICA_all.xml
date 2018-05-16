@@ -837,7 +837,7 @@
 				<HostedService>
 					<VirtualMachine>
 						<state></state>
-						<InstanceSize>D15</InstanceSize>
+						<InstanceSize>Standard_D15</InstanceSize>
 						<ARMInstanceSize>Standard_D15_v2</ARMInstanceSize>
 						<EndPoints>
 							<Name>SSH</Name>
@@ -845,38 +845,21 @@
 							<LocalPort>22</LocalPort>
 							<PublicPort>22</PublicPort>
 						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D15</InstanceSize>
+						<ARMInstanceSize>Standard_D15_v2</ARMInstanceSize>
 						<EndPoints>
-							<Name>TCPtest</Name>
+							<Name>SSH</Name>
 							<Protocol>tcp</Protocol>
-							<LocalPort>750</LocalPort>
-							<PublicPort>750</PublicPort>
-							<LoadBalanced>False</LoadBalanced>
+							<LocalPort>22</LocalPort>
+							<PublicPort>222</PublicPort>
 						</EndPoints>
 						<DataDisk></DataDisk>
 					</VirtualMachine>
 				</HostedService>
-				<HostedService>
-					<Tag>DTAP</Tag>
-					<VirtualMachine>
-						<state></state>
-						<InstanceSize>D15</InstanceSize>
-						<ARMInstanceSize>Standard_D15_v2</ARMInstanceSize>
-						<EndPoints>
-							<Name>SSH</Name>
-							<Protocol>tcp</Protocol>
-							<LocalPort>22</LocalPort>
-							<PublicPort>22</PublicPort>
-						</EndPoints>
-						<EndPoints>
-							<Name>TCPtest</Name>
-							<Protocol>tcp</Protocol>
-							<LocalPort>750</LocalPort>
-							<PublicPort>750</PublicPort>
-							<LoadBalanced>False</LoadBalanced>
-						</EndPoints>
-						<DataDisk></DataDisk>
-					</VirtualMachine>
-				</HostedService>				
 			</KQperfEndpoint>
 
 			<VNETVM>
@@ -5737,8 +5720,7 @@
 			<testScript>bsd_kq.sh</testScript>
 			<testScriptps1>ICA-KQ-BSD-TEST.ps1</testScriptps1>
 			<SubtestValues></SubtestValues>
-			<connections>1</connections>	
-			<threads>1,2,4,8,16,32,64,128,256</threads>
+			<connections>1,2,4,8,16,32,64,128,256,512,1024</connections>	
 			<runTimeSec>120</runTimeSec>
 			<files>.\remote-scripts\bsd_kq.sh,.\remote-scripts\report.tgz,.\remote-scripts\start-kqnetperf-server.py,.\remote-scripts\start-kqnetperf-client.py,.\remote-scripts\azuremodules.py,.\remote-scripts\kq_netperf.tgz</files>
 			<setupType>KQperfEndpoint</setupType>

@@ -17,7 +17,7 @@ parser.add_argument('-l', '--time', help='duration for which test should be run'
 args = parser.parse_args()
                 #if no value specified then stop
 command = 'kq_netperf/kq_netperf ' +  '-4 ' + args.serverip +  ' -c' + str(args.connections)
-if args.connections != None :
+if args.port != None :
     command = command + ' -p' + str(args.port)
 if args.nthreads != None :
     command = command + ' -t' + str(args.nthreads)

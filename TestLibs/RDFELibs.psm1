@@ -3204,33 +3204,6 @@ Function KQperfClientServerTest($server,$client,$timeOutInSecs)
 	if($isServerStarted -eq $true)
 	{
 		LogMsg "kqnetperf Server started successfully."
-		$tcpport = $server.tcpPort
-		$command = "sockstat -4 -l | grep -i kq_recvser |grep -v $tcpport | grep -v grep | awk '{print `$6}' | sed -e 's/.*://' | xargs"
-		$ports = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command $command -runAsSudo
-		$priority = 1010
-		foreach( $port in $ports.split(" ") )
-		{
-			$priority+=1
-			$port = $port  -replace "[^0-9]" , ''
-			LogMsg "Port of KQServer: $port"
-			
-			$groupName = $server.groupName
-			$nsg = Get-AzureRmNetworkSecurityGroup -ResourceGroupName $groupName 
-			Add-AzureRmNetworkSecurityRuleConfig -NetworkSecurityGroup $nsg `
-			-Name https-$port `
-			-Description "Allow" `
-			-Access Allow `
-			-Protocol Tcp `
-			-Direction Inbound `
-			-Priority $priority `
-			-SourceAddressPrefix * `
-			-SourcePortRange * `
-			-DestinationAddressPrefix * `
-			-DestinationPortRange $port | out-null
-
-			Set-AzureRmNetworkSecurityGroup -NetworkSecurityGroup $nsg  | out-null		
-		
-		}
 		
 #>>>On confirmation, of server starting, let's start kqnetperf client...
 		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | tee kqnetperf-client.txt" -runAsSudo
@@ -3266,19 +3239,7 @@ Function KQperfClientServerTest($server,$client,$timeOutInSecs)
 			RemoteCopy -download -downloadFrom $server.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $server.LogDir -port $server.sshPort -username $server.user -password $server.password
 			LogMsg "Test Finished..!"
 			$testResult = "FAIL"
-		}
-		
-        #Delete the new ports
-		foreach( $port in $ports.split(" ") )
-		{
-			$port = $port  -replace "[^0-9]" , ''
-			LogMsg "Port of KQServer: $port"
-			
-			$groupName = $server.groupName
-		    Remove-AzureRmNetworkSecurityGroup -Name "https-$port" -ResourceGroupName $groupName   -Force  | out-null		
-		}
-		
-		
+		}		
 
 	} else	{
 		LogErr "Unable to start kqnetperf-server. Aborting test."

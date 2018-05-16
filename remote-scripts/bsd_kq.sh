@@ -22,10 +22,10 @@ UpdateTestState()
 
 UpdateTestState $ICA_TESTRUNNING
 
-touch $HOME/summary.log
-
-echo Guest Distro: `uname -r` >> summary.record
-
+touch  summary.log
+date >>  summary.log
+uname -a >>  summary.log
+echo Guest Distro: `uname -r` >>  summary.log
 
 #If we are here test executed successfully
 UpdateTestState $ICA_TESTCOMPLETED

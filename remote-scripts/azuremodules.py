@@ -516,7 +516,7 @@ def StartKQNetperfServer(server):
         Run('echo "yes" > isKqnetperfServerStarted.txt')
     else :
         RunLog.error('KQNetperf Server Failed to start..')
-        Run("echo yes > isKqnetperfServerStarted.txt")
+        Run('echo "no" > isKqnetperfServerStarted.txt')
         UpdateState('Aborted')
 
         
