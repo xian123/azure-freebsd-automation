@@ -61,9 +61,14 @@
 			<Data>
 				<!-- You can add your own distro and Image names here -->
 				<Distro>
-					<Name>U1410</Name>
-					<OsImage>b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu_DAILY_BUILD-utopic-14_10-amd64-server-20150620-en-us-30GB</OsImage>
-				</Distro> 
+					<Name>freebsdimage</Name>
+					<ARMImage>
+						<Publisher>MicrosoftOSTC</Publisher>
+						<Offer>FreeBSD</Offer>
+						<Sku>11.1</Sku>
+						<Version>11.1.20180112</Version>
+					</ARMImage>
+				</Distro>				
 				<Distro>
 					<Name>FreebsdASM</Name>
 					<OsImage>Freebsd102rep1420160318</OsImage>
