@@ -36,6 +36,10 @@ if($isDeployed)
 	$connections= $currentTestData.connections.Split(",")
 	$runTimeSec= $currentTestData.runTimeSec	
 	$dataPath = $currentTestData.DataPath
+	
+	#The /usr/kqperf directory is used for parsing the KQ result
+	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "mkdir /usr/kqperf" -runAsSudo
+	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
 
 	foreach ($connection in $connections) 
 	{
@@ -57,13 +61,9 @@ if($isDeployed)
 				#Rename the client log
 				$newFileName = "$connection-$runTimeSec-freebsd.kq.log"
 				Copy-Item "$($client.LogDir)\kqnetperf-client.txt"   "$($client.LogDir)\$newFileName"				
-		
-				RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "mkdir /usr/kqperf" -runAsSudo
+
 				RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "cp kqnetperf-client.txt /usr/kqperf/$newFileName" -runAsSudo
-				
-				RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
 				RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "python /usr/report/kqTestEntry.py" -runAsSudo
-				
 				RemoteCopy -downloadFrom $KQClientIp -port $KQClientSshport -username $user -password $password -files "result.log" -downloadTo $LogDir -download
 				
 				LogMsg "Uploading the test results.."
@@ -93,7 +93,7 @@ if($isDeployed)
 				{
 				
 					$connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
-					$TestCaseName = "kqperf"
+					$TestCaseName = "azure_kq_perf"
 					$HostType = "MS Azure"
 					$InstanceSize = "Standard_D15_v2"
 					$GuestOS = "FreeBSD"
@@ -192,11 +192,7 @@ if($isDeployed)
 						$command.CommandText = $SQLQuery
 						$result = $command.executenonquery()
 						$connection.Close()
-						LogMsg "Uploading the test results done!!"
-						
-						#Delete the previous result
-						RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "rm -rf /usr/kqperf" -runAsSudo
-						RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "rm -f result.log kqnetperf-client.txt"   -runAsSudo
+						LogMsg "Uploading the test results done!!"						
 						
 						$testResult = "PASS"
 					}
@@ -212,9 +208,11 @@ if($isDeployed)
 					LogErr "Uploading the test results cancelled due to wrong database configuration!"
 					$testResult = "FAIL"
 				}
-				
-
 			}
+			
+			#Delete the previous result
+			RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "rm -rf /usr/kqperf/*.log" -runAsSudo
+			RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "rm -f result.log kqnetperf-client.txt"   -runAsSudo
 			
 		}
 

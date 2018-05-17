@@ -79,13 +79,17 @@ if ($isDeployed)
 		$NumberOfDisksAttached = 1
 		LogMsg "Executing : bash $($currentTestData.testScript) $NumberOfDisksAttached"
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript) $NumberOfDisksAttached" -runAsSudo
-		# RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "date >>  summary.log;uname -a >>  summary.log" -runAsSudo
 		
 		LogMsg "Executing : Install sio"
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf sio.tgz -C /root" -runAsSudo
 		
 		$testFileSize = $currentTestData.fileSize
 		$sioRunTime = $currentTestData.runTimeSec
+		
+		#The /usr/sio directory is used for parsing the sio result
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "mkdir /usr/sio" -runAsSudo
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp summary.log /usr" -runAsSudo
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
 		
 		#Actual Test Starts here..
         foreach ( $blockSize in $currentTestData.blockSizes.split(","))
@@ -131,14 +135,9 @@ if ($isDeployed)
 						
 						if( $isSioFinished )
 						{
-							LogMsg "Great! SIO test is finished now."
-							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "mkdir /usr/sio" -runAsSudo
-							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp $sioOutputFile  /usr/sio" -runAsSudo
-							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp summary.log /usr" -runAsSudo
-				
-							RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
-							RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "python /usr/report/sioTestEntry.py" -runAsSudo
-							
+							LogMsg "Great! SIO test is finished now."						
+							RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp $sioOutputFile  /usr/sio" -runAsSudo						
+							RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "python /usr/report/sioTestEntry.py" -runAsSudo							
 							RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "result.log" -downloadTo $LogDir -download
 							RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "$sioOutputFile" -downloadTo $LogDir -download
 							
@@ -291,9 +290,7 @@ if ($isDeployed)
 									$connection.Close()
 									LogMsg "Uploading the test results done!!"
 									
-									#Delete the previous result
-									$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf /usr/sio" -runAsSudo
-									$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -f result.log" -runAsSudo
+									
 									
 									$testResult = "PASS"
 								}
@@ -309,14 +306,15 @@ if ($isDeployed)
 								LogErr "Uploading the test results cancelled due to wrong database configuration"
 								$testResult = "FAIL"
 							}								
-							
-
-							
 						}
 						else
 						{
 							$testResult = "FAIL"
 						}
+						
+						#Delete the previous result
+						$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf /usr/sio/*.log" -runAsSudo
+						$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -f result.log" -runAsSudo
 						
 						
 					}
