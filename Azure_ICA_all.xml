@@ -5624,7 +5624,8 @@
 			<files>.\remote-scripts\report.tgz,.\remote-scripts\sio.tgz,.\remote-scripts\bsd_sio.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<blockSizes>4k</blockSizes>
-			<numThreads>1</numThreads>
+			<!-- The max threads are 256 for freebsd -->
+			<numThreads>16,32,64,128,256</numThreads>
 		    <!-- 	<modes>seqw,seqr,ranr,ranw,seqranrw</modes> -->
 			<modes>seqw,seqr</modes>
 			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
@@ -5647,7 +5648,8 @@
 			<files>.\remote-scripts\report.tgz,.\remote-scripts\sio.tgz,.\remote-scripts\bsd_sio.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<blockSizes>4k</blockSizes>
-			<numThreads>1</numThreads>
+			<!-- The max threads are 256 for freebsd -->
+			<numThreads>16,32,64,128,256</numThreads>
 		    <!-- 	<modes>seqw,seqr,ranr,ranw,seqranrw</modes> -->
 			<modes>seqw,seqr</modes>
 			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->

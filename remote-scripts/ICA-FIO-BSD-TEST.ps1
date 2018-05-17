@@ -93,7 +93,12 @@ if ($isDeployed)
 		{
 			$ioengine = "posixaio"
 		}
-
+        
+		#The /usr/fio directory is used for parsing the fio result
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "mkdir /usr/fio" -runAsSudo
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp summary.log /usr" -runAsSudo
+		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
+		
         #Actual Test Starts here..
         foreach ( $blockSize in $currentTestData.blockSizes.split(","))
         {
@@ -133,14 +138,8 @@ if ($isDeployed)
 							
 							if( $isFioFinished )
 							{
-							
-								$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "mkdir /usr/fio" -runAsSudo
-								$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp $fioOutputFile  /usr/fio" -runAsSudo
-								$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp summary.log /usr" -runAsSudo
-					
-								RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
-								RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "python /usr/report/fioTestEntry.py" -runAsSudo
-								
+								RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cp $fioOutputFile  /usr/fio" -runAsSudo				
+								RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "python /usr/report/fioTestEntry.py" -runAsSudo								
 								RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "result.log" -downloadTo $LogDir -download
 								RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "$fioOutputFile" -downloadTo $LogDir -download
 								
@@ -309,11 +308,7 @@ if ($isDeployed)
 										LogMsg "Uploading the test results done!!"
 										
 										LogMsg "Great! FIO test is finished now."
-										
-										#Delete the previous result
-										$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf /usr/fio" -runAsSudo
-										$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -f result.log" -runAsSudo
-										
+
 										$testResult = "PASS"
 									}
 									else 
@@ -334,6 +329,10 @@ if ($isDeployed)
 							{
 							    $testResult = "FAIL"
 							}
+							
+							#Delete the previous result
+							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf /usr/fio/*.log" -runAsSudo
+							$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -f result.log" -runAsSudo
 							
 						}
 						catch
