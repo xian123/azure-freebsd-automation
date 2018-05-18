@@ -28,8 +28,10 @@ UpdateTestState()
 
 UpdateTestState $ICA_TESTRUNNING
 
-touch $HOME/summary.log
+touch summary.log
 
+date >  summary.log;
+uname -a >>  summary.log
 echo Guest Distro: `uname -r` >> summary.log
 
 sum=`ls /dev/da* | wc -l`

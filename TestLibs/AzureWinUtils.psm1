@@ -218,6 +218,36 @@ Function GetSIOMode($mode)
 }
 
 
+####################################################
+#Install basic apps/tools
+####################################################
+Function InstallPackagesOnFreebsd( [string] $username,[string] $password,[string] $ip,[int] $port )
+{
+	$command = "ASSUME_ALWAYS_YES=yes pkg bootstrap -yf"
+	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo -runMaxAllowedTime  300
+	
+	$command = "pkg update -f"
+	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo -runMaxAllowedTime  300
+	
+	$appsToBeInstalled=@("bash","unix2dos","fio")  
+    foreach( $app in $appsToBeInstalled )
+	{
+		$command = "pkg install -y $app "
+		$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo -runMaxAllowedTime  600
+		if(!$?) 
+		{
+			LogMsg "ERROR: Install $app failed!"
+		}
+	}
+	
+	$command = "ln -sf /usr/local/bin/bash  /bin/bash"
+	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo
+
+}
+
+
+
+
 
 ####################################################
 #SystemStart ()

@@ -61,6 +61,17 @@
 			<Data>
 				<!-- You can add your own distro and Image names here -->
 				<Distro>
+					<Name>ShortDistroName</Name>
+					<ARMImage>
+						<Publisher></Publisher>
+						<Offer></Offer>
+						<Sku></Sku>
+						<Version></Version>
+					</ARMImage>
+					<OsVHD></OsVHD>
+				</Distro>
+				
+				<Distro>
 					<Name>freebsdimage</Name>
 					<ARMImage>
 						<Publisher>MicrosoftOSTC</Publisher>
@@ -6338,6 +6349,42 @@
 				<Name>ICA-NTP-CHECK</Name>
 			</test>
 		</Cycle>
+		
+		<Cycle>
+			<cycleName>PERF-FIO-SingleDisk</cycleName>
+			<test>
+				<Name>ICA-FIO-BSD-TEST</Name>
+			</test>
+		</Cycle>
+		
+		<Cycle>
+			<cycleName>PERF-FIO-RAID0</cycleName>
+			<test>
+				<Name>ICA-FIO-RAID0-BSD-TEST</Name>
+			</test>
+		</Cycle>
+		
+		<Cycle>
+			<cycleName>PERF-SIO-SingleDisk</cycleName>
+			<test>
+				<Name>ICA-SIO-BSD-TEST</Name>
+			</test>
+		</Cycle>
+		
+		<Cycle>
+			<cycleName>PERF-SIO-RAID0</cycleName>
+			<test>
+				<Name>ICA-SIO-RAID0-BSD-TEST</Name>
+			</test>
+		</Cycle>
+		
+		<Cycle>
+			<cycleName>PERF-KQ</cycleName>
+			<test>
+				<Name>ICA-KQ-BSD-TEST</Name>
+			</test>
+		</Cycle>
+		
 
 		<Cycle>
 			<cycleName>DEBUG</cycleName>
