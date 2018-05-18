@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AllRegions>
+	<eastus2>
+		<StandardStorage>freebsdeastus2v1</StandardStorage>
+		<PremiumStorage>freebsdeastus2v2</PremiumStorage>
+	</eastus2>
+</AllRegions>
