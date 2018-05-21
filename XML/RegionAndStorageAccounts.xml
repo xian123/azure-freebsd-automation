@@ -4,4 +4,8 @@
 		<StandardStorage>freebsdeastus2v1</StandardStorage>
 		<PremiumStorage>freebsdeastus2v2</PremiumStorage>
 	</eastus2>
+	<australiaeast>
+		<StandardStorage>freebsdaustraliaeastv1</StandardStorage>
+		<PremiumStorage>freebsdaustraliaeastv2</PremiumStorage>
+	</australiaeast>
 </AllRegions>

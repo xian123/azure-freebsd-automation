@@ -1,4 +1,22 @@
-﻿Param( $BuildNumber=$env:BUILD_NUMBER,
+﻿##############################################################################################
+# RunAzureTests.ps1
+# Description : This script manages all the setup and test operations in Azure environment.
+#               It is an entry script of Azure Automation.
+#               It's a package of AzureAutomationManager.ps1.
+
+# Usage
+
+# Example 1:
+#        .\RunAzureTests.ps1 -ARMImageName 'MicrosoftOSTC FreeBSD 11.1 11.1.20180112' -testLocation 'eastus2' -DistroIdentifier 'freebsdkqtest'    + 
+#          -testCycle 'PERF-KQ' -StorageAccount 'ExistingStorage_Standard'  -ResultDBTable 'Perf_FreeBSD_Azure_KQ' -customSecretsFilePath "C:\Users\Public\secretsFile.xml"
+
+# Example 2:
+#        .\RunAzureTests.ps1 -ARMImageName 'MicrosoftOSTC FreeBSD 11.1 11.1.20180112' -testLocation 'eastus2' -DistroIdentifier 'freebsdfiotest'   + 
+#         -testCycle 'PERF-SIO-SingleDisk' -StorageAccount 'ExistingStorage_Premium'  -ResultDBTable 'Perf_FreeBSD_Azure_sio' -customSecretsFilePath "C:\Users\Public\secretsFile.xml"
+###############################################################################################
+
+
+Param( $BuildNumber=$env:BUILD_NUMBER,
 
 [Parameter(Mandatory=$true)]
 [string] $testLocation,

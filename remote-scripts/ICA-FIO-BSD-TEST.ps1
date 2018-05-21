@@ -24,6 +24,8 @@ if ($isDeployed)
 		$storageType = "Premium_LRS"
 		$location = $xmlConfig.config.Azure.General.Location
 		$location = $location.Replace('"',"")
+		$vmInfo = Get-AzureRMVM –Name $vmName  –ResourceGroupName $rgNameOfVM
+		$InstanceSize = $vmInfo.HardwareProfile.VmSize
 		
 		New-AzureRmStorageAccount -ResourceGroupName $rgNameOfVM -AccountName $storageAccountName -Location $location  -SkuName $storageType
 
@@ -183,14 +185,11 @@ if ($isDeployed)
 									$NumThread = 0
 									$KernelVersion = ""
 									$GuestDistro = ""
-									$InstanceSize = "Standard_DS14_v2"
 									$lat_usec = 0
 									$IOEngine = ""
 									$GuestOS = "FreeBSD"
 									$HostType = "MS Azure"
-									$HostBy = $xmlConfig.config.Azure.General.Location
-                                    $HostBy = $HostBy.Replace('"',"")									
-								
+									$HostBy = $location
 																	
 									$LogContents = Get-Content -Path "$LogDir\result.log"
 									foreach ($line in $LogContents)
@@ -244,11 +243,6 @@ if ($isDeployed)
 												$KernelVersion = $KernelVersion.Substring(0,59)
 											}
 										}
-
-										# if ( $line -imatch "InstanceSize:" )
-										# {
-											# $InstanceSize = $line.Split(":")[1].trim()
-										# }
 										
 										if ( $line -imatch "GuestDistro:" )
 										{

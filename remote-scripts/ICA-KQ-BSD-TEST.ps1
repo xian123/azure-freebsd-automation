@@ -9,6 +9,8 @@ if($isDeployed)
 	
 	$KQClientIp = $allVMData[0].PublicIP
 	$KQClientSshport = $allVMData[0].SSHPort
+	$vmName =$allVMData[0].RoleName
+    $rgNameOfVM = $allVMData[0].ResourceGroupName
 	
 	$KQServerIp = $allVMData[1].PublicIP
 	$KQServerSshport = $allVMData[1].SSHPort
@@ -20,6 +22,9 @@ if($isDeployed)
 	$server = CreateIperfNode -nodeIp $KQServerIp -nodeSshPort $KQServerSshport  -nodeIperfCmd $cmd1 -user $user -password $password -files $currentTestData.files -logDir $LogDir
 	$client = CreateIperfNode -nodeIp $KQClientIp -nodeSshPort $KQClientSshport  -nodeIperfCmd $cmd2 -user $user -password $password -files $currentTestData.files -logDir $LogDir 
 
+	$vmInfo = Get-AzureRMVM –Name $vmName  –ResourceGroupName $rgNameOfVM
+	$InstanceSize = $vmInfo.HardwareProfile.VmSize
+	
 	RemoteCopy -uploadTo $KQClientIp -port $KQClientSshport -files $currentTestData.files -username $user -password $password -upload
 	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "chmod +x *" -runAsSudo
 	
@@ -100,7 +105,6 @@ if($isDeployed)
 					$connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 					$TestCaseName = "azure_kq_perf"
 					$HostType = "MS Azure"
-					$InstanceSize = "Standard_D15_v2"
 					$GuestOS = "FreeBSD"
 					$KernelVersion = ""
 					$GuestDistro = ""
@@ -116,11 +120,6 @@ if($isDeployed)
 					$LogContents = Get-Content -Path "$LogDir\result.log"
 					foreach ($line in $LogContents)
 					{
-						# if ( $line -imatch "InstanceSize:" )
-						# {
-							# $InstanceSize = $line.Split(":")[1].trim()
-						# }
-						
 						if ( $line -imatch "GuestDistro:" )
 						{
 							$GuestDistro = $line.Split(":")[1].trim()

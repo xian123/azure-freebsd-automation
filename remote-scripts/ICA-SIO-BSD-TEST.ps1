@@ -23,6 +23,8 @@ if ($isDeployed)
 		$storageType = "Premium_LRS"
 		$location = $xmlConfig.config.Azure.General.Location
 		$location = $location.Replace('"',"")
+		$vmInfo = Get-AzureRMVM –Name $vmName  –ResourceGroupName $rgNameOfVM
+		$InstanceSize = $vmInfo.HardwareProfile.VmSize
 		
 		New-AzureRmStorageAccount -ResourceGroupName $rgNameOfVM -AccountName $storageAccountName -Location $location  -SkuName $storageType
 
@@ -172,7 +174,6 @@ if ($isDeployed)
 								$connectionString = "Server=$dataSource;uid=$databaseUser; pwd=$databasePassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 								$KernelVersion = ""
 								$GuestDistro = ""
-								$InstanceSize = "Standard_DS14_v2"
 								$bandwidth_KBps = 0
 								$BlockSize_KB = 0
 								$IOs = 0
@@ -198,11 +199,6 @@ if ($isDeployed)
 										    $KernelVersion = $KernelVersion.Substring(0,59)
 										}										
 									}
-									
-									# if ( $line -imatch "InstanceSize:" )
-									# {
-										# $InstanceSize = $line.Split(":")[1].trim()
-									# }
 									
 									if ( $line -imatch "GuestDistro:" )
 									{
