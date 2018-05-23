@@ -5690,12 +5690,11 @@
 			<!-- The maximum value is 128k -->
 			<blockSizes>4k,8k</blockSizes>
 			<iodepths>1,2,4,8,16,32,64,128,256,512,1024</iodepths>
-			<numThreads>1,8,16</numThreads>
 			<modes>read,randread,write,randwrite</modes>
 			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
 			<fileSize>16g</fileSize>
 			<runTimeSec>120</runTimeSec>
-			<!-- if ioengine is empty here, libaio will be used as default io engine-->
+			<!-- if ioengine is empty here, posixaio will be used as default io engine. libaio doesn't support by FreeBSD.-->
 			<ioengine>posixaio</ioengine>
 			<setupType>DS14V2</setupType>
 			<TestType></TestType>
@@ -5716,12 +5715,11 @@
 			<!-- The maximum value is 128k -->
 			<blockSizes>4k,8k</blockSizes>
 			<iodepths>1,2,4,8,16,32,64,128,256,512,1024</iodepths>
-			<numThreads>1,8,16</numThreads>
 			<modes>read,randread,write,randwrite</modes>
 			<!-- you can specifiy que depths with commaa separated integer values. 10g,20g,100g...... The unit must be 'g'.-->
 			<fileSize>16g</fileSize>
 			<runTimeSec>120</runTimeSec>
-			<!-- if ioengine is empty here, libaio will be used as default io engine-->
+			<!-- if ioengine is empty here, posixaio will be used as default io engine. libaio doesn't support by FreeBSD. -->
 			<ioengine>posixaio</ioengine>
 			<setupType>DS14V2</setupType>
 			<TestType></TestType>

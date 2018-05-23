@@ -8,4 +8,12 @@
 		<StandardStorage>freebsdaustraliaeastv1</StandardStorage>
 		<PremiumStorage>freebsdaustraliaeastv2</PremiumStorage>
 	</australiaeast>
+	<southeastasia>
+		<StandardStorage>freebsdsoutheastasiav1</StandardStorage>
+		<PremiumStorage>freebsdsoutheastasiav2</PremiumStorage>
+	</southeastasia>
+	<westcentralus>
+		<StandardStorage>freebsdwestcentralusv1</StandardStorage>
+		<PremiumStorage>freebsdwestcentralusv2</PremiumStorage>
+	</westcentralus>
 </AllRegions>
