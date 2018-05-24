@@ -97,6 +97,7 @@ if ($isDeployed)
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
 		
 		#Actual Test Starts here..
+		$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
         foreach ( $blockSize in $currentTestData.blockSizes.split(","))
         {
             foreach ( $numThread in $currentTestData.numThreads.split(","))
@@ -185,7 +186,6 @@ if ($isDeployed)
 								$NumThread = 0
 								$RuntimeSec = 0
 								$TestCaseName = "azure_sio_perf"
-								$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
 								$HostBy = $location
 								
 								$LogContents = Get-Content -Path "$LogDir\result.log"

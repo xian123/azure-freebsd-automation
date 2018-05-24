@@ -51,6 +51,7 @@ if($isDeployed)
 	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "mkdir /usr/kqperf" -runAsSudo
 	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
 
+	$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
 	foreach ($connection in $connections) 
 	{
 		try
@@ -166,7 +167,7 @@ if($isDeployed)
 					$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,HostBy,GuestDistro,InstanceSize,GuestOS,"
 					$SQLQuery += "KernelVersion,RuntimeSec,BWInMbps,MaxBWInMbps,MinBWInMbps,Connections,NumThread,DataPath) VALUES "
 					
-					$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$HostBy','$GuestDistro','$InstanceSize','$GuestOS',"
+					$SQLQuery += "('$TestCaseName','$TestDate','$HostType','$HostBy','$GuestDistro','$InstanceSize','$GuestOS',"
 					$SQLQuery += "'$KernelVersion','$RuntimeSec','$BWInMbps','$MaxBWInMbps','$MinBWInMbps','$Connections','$NumThread','$dataPath')"
 
 					LogMsg  "SQLQuery:"

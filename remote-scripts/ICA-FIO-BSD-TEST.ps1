@@ -103,6 +103,7 @@ if ($isDeployed)
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
 		
         #Actual Test Starts here..
+		$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
         foreach ( $blockSize in $currentTestData.blockSizes.split(","))
         {
 			foreach ( $iodepth in $currentTestData.iodepths.split(","))
@@ -261,7 +262,7 @@ if ($isDeployed)
 								$SQLQuery += "KernelVersion,DiskSetup,IOEngine,BlockSize_KB,FileSize_GB,QDepth,NumThread,TestMode,"
 								$SQLQuery += "iops,bandwidth_MBps,lat_usec,RuntimeSec) VALUES "
 								
-								$SQLQuery += "('$TestCaseName','$(Get-Date -Format yyyy-MM-dd)','$HostType','$HostBy','$GuestDistro','$InstanceSize','$GuestOS',"
+								$SQLQuery += "('$TestCaseName','$TestDate','$HostType','$HostBy','$GuestDistro','$InstanceSize','$GuestOS',"
 								$SQLQuery += "'$KernelVersion','$DiskSetup','$IOEngine','$BlockSize_KB','$FileSize_GB','$QDepth','$NumThread',"
 								$SQLQuery += "'$TestMode','$iops','$bandwidth_MBps','$lat_usec','$RuntimeSec')"
 		
