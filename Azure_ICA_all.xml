@@ -848,7 +848,7 @@
 				</HostedService>
 			</E2EFourVM>
 			
-			<KQperfEndpoint>
+			<KQperf>
 				<isDeployed>NO</isDeployed>
 				<HostedService>
 					<VirtualMachine>
@@ -876,7 +876,7 @@
 						<DataDisk></DataDisk>
 					</VirtualMachine>
 				</HostedService>
-			</KQperfEndpoint>
+			</KQperf>
 
 			<VNETVM>
 				<isDeployed>NO</isDeployed>
@@ -5739,7 +5739,7 @@
 			<connections>1,2,4,8,16,32,64,128,256,512,1024</connections>	
 			<runTimeSec>120</runTimeSec>
 			<files>.\remote-scripts\bsd_kq.sh,.\remote-scripts\report.tgz,.\remote-scripts\start-kqnetperf-server.py,.\remote-scripts\start-kqnetperf-client.py,.\remote-scripts\azuremodules.py,.\remote-scripts\kq_netperf.tgz</files>
-			<setupType>KQperfEndpoint</setupType>
+			<setupType>KQperf</setupType>
 			<dataTableName>Perf_FreeBSD_Azure_KQ</dataTableName>
 			<TestType></TestType>
 			<DataPath>Synthetic</DataPath>
