@@ -450,7 +450,7 @@ Function RunTestsOnCycle ($cycleName , $xmlConfig, $Distro, $testIterations )
 							$testCycle.htmlSummary += "<tr><td><font size=`"3`">$executionCount</font></td><td>$tempHtmlText$(AddReproVMDetailsToHtmlReport)</td><td>$testRunDuration min</td><td>$testResultRow</td></tr>"
 						}
 					}
-					if ($xmlSecrets)
+					if ($xmlSecrets  -and $freebsdUploadTestResult)
 					{
 						try
 						{
