@@ -242,6 +242,15 @@ Function InstallPackagesOnFreebsd( [string] $username,[string] $password,[string
 	
 	$command = "ln -sf /usr/local/bin/bash  /bin/bash"
 	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo
+	
+	$command = "uname -r"
+	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo
+	if( $out -like  "*10.*"   )
+	{
+		# Load the aio module for freebsd 10.x, otherwise the fio test will be failed.
+		$command = "kldload aio"
+		$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo
+	}
 
 }
 
