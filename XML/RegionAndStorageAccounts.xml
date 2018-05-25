@@ -16,4 +16,8 @@
 		<StandardStorage>freebsdwestcentralusv1</StandardStorage>
 		<PremiumStorage>freebsdwestcentralusv2</PremiumStorage>
 	</westcentralus>
+	<eastus>
+		<StandardStorage>freebsdeastusv1</StandardStorage>
+		<PremiumStorage>freebsdeastusv2</PremiumStorage>
+	</eastus>
 </AllRegions>
