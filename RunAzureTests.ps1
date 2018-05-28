@@ -55,6 +55,7 @@ Param( $BuildNumber=$env:BUILD_NUMBER,
 [string] $tipSessionId="",
 [string] $tipCluster="",
 [switch] $UseManagedDisks,
+[string] $destBlobName = "Default",
 
 [switch] $ExitWithZero
 )
@@ -267,6 +268,22 @@ if( $ResultDBTestTag )
 else
 {
     #Write-Host "No Test Tag provided. If test needs DB support please fill testTag."
+}
+
+
+if( $testCycle -eq "BUILD-KERNEL" )
+{
+	if ( $destBlobName -eq "Default" ) {
+		Write-Host "ERROR: destBlobName is not given." -ForegroundColor Red -BackgroundColor Black
+		exit 1
+	}
+
+	$target = $xmlFileData.config.testsDefinition.test  | Where {$_.testName -eq "ICA-BUILD-FREEBSD-KERNEL"}
+	if( $target )
+	{
+		$target.destBlobName = $destBlobName
+		$target.dstLocation = $regionName
+	}
 }
 
 

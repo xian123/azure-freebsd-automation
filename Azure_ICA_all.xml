@@ -5748,6 +5748,20 @@
 			<TestID>AzureNetwork_Kqnetperf_01</TestID>
 			<Priority>P0</Priority>
 		</test>
+		<test>
+			<testName>ICA-BUILD-FREEBSD-KERNEL</testName>
+			<testScript>ica-build-freebsd-kernel.sh</testScript>
+			<testScriptPs1>ICA-BUILD-FREEBSD-KERNEL.ps1</testScriptPs1>
+			<files>.\remote-scripts\ica-build-freebsd-kernel.sh</files>
+			<setupType>D5V2</setupType>
+			<dstResourceNamePrefix>xhxprparevhd</dstResourceNamePrefix>
+			<dstLocation>westeurope</dstLocation>
+			<destBlobName>freebsd.vhd</destBlobName>
+			<TestType></TestType>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID>Azure_BuildKernel_001</TestID>
+		</test>
 		
 		</testsDefinition>
 		
@@ -6383,6 +6397,12 @@
 			</test>
 		</Cycle>
 		
+		<Cycle>
+			<cycleName>BUILD-KERNEL</cycleName>
+			<test>
+				<Name>ICA-BUILD-FREEBSD-KERNEL</Name>
+			</test>
+		</Cycle>
 
 		<Cycle>
 			<cycleName>DEBUG</cycleName>
