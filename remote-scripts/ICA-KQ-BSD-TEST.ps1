@@ -112,7 +112,7 @@ if($isDeployed)
 					$RuntimeSec = 0
 					$MinBWInMbps = 0
 					$MaxBWInMbps = 0
-					$BWInMbps = 0
+					$TotalBWInMbps = 0
 					$Connections = 0
 					$NumThread = 0
 					$HostBy = $xmlConfig.config.Azure.General.Location
@@ -148,7 +148,7 @@ if($isDeployed)
 						
 						if ( $line -imatch "total_bw_Mbps:" )
 						{
-							$BWInMbps = [float]($line.Split(":")[1].trim())
+							$TotalBWInMbps = [float]($line.Split(":")[1].trim())
 						}
 						
 						if ( $line -imatch "NumberOfConnections:" )
@@ -165,10 +165,10 @@ if($isDeployed)
 
 					
 					$SQLQuery  = "INSERT INTO $dataTableName (TestCaseName,TestDate,HostType,HostBy,GuestDistro,InstanceSize,GuestOS,"
-					$SQLQuery += "KernelVersion,RuntimeSec,BWInMbps,MaxBWInMbps,MinBWInMbps,Connections,NumThread,DataPath) VALUES "
+					$SQLQuery += "KernelVersion,RuntimeSec,TotalBWInMbps,MaxBWInMbps,MinBWInMbps,Connections,NumThread,DataPath) VALUES "
 					
 					$SQLQuery += "('$TestCaseName','$TestDate','$HostType','$HostBy','$GuestDistro','$InstanceSize','$GuestOS',"
-					$SQLQuery += "'$KernelVersion','$RuntimeSec','$BWInMbps','$MaxBWInMbps','$MinBWInMbps','$Connections','$NumThread','$dataPath')"
+					$SQLQuery += "'$KernelVersion','$RuntimeSec','$TotalBWInMbps','$MaxBWInMbps','$MinBWInMbps','$Connections','$NumThread','$dataPath')"
 
 					LogMsg  "SQLQuery:"
 					LogMsg  $SQLQuery
@@ -177,7 +177,7 @@ if($isDeployed)
 					LogMsg  "NumThread                     $NumThread"
 					LogMsg  "KernelVersion                 $KernelVersion"
 					LogMsg  "InstanceSize                  $InstanceSize"
-					LogMsg  "BWInMbps                      $BWInMbps"
+					LogMsg  "TotalBWInMbps                 $TotalBWInMbps"
 					LogMsg  "MaxBWInMbps                   $MaxBWInMbps"
 					LogMsg  "MinBWInMbps                   $MinBWInMbps"
 					LogMsg  "Connections                   $Connections"
