@@ -156,82 +156,13 @@ if ($isDeployed)
 				{
 					LogMsg "Copy vhd from  $srcResourceGroupName to $dstResourceGroupNameV2 successfully."
 					$isSuccess = $True
+					$testResult = "PASS"
 				}
 			}
-			
-			$sts = $status.Status
-			
+						
 			$counter += 1
 
 		}
-		
-		
-		$retryAttemts = 3
-		$isSuccess = $false
-		$counter  = 0
-		while(($counter -le $retryAttemts) -and ($isSuccess -eq $false))
-		{
-			LogMsg "Current:Retrying $counter/$retryAttemts.."
-			if( !$testResult )
-			{
-				#Upload the .vhd to the specified storage (Storage account type = Standard_LRS )
-				$dstStorageAccountNameV1 = $currentTestData.dstResourceNamePrefix + "storagev1"
-				$dstResourceGroupNameV1 = $currentTestData.dstResourceNamePrefix + "groupv1"
-				
-				$dstLocation = $currentTestData.dstLocation
-				$destBlobName = $currentTestData.destBlobName
-				$destContainerName = "vhds"
-				$storageType = "Standard_LRS"				
-				
-				CheckAndMakesureStorageAccountExists -resourceGroupNameToBeChecked $dstResourceGroupNameV1  -storageAccountNameToBeChecked $dstStorageAccountNameV1  $destContainerName   $dstLocation  $storageType
-
-				LogMsg "**************************************************************"
-				LogMsg "The source URL is $srcUri"
-				LogMsg "The destination location: $dstLocation"
-				LogMsg "The destination group: $dstResourceGroupNameV1"
-				LogMsg "The destination storage: $dstStorageAccountNameV1"
-				LogMsg "The destination storage type: $storageType"
-				LogMsg "The destination vhd name: $destBlobName"
-				LogMsg "**************************************************************"
-				
-				$dstStorageKey = (Get-AzureRmStorageAccountKey  -StorageAccountName $dstStorageAccountNameV1 -ResourceGroupName $dstResourceGroupNameV1).Value[0]
-				$destContext = New-AzureStorageContext -StorageAccountName $dstStorageAccountNameV1 -StorageAccountKey $dstStorageKey
-				
-				LogMsg "Begin to copy vhd from $srcResourceGroupName to $dstResourceGroupNameV1"
-				$blob = Start-AzureStorageBlobCopy -SrcUri $srcUri -SrcContext $srcContext -DestContainer $destContainerName -DestBlob $destBlobName -DestContext $destContext -Force
-
-				LogMsg "Checking Copy Status"
-				#Set enough time to copy
-				$uploadTimeout = 36000
-				$status = $blob | Get-AzureStorageBlobCopyState
-				while( ($status.Status -eq "Pending") -and ($uploadTimeout -gt 0 ) ){
-					$status = $blob | Get-AzureStorageBlobCopyState					
-					$BytesCopied = $status.BytesCopied
-					$TotalBytes = $status.TotalBytes
-					LogMsg "BytesCopied/TotalBytes: $BytesCopied/$TotalBytes"
-					Start-Sleep 60
-					$uploadTimeout -= 60
-				}
-				
-				$status = $blob | Get-AzureStorageBlobCopyState
-				if( ($status.Status -ne "Success") -and ($counter -eq $retryAttemts) ){
-					LogErr "Copy vhd from  $srcResourceGroupName to $dstResourceGroupNameV1 time-out."
-					$testResult = "FAIL"
-				}
-				
-				if( $status.Status -eq "Success" )
-				{
-					LogMsg "Copy vhd from  $srcResourceGroupName to $dstResourceGroupNameV1 successfully."
-					$isSuccess = $True
-					$testResult = "PASS"
-				}
-
-			}
-			
-		    $counter += 1
-		}
-		
-
 	}
 	catch
 	{

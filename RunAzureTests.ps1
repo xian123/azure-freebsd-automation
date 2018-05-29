@@ -281,8 +281,7 @@ if( $testCycle -eq "BUILD-KERNEL" )
 	$target = $xmlFileData.config.testsDefinition.test  | Where {$_.testName -eq "ICA-BUILD-FREEBSD-KERNEL"}
 	if( $target )
 	{
-		$target.destBlobName = $destBlobName
-		$target.dstLocation = $regionName
+		$target.destBlobName = ($destBlobName).Trim()
 	}
 }
 
@@ -290,6 +289,90 @@ if( $testCycle -eq "BUILD-KERNEL" )
 
 $xmlFileData.Save("$xmlConfigFileFinal")
 Write-Host "$xmlConfigFileFinal prepared successfully."
+
+
+if ( $OsVHD )
+{
+	try
+	{
+		$dstStorageAccountName  = $StorageAccountName
+		$dstStorageAccountInfo = Get-AzureRmStorageAccount -ErrorAction Stop | where-object {$_.StorageAccountName -eq $dstStorageAccountName}
+		if($dstStorageAccountInfo)
+		{
+			# Check the blob whether exists 
+			$dstStorageKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $dstStorageAccountInfo.ResourceGroupName -name $dstStorageAccountInfo.StorageAccountName)[0].value
+			$destContext = New-AzureStorageContext -StorageAccountName $dstStorageAccountInfo.StorageAccountName -StorageAccountKey $dstStorageKey
+			$destContainerName = "vhds"
+			$blobName = ($OsVHD).Trim()
+			
+			$blob = Get-AzureStorageBlob -Blob $blobName -Container $destContainerName -Context $destContext -ErrorAction Ignore
+			if (-not $blob)
+			{
+				Write-Host "$blobName Not Found, so copy it."
+				# This storage account name is fixed and the storage places all the xxx.vhd which is from building kernel
+				$srcStorageAccountName = "xhxprparevhdstoragev2"  
+				$srcContainerName = "vhds"
+
+				$srcStorageAccountInfo = Get-AzureRmStorageAccount -ErrorAction Stop | where-object {$_.StorageAccountName -eq $srcStorageAccountName}
+				if(-not $srcStorageAccountInfo )
+				{
+					Write-Host "ERROR: the storage $srcStorageAccountName doesn't exist." -ForegroundColor Red -BackgroundColor Black
+					exit 1
+				}
+				
+				$srcUri =   "https://" + $srcStorageAccountName + ".blob.core.windows.net/" + $srcContainerName + "/" + $blobName
+				$srcStorageKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $srcStorageAccountInfo.ResourceGroupName -name $srcStorageAccountInfo.StorageAccountName)[0].value
+				$srcContext = New-AzureStorageContext -StorageAccountName $srcStorageAccountInfo.StorageAccountName -StorageAccountKey $srcStorageKey
+				
+				Write-Host "Begin to copy $blobName from  $srcStorageAccountName to $dstStorageAccountName ..."
+				$blob = Start-AzureStorageBlobCopy -SrcUri $srcUri -SrcContext $srcContext -DestContainer $destContainerName -DestBlob $blobName -DestContext $destContext
+
+				Write-Host "Checking Copy Status"
+				$status = $blob | Get-AzureStorageBlobCopyState
+				while($status.Status -eq "Pending"){
+					$status = $blob | Get-AzureStorageBlobCopyState
+					Start-Sleep 20
+					$BytesCopied = $status.BytesCopied
+					$TotalBytes = $status.TotalBytes
+					Write-Host "BytesCopied/TotalBytes: $BytesCopied/$TotalBytes"
+				}
+				
+				$status = $blob | Get-AzureStorageBlobCopyState
+				if( $status.Status -eq "Success"  )
+				{
+					Write-Host "Copy $blobName from  $srcStorageAccountName to $dstStorageAccountName successfully."
+				}
+				else
+				{
+					Write-Host "ERROR: Copy $blobName from  $srcStorageAccountName to $dstStorageAccountName failed." -ForegroundColor Red -BackgroundColor Black
+					exit 1
+				}
+				
+			}
+			else
+			{
+				Write-Host "$blobName Found in $dstStorageAccountName"
+			}
+		
+		}
+		else
+		{
+			Write-Host "ERROR: The storage account $StorageAccountName doesn't exist" -ForegroundColor Red -BackgroundColor Black
+			# TODO: create a storage account
+			exit 1
+		}
+	}
+	catch 
+	{
+		$ErrorMessage =  $_.Exception.Message
+		Write-Host "EXCEPTION : $ErrorMessage" -ForegroundColor Red -BackgroundColor Black
+		exit 1
+	}
+	
+}
+
+
+
 
 $currentDir = $PWD
 Write-Host "CURRENT WORKING DIRECTORY - $currentDir"
