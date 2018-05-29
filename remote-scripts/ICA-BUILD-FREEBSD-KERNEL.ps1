@@ -50,6 +50,7 @@ if ($isDeployed)
 				#Delete old log
 				RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf ~/.ssh/" -runAsSudo 
 				RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf /var/log/*" -runAsSudo 
+				RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "sync;sync" -runAsSudo 
 			}
 			else
 			{
@@ -92,14 +93,18 @@ if ($isDeployed)
 		$isSuccess = $false
 		$counter  = 0
 		
-		Stop-AzureRmVM -ResourceGroupName  $vmResourceGroupName  -Name $hs1vm1Hostname  -Force
+		if( !$testResult )
+		{
+			Stop-AzureRmVM -ResourceGroupName  $vmResourceGroupName  -Name $hs1vm1Hostname  -Force
+		}
 		
 		while(($counter -le $retryAttemts) -and ($isSuccess -eq $false))
 		{
-			LogMsg "Current:Retrying $counter/$retryAttemts.."
 			if( !$testResult )
 			{
 				#Upload the .vhd to the specified storage (Storage account type = Premium_LRS )
+				LogMsg "Current:Retrying $counter/$retryAttemts.."
+				
 				$dstStorageAccountNameV2 = $currentTestData.dstResourceNamePrefix + "storagev2"
 				$dstResourceGroupNameV2 = $currentTestData.dstResourceNamePrefix + "groupv2"
 				
