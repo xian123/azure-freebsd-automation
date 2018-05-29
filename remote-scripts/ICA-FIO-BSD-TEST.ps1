@@ -115,7 +115,7 @@ if ($isDeployed)
 						$blockSizeInKB=$blocksize.split("k")[0].trim()
 						$fileSizeInGB=$fileSize.split("g")[0].trim()
 						
-						if( $iodepth -gt 8 )
+						if( [int]$iodepth -gt 8 )
 						{
 							$numThread = 8
 						}
