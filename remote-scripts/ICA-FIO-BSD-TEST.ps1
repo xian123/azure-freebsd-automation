@@ -107,6 +107,7 @@ if ($isDeployed)
 		$totalFailTimes = 0
 		$totalAbortTimes = 0
 		$maxExecutionTime = 0
+		$maxExecutionTimeCmd = ""
 		$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
         foreach ( $blockSize in $currentTestData.blockSizes.split(","))
         {
@@ -158,6 +159,7 @@ if ($isDeployed)
 						if( [int]$diff -gt [int]$maxExecutionTime )
 						{
 							$maxExecutionTime = $diff
+							$maxExecutionTimeCmd = $command
 						}
 						LogMsg "Execute fio command time in seconds: $diff"
 						
@@ -373,6 +375,7 @@ if ($isDeployed)
 		LogMsg "The failed times: $totalFailTimes"
 		LogMsg "The aborted times: $totalAbortTimes"
 		LogMsg "The max execution time in seconds: $maxExecutionTime"
+		LogMsg "The command of max execution time: $maxExecutionTimeCmd"
 
 	}
 	catch
