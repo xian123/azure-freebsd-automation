@@ -3213,7 +3213,7 @@ Function KQperfClientServerTest($server,$client,$timeOutInSecs)
 		if($isClientStarted -eq $true)
 		{
 		    #Wait client complete
-			$timeOut = 180 + $timeOutInSecs
+			$timeOut = 20 * [int]$timeOutInSecs
             $isClientFinished = IsKQperfClientFinished $client
 			while(  $isClientFinished -eq $false -and $timeOut -gt 0 )
 			{
@@ -3225,7 +3225,7 @@ Function KQperfClientServerTest($server,$client,$timeOutInSecs)
 			
 			if( $isClientFinished -eq $false )
 			{
-				LogMsg "Test Finished..!"
+				LogErr "Test time out"
 				$testResult = "FAIL"
 			}
 			else

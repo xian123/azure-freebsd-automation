@@ -51,13 +51,16 @@ if($isDeployed)
 	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "mkdir /usr/kqperf" -runAsSudo
 	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
 
+	$totalLoopTimes = 0
+	$totalFailTimes = 0
+	$totalAbortTimes = 0
+	$maxExecutionTime = 0
 	$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
 	foreach ($connection in $connections) 
 	{
 		try
 		{
 			$testResult = $null
-			
 			$server.cmd = "$python_cmd start-kqnetperf-server.py   && mv -f Runtime.log start-server.py.log"			
 			
 			LogMsg "Test Started for Parallel Connections $connection"
@@ -66,7 +69,17 @@ if($isDeployed)
 			$server.logDir = $LogDir + "\$connection"
 			$client.logDir = $LogDir + "\$connection"
 			$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "rm -rf kqnetperf-server.txt" -runAsSudo
+			
+			$start = [DateTime]::Now
 			$testResult = KQperfClientServerTest $server $client  $runTimeSec
+			$end = [DateTime]::Now
+			$diff = ($end - $start).TotalSeconds
+			if( [int]$diff -gt [int]$maxExecutionTime )
+			{
+				$maxExecutionTime = $diff
+			}
+			LogMsg "Execute the KQ client/server command time in seconds: $diff"
+			
 			if( $testResult -eq "PASS" )
 			{
 				#Rename the client log
@@ -236,8 +249,25 @@ if($isDeployed)
 				$testResult = "Aborted"
 			}
 			$resultArr += $testResult
+			
+			if( $testResult -eq "FAIL" )
+			{
+				$totalFailTimes += 1
+			}
+			
+			if( $testResult -eq "Aborted" )
+			{
+				$totalAbortTimes += 1
+			}
+			
+			$totalLoopTimes += 1
 		}
 	}
+	
+	LogMsg "The total loop times: $totalLoopTimes"
+	LogMsg "The failed times: $totalFailTimes"
+	LogMsg "The aborted times: $totalAbortTimes"
+	LogMsg "The max execution time in seconds: $maxExecutionTime"
 
 }
 else

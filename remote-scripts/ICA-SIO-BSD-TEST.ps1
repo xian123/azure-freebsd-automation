@@ -97,6 +97,10 @@ if ($isDeployed)
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
 		
 		#Actual Test Starts here..
+		$totalLoopTimes = 0
+		$totalFailTimes = 0
+		$totalAbortTimes = 0
+		$maxExecutionTime = 0
 		$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
         foreach ( $blockSize in $currentTestData.blockSizes.split(","))
         {
@@ -118,13 +122,14 @@ if ($isDeployed)
 						$sioOutputFile = "${blockSizeInKB}-$fileSizeInGB-${numThread}-${mode}-${sioRunTime}-freebsd.sio.log"
 						$command = "nohup /root/sio/sio_ntap_freebsd $testMode $blockSize $testFileSize $sioRunTime $numThread $testFileName -direct > $sioOutputFile "
 						$runMaxAllowedTime = [int]$sioRunTime * 10
+						
+						$start = [DateTime]::Now
 						$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo -runMaxAllowedTime  $runMaxAllowedTime
 						WaitFor -seconds 10
 						$isSioStarted  = (( RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cat $sioOutputFile" ) -imatch "Version")
 						if ( $isSioStarted )
 						{ 
 							LogMsg "SIO Test Started successfully for mode : ${mode}, blockSize : $blockSize, numThread : $numThread, FileSize : $testFileSize and Runtime = $sioRunTime seconds.."
-							WaitFor -seconds 60 
 						}
 						else
 						{
@@ -138,6 +143,13 @@ if ($isDeployed)
 							WaitFor -seconds 20
 						}
 						
+						$end = [DateTime]::Now
+						$diff = ($end - $start).TotalSeconds
+						if( [int]$diff -gt [int]$maxExecutionTime )
+						{
+							$maxExecutionTime = $diff
+						}
+						LogMsg "Execute sio command time in seconds: $diff"
 						
 						if( $isSioFinished )
 						{
@@ -330,11 +342,27 @@ if ($isDeployed)
 							$testResult = "Aborted"
 						}
 						$resultArr += $testResult
-						$resultSummary +=  CreateResultSummary -testResult $testResult -metaData $metaData -checkValues "PASS,FAIL,ABORTED" -testName $currentTestData.testName
+						# $resultSummary +=  CreateResultSummary -testResult $testResult -metaData $metaData -checkValues "PASS,FAIL,ABORTED" -testName $currentTestData.testName
+						if( $testResult -eq "FAIL" )
+						{
+							$totalFailTimes += 1
+						}
+						
+						if( $testResult -eq "Aborted" )
+						{
+							$totalAbortTimes += 1
+						}
+						
+						$totalLoopTimes += 1
 					}				
 				}
             }
         }
+		
+		LogMsg "The total loop times: $totalLoopTimes"
+		LogMsg "The failed times: $totalFailTimes"
+		LogMsg "The aborted times: $totalAbortTimes"
+		LogMsg "The max execution time in seconds: $maxExecutionTime"
 		
 		
 	}

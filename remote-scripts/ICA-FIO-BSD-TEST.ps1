@@ -103,6 +103,10 @@ if ($isDeployed)
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "tar -xvzf report.tgz -C /usr" -runAsSudo
 		
         #Actual Test Starts here..
+		$totalLoopTimes = 0
+		$totalFailTimes = 0
+		$totalAbortTimes = 0
+		$maxExecutionTime = 0
 		$TestDate = (Get-Date -Format yyyy-MM-dd).trim()
         foreach ( $blockSize in $currentTestData.blockSizes.split(","))
         {
@@ -128,13 +132,14 @@ if ($isDeployed)
 						$fioCommonOptions="--size=${fileSize} --direct=1 --ioengine=${ioengine} --filename=${testFileName} --overwrite=1 --iodepth=$iodepth --runtime=${runTime}"
 						$command="nohup fio ${fioCommonOptions} --readwrite=$testmode --bs=$blockSize --numjobs=$numThread --name=fiotest --output=$fioOutputFile"
 						$runMaxAllowedTime = [int]$runTime * 20
+						
+						$start = [DateTime]::Now
 						$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo -runMaxAllowedTime  $runMaxAllowedTime
 						WaitFor -seconds 10
 						$isFioStarted  = (( RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cat $fioOutputFile" ) -imatch "Starting")
 						if ( $isFioStarted )
 						{ 
 							LogMsg "FIO Test Started successfully for mode : ${testMode}, blockSize : $blockSize, numThread : $numThread, FileSize : $fileSize and Runtime = $runTime seconds.."
-							WaitFor -seconds 60 
 						}
 						else
 						{
@@ -147,6 +152,14 @@ if ($isDeployed)
 							$isFioFinished = (( RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "cat $fioOutputFile" ) -imatch "Run status group")
 							WaitFor -seconds 20
 						}
+						
+						$end = [DateTime]::Now
+						$diff = ($end - $start).TotalSeconds
+						if( [int]$diff -gt [int]$maxExecutionTime )
+						{
+							$maxExecutionTime = $diff
+						}
+						LogMsg "Execute fio command time in seconds: $diff"
 						
 						if( $isFioFinished )
 						{
@@ -226,11 +239,6 @@ if ($isDeployed)
 									{
 										$BlockSize_KB = [int]($line.Split(":")[1].trim())
 									}
-
-									# if ( $line -imatch "FileSize_GB:" )
-									# {
-										# $FileSize_GB = [int]($line.Split(":")[1].trim())
-									# }
 
 									if ( $line -cmatch "IOPS:" )
 									{
@@ -341,18 +349,30 @@ if ($isDeployed)
 							$testResult = "Aborted"
 						}
 						$resultArr += $testResult
-						$resultSummary +=  CreateResultSummary -testResult $testResult -metaData $metaData -checkValues "PASS,FAIL,ABORTED" -testName $currentTestData.testName
+						# $resultSummary +=  CreateResultSummary -testResult $testResult -metaData $metaData -checkValues "PASS,FAIL,ABORTED" -testName $currentTestData.testName
+						if( $testResult -eq "FAIL" )
+						{
+							$totalFailTimes += 1
+						}
+						
+						if( $testResult -eq "Aborted" )
+						{
+							$totalAbortTimes += 1
+						}
+						
+						$totalLoopTimes += 1
+						
 					}				
 					
 				}				 
 				
 			}
         }
-		
-		if( $testResult -eq "PASS" )
-		{
-			# RemoteCopy -downloadFrom $hs1VIP -port $hs1vm1sshport -username $user -password $password -files "summary.log" -downloadTo $LogDir -download
-		}
+
+		LogMsg "The total loop times: $totalLoopTimes"
+		LogMsg "The failed times: $totalFailTimes"
+		LogMsg "The aborted times: $totalAbortTimes"
+		LogMsg "The max execution time in seconds: $maxExecutionTime"
 
 	}
 	catch
