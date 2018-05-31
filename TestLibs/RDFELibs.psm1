@@ -2424,6 +2424,36 @@ Function DoTestCleanUp($result, $testName, $DeployedServices, $ResourceGroups, [
 	{
 		if($DeployedServices -or $ResourceGroups)
 		{
+			try
+			{
+				foreach ($vmData in $allVMData)
+				{
+					$out = RemoteCopy -upload -uploadTo $vmData.PublicIP -port $vmData.SSHPort -files .\remote-scripts\CollectLogFile.sh -username $user -password $password
+					$out = RunLinuxCmd -username $user -password $password -ip $vmData.PublicIP -port $vmData.SSHPort -command "sh CollectLogFile.sh" -ignoreLinuxExitCode
+					$out = RemoteCopy -downloadFrom $vmData.PublicIP -port $vmData.SSHPort -username $user -password $password -files "$($vmData.RoleName)-*.txt" -downloadTo "$LogDir" -download
+					$finalKernelVersion = Get-Content "$LogDir\$($vmData.RoleName)-kernelVersion.txt"
+					$finalKernelVersion = $finalKernelVersion.Split()[3] + $finalKernelVersion.Split()[4] + $finalKernelVersion.Split()[5] + $finalKernelVersion.Split()[6]
+					$finalKernelVersion = $finalKernelVersion.TrimEnd(":")
+					Set-Variable -Name finalKernelVersion -Value $finalKernelVersion -Scope Global
+					$GuestDistro = Get-Content -Path "$LogDir\$($vmData.RoleName)-distroVersion.txt"
+					Write-Host "$($vmData.RoleName) - GuestDistro = $GuestDistro"
+					Set-Variable -Name GuestDistro -Value $GuestDistro -Scope Global
+					#endregion
+					$dmesgFile = "$LogDir\$($vmData.RoleName)-dmesg.txt"
+					#region Host Version checking
+					$foundLineNumber = (Select-String -Path $dmesgFile -Pattern "Hyper-V Version").LineNumber
+					$actualLineNumber = $foundLineNumber - 1
+					$finalLine = (Get-Content -Path $dmesgFile)[$actualLineNumber]
+					#Write-Host $finalLine
+					$HostVersion = ($finalLine.Split(":")[$finalLine.Split(":").Count -1 ]).Trim().TrimEnd(";")
+					Write-Host "$($vmData.RoleName) - Host Version = $HostVersion"
+					Set-Variable -Value $HostVersion -Name HostVersion -Scope Global
+				}
+			}
+			catch
+			{
+				LogErr "Ignorable error in collecting final data from VMs."
+			}
 			$currentTestBackgroundJobs = Get-Content $LogDir\CurrentTestBackgroundJobs.txt -ErrorAction SilentlyContinue
 			if ( $currentTestBackgroundJobs )
 			{

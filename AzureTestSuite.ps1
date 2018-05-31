@@ -450,7 +450,8 @@ Function RunTestsOnCycle ($cycleName , $xmlConfig, $Distro, $testIterations )
 							$testCycle.htmlSummary += "<tr><td><font size=`"3`">$executionCount</font></td><td>$tempHtmlText$(AddReproVMDetailsToHtmlReport)</td><td>$testRunDuration min</td><td>$testResultRow</td></tr>"
 						}
 					}
-					if ($xmlSecrets  -and $freebsdUploadTestResult)
+
+					if ($xmlSecrets  -and ($testCycle.cycleName -notcontains 'PERF'))
 					{
 						try
 						{
@@ -459,20 +460,30 @@ Function RunTestsOnCycle ($cycleName , $xmlConfig, $Distro, $testIterations )
 							$testLogStorageAccountKey = $xmlSecrets.secrets.testLogsStorageAccountKey
 							$ticks= (Get-Date).Ticks
 							$uploadFileName = ".\temp\$($currentTestData.testName)-$ticks.zip"
-							$out = ZipFiles -zipfilename $uploadFileName -sourcedir $LogDir
-							$uploadLink = .\Extras\UploadFilesToStorageAccount.ps1 -filePaths $uploadFileName -destinationStorageAccount $testLogStorageAccount -destinationContainer "logs" -destinationFolder "$testLogFolder" -destinationStorageKey $testLogStorageAccountKey
+							#$out = ZipFiles -zipfilename $uploadFileName -sourcedir $LogDir
+							#$uploadLink = .\Extras\UploadFilesToStorageAccount.ps1 -filePaths $uploadFileName -destinationStorageAccount $testLogStorageAccount -destinationContainer "logs" -destinationFolder "$testLogFolder" -destinationStorageKey $testLogStorageAccountKey
 							$utctime = (Get-Date).ToUniversalTime()
 							$dbDateTimeUTC = "$($utctime.Year)-$($utctime.Month)-$($utctime.Day) $($utctime.Hour):$($utctime.Minute):$($utctime.Second)"
 							$dataSource = $xmlSecrets.secrets.DatabaseServer
 							$dbuser = $xmlSecrets.secrets.DatabaseUser
 							$dbpassword = $xmlSecrets.secrets.DatabasePassword
 							$database = $xmlSecrets.secrets.DatabaseName
-							$dataTableName = "AzureTestResultsMasterTable"
+							$dataTableName = "FreeBSD_Upstream_Azure_Results"
 							$dbTestName = $($currentTestData.testName)
-							$SQLQuery = "INSERT INTO $dataTableName (DateTimeUTC,Environment,TestCycle,ExecutionID,TestName,TestResult,ARMImage,OsVHD,KernelVersion,LISVersion,GuestDistro,AzureHost,Location,OverrideVMSize,Networking,LogFile,BuildURL) VALUES "
+							$dbGuestOS='FreeBSD'
+							if ( $EnableAcceleratedNetworking )
+							{
+								$dbDataPath = "SRIOV"
+							}
+							else
+							{
+								$dbDataPath = "Synthetic"
+							}
+							$dbOverrideVMSize = $DBVMSize
+							$SQLQuery = "INSERT INTO $dataTableName (TestDate,TestCycle,TestCaseName,TestResult,KernelVersion,GuestDistro,HostVersion,Location,VMSize,GuestOS,DataPath) VALUES "
 							if ($testMode -eq "multi")
 							{
-								$SQLQuery += "('$dbDateTimeUTC','$dbEnvironment','$dbTestCycle','$dbExecutionID','$dbTestName','$($testResult[0])','$dbARMImage','$BaseOsVHD','$finalKernelVersion','$finalLISVersion','$GuestDistro','$HostVersion','$dbLocation','$dbOverrideVMSize','$dbNetworking','$uploadLink', '$env:BUILD_URL`consoleFull'),"
+								$SQLQuery += "('$dbDateTimeUTC','$dbTestCycle','$dbTestName','$($testResult[0])','$finalKernelVersion','$GuestDistro','$HostVersion','$dbLocation','$dbOverrideVMSize','$dbGuestOS','$dbDataPath'),"
 								foreach ($tempResult in $summary.Split('>'))
 								{
 									if ($tempResult)
@@ -480,16 +491,18 @@ Function RunTestsOnCycle ($cycleName , $xmlConfig, $Distro, $testIterations )
 										$tempResult = $tempResult.Trim().Replace("<br /","").Trim()
 										$subTestResult = $tempResult.Split(":")[$tempResult.Split(":").Count -1 ].Trim()
 										$subTestName = $tempResult.Replace("$subTestResult","").Trim().TrimEnd(":").Trim()
-										$SQLQuery += "('$dbDateTimeUTC','$dbEnvironment','$dbTestCycle','$dbExecutionID','SubTest-$subTestName','$subTestResult','$dbARMImage','$BaseOsVHD','$finalKernelVersion','$finalLISVersion','$GuestDistro','$HostVersion','$dbLocation','$dbOverrideVMSize','$dbNetworking', '$uploadLink', '$env:BUILD_URL`consoleFull'),"
+										$SQLQuery += "('$dbDateTimeUTC','$dbTestCycle','SubTest-$subTestName','$subTestResult','$finalKernelVersion','$GuestDistro','$HostVersion','$dbLocation','$dbOverrideVMSize','$dbGuestOS','$dbDataPath'),"
 									}
 								}
 							}
 							elseif ( $testMode -eq "single")
 							{
 								$dbTestResult = $testResult
-								$SQLQuery += "('$dbDateTimeUTC','$dbEnvironment','$dbTestCycle','$dbExecutionID','$dbTestName','$dbTestResult','$dbARMImage','$BaseOsVHD','$finalKernelVersion','$finalLISVersion','$GuestDistro','$HostVersion','$dbLocation','$dbOverrideVMSize','$dbNetworking', '$uploadLink', '$env:BUILD_URL`consoleFull')"
+								$SQLQuery += "('$dbDateTimeUTC','$dbTestCycle','$dbTestName','$dbTestResult','$finalKernelVersion','$GuestDistro','$HostVersion','$dbLocation','$dbOverrideVMSize','$dbGuestOS','$dbDataPath')"
 							}
 							$SQLQuery = $SQLQuery.TrimEnd(',')
+							LogMsg "======================= SQLQuery ======================= "
+							LogMsg "$($SQLQuery)"
 							$connectionString = "Server=$dataSource;uid=$dbuser; pwd=$dbpassword;Database=$database;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
 							$connection = New-Object System.Data.SqlClient.SqlConnection
 							$connection.ConnectionString = $connectionString
