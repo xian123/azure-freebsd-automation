@@ -1113,15 +1113,16 @@ Function GetAndCheckKernelLogs($allDeployedVMs, $status, $vmUser, $vmPassword)
 		$KernelLogStatus="$BootLogDir\KernelLogStatus.txt"
 		if($status -imatch "Initial")
 		{
-			# For freebsd, the bash and dos2unix tools are not installed by default.
-			LogMsg "Install basic apps/tools."
-			InstallPackagesOnFreebsd -username $vmUser -password $vmPassword -ip $VM.PublicIP -port $VM.SSHPort
-		
 			$randomFileName = [System.IO.Path]::GetRandomFileName()
 			Set-Content -Value "A Random file." -Path "$Logdir\$randomFileName"
 			$out = RemoteCopy -uploadTo $VM.PublicIP -port $VM.SSHPort  -files "$Logdir\$randomFileName" -username $vmUser -password $vmPassword -upload
 			Remove-Item -Path "$Logdir\$randomFileName" -Force
 			$out = RunLinuxCmd -ip $VM.PublicIP -port $VM.SSHPort -username $vmUser -password $vmPassword -command "dmesg > /home/$vmUser/InitialBootLogs.txt" -runAsSudo
+			
+			# For freebsd, the bash and dos2unix tools are not installed by default.
+			LogMsg "Install basic apps/tools."
+			InstallPackagesOnFreebsd -username $vmUser -password $vmPassword -ip $VM.PublicIP -port $VM.SSHPort
+			
 			$out = RemoteCopy -download -downloadFrom $VM.PublicIP -port $VM.SSHPort -files "/home/$vmUser/InitialBootLogs.txt" -downloadTo $BootLogDir -username $vmUser -password $vmPassword
 			LogMsg "$($VM.RoleName): $status Kernel logs collected ..SUCCESSFULLY"
 			LogMsg "Checking for call traces in kernel logs.."
