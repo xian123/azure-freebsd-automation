@@ -1922,6 +1922,7 @@ if ( ($numberOfVMs -eq 1) -and !$EnableIPv6 -and !$ForceLoadBalancerForSingleVM 
     {
 		$instanceSize = $newVM.ARMInstanceSize
     }
+    Set-Variable -Value $instanceSize -Name DBVMSize -Scope Global
     $SubnetName = $newVM.ARMSubnetName
     $DnsServerIP = $RGXMLData.DnsServerIP
     $NIC = "NIC" + "-$vmName"
