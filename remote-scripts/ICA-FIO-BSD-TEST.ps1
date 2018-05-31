@@ -78,10 +78,7 @@ if ($isDeployed)
 		
 		RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
-		
-		LogMsg "Install basic apps/tools."
-		InstallPackagesOnFreebsd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport
-				
+			
 		LogMsg "Executing : bash $($currentTestData.testScript)"
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "bash $($currentTestData.testScript)" -runAsSudo
 		

@@ -28,10 +28,6 @@ if($isDeployed)
 	RemoteCopy -uploadTo $KQClientIp -port $KQClientSshport -files $currentTestData.files -username $user -password $password -upload
 	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "chmod +x *" -runAsSudo
 	
-	LogMsg "Install basic apps/tools."
-	InstallPackagesOnFreebsd -username $user -password $password -ip $KQClientIp -port $KQClientSshport
-	InstallPackagesOnFreebsd -username $user -password $password -ip $KQServerIp -port $KQServerSshport
-	
 	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "bash $($currentTestData.testScript)" -runAsSudo
 	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "cp summary.log  /usr/summary.log " -runAsSudo
 	

@@ -1113,6 +1113,10 @@ Function GetAndCheckKernelLogs($allDeployedVMs, $status, $vmUser, $vmPassword)
 		$KernelLogStatus="$BootLogDir\KernelLogStatus.txt"
 		if($status -imatch "Initial")
 		{
+			# For freebsd, the bash and dos2unix tools are not installed by default.
+			LogMsg "Install basic apps/tools."
+			InstallPackagesOnFreebsd -username $vmUser -password $vmPassword -ip $VM.PublicIP -port $VM.SSHPort
+		
 			$randomFileName = [System.IO.Path]::GetRandomFileName()
 			Set-Content -Value "A Random file." -Path "$Logdir\$randomFileName"
 			$out = RemoteCopy -uploadTo $VM.PublicIP -port $VM.SSHPort  -files "$Logdir\$randomFileName" -username $vmUser -password $vmPassword -upload
