@@ -451,7 +451,7 @@ Function RunTestsOnCycle ($cycleName , $xmlConfig, $Distro, $testIterations )
 						}
 					}
 
-					if ($xmlSecrets  -and ($testCycle.cycleName -notcontains 'PERF'))
+					if ($xmlSecrets  -and (!$testCycle.cycleName.Contains("PERF")))
 					{
 						try
 						{
