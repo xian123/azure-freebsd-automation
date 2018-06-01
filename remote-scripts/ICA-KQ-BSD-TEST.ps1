@@ -41,7 +41,15 @@ if($isDeployed)
 	$resultArr = @()
 	$connections= $currentTestData.connections.Split(",")
 	$runTimeSec= $currentTestData.runTimeSec	
-	$dataPath = $currentTestData.DataPath
+
+	if ( $EnableAcceleratedNetworking )
+	{
+		$dataPath = "SRIOV"
+	}
+	else
+	{
+		$dataPath = "Synthetic"
+	}
 	
 	#The /usr/kqperf directory is used for parsing the KQ result
 	RunLinuxCmd -username $user -password $password -ip $KQClientIp -port $KQClientSshport -command "mkdir /usr/kqperf" -runAsSudo
