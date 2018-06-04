@@ -32,13 +32,17 @@ def RunTest(client):
     UpdateState("TestRunning")
     RunLog.info("Starting kqnetperf Client..")
     RunLog.info("Executing Command : %s", client)
-    temp = Run(client)
+    Run(client)
     cmd ='sleep 2'
-    tmp = Run(cmd)
+    Run(cmd)
+    status = isProcessRunning('kq_netperf/kq_netperf')
+    if status == "True":
+        Run('echo "kq_netperf client is running" >> kqnetperf-client.txt')
+    else:
+        Run('echo "Error: kq_netperf client is NOT running" >> kqnetperf-client.txt')
     sleepTime = int(args.time) + 20 
     cmd = 'sleep ' + str(sleepTime)
-    tmp = Run(cmd)
-
+    Run(cmd)
     status = isProcessRunning('kq_netperf/kq_netperf')
     if status == "True":
         time.sleep(60)
@@ -54,6 +58,6 @@ def RunTest(client):
 
 client = finalCommand
 Run('echo "TestStarted" > kqnetperf-client.txt')
-Run(client)
+RunTest(client)
 # Run('echo "TestComplete" >> kqnetperf-client.txt')
 # AnalyseKQnetperfClientUpdateResult()
