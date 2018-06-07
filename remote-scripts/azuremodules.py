@@ -503,12 +503,8 @@ def StartNetperfServer(server):
 def StartKQNetperfServer(server):
     StopKQNetperfServer()
     RunLog.info("Starting kqnetperf server..")
-    temp = Run(server)
-    tmp = Run("sleep 1")
-    #print(output)
-    perfstatus = open('kqnetperf-server.txt', 'r')
-    output = perfstatus.read()
-    #print output
+    Run(server)
+    Run("sleep 1")
     RunLog.info("Checking if kqnetperf is started..")
     perfPID = Run(" ps auxw | grep -ie kq_netperf | grep -v grep | awk '{print $2}'")
     if perfPID != "None" :
@@ -579,9 +575,6 @@ def AnalyseClientUpdateResult():
                         RunLog.error("Unlisted error. Check logs for more information...!")
                         ResultLog.info('FAIL')
                         UpdateState("TestCompleted")
-
-def AnalyseClientUpdateResult():
-    UpdateState("TestCompleted")
 
 
 
