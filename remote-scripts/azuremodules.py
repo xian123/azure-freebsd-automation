@@ -589,7 +589,7 @@ def AnalyseClientUpdateResult():
 
 def isProcessRunning(processName):
         temp = 'ps -auxw'
-        outProcess = Run(temp)
+        outProcess = RunUpdate(temp)
         ProcessCount = outProcess.count(processName)
         if (ProcessCount > 0):
                 return "True"

@@ -3432,8 +3432,38 @@ Function NetperfClientServerUDPDatagramTest($server,$client, [switch] $VNET)
 	return $testResult
 }
 
+Function NetperfLatencyTest($server,$client)
+{
 
+	RemoteCopy -uploadTo $server.ip -port $server.sshPort -files $server.files -username $server.user -password $server.password -upload
+	RemoteCopy -uploadTo $client.Ip -port $client.sshPort -files $client.files -username $client.user -password $client.password -upload
+	$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "chmod +x *" -runAsSudo
+	$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "chmod +x *" -runAsSudo
+	$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "rm -rf *.txt && rm -rf *.log" -runAsSudo
+	$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "rm -rf *.txt && rm -rf *.log" -runAsSudo
+	
+	$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started | tee netperf-server.txt" -runAsSudo
+	$tmp = StartIperfServer $server 
+	$isServerStarted = IsIperfServerStarted $server 1 "netserver"
+	if($isServerStarted -eq $true)
+	{
+		LogMsg "netperf Server started successfully."
 
+		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | tee netperf-client.txt" -runAsSudo
+		$tmp = StartIperfClient $client
+		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete | tee -a netperf-client.txt" -runAsSudo
+		$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete | tee -a netperf-server.txt" -runAsSudo
+		RemoteCopy -download -downloadFrom $client.ip -files "/home/$user/netperf-client.txt,/home/$user/Summary.log" -downloadTo $client.LogDir -port $client.sshPort -username $client.user -password $client.password
+		$testResult = Get-Content "$($client.LogDir)\Summary.log"
+		LogMsg "Test result : $testResult"
+	}
+	else
+	{
+		LogMsg "Unable to start netperf-server. Aborting test."
+		$testResult = "Aborted"
+	}
+	return $testResult
+}
 
 
 Function VerifyCustomProbe ($server1,$server2, [string] $probe) {
