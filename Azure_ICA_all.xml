@@ -5635,9 +5635,9 @@
 		</test>
 		<test>
 			<testName>ICA-SIO-BSD-TEST</testName>
-			<testScript>bsd_sio.sh</testScript>
+			<testScript>bsd_stripe.sh</testScript>
 			<testScriptps1>ICA-SIO-BSD-TEST.ps1</testScriptps1>
-			<files>.\remote-scripts\report.tgz,.\remote-scripts\sio.tgz,.\remote-scripts\bsd_sio.sh</files>
+			<files>.\remote-scripts\report.tgz,.\remote-scripts\sio.tgz,.\remote-scripts\bsd_stripe.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<!-- Note: The maximum block size is 256k !!! -->
 			<blockSizes>4k,8k,256k</blockSizes>
@@ -5660,9 +5660,9 @@
 		</test>	
 		<test>
 			<testName>ICA-SIO-RAID0-BSD-TEST</testName>
-			<testScript>bsd_sio.sh</testScript>
+			<testScript>bsd_stripe.sh</testScript>
 			<testScriptps1>ICA-SIO-BSD-TEST.ps1</testScriptps1>
-			<files>.\remote-scripts\report.tgz,.\remote-scripts\sio.tgz,.\remote-scripts\bsd_sio.sh</files>
+			<files>.\remote-scripts\report.tgz,.\remote-scripts\sio.tgz,.\remote-scripts\bsd_stripe.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<!-- Note: The maximum block size is 256k !!! -->
 			<blockSizes>4k,8k,256k</blockSizes>
@@ -5685,9 +5685,9 @@
 		</test>	
 		<test>
 			<testName>ICA-FIO-BSD-TEST</testName>
-			<testScript>bsd_fio.sh</testScript>
+			<testScript>bsd_stripe.sh</testScript>
 			<testScriptps1>ICA-FIO-BSD-TEST.ps1</testScriptps1>
-			<files>.\remote-scripts\report.tgz,.\remote-scripts\bsd_fio.sh</files>
+			<files>.\remote-scripts\report.tgz,.\remote-scripts\bsd_stripe.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<!-- The maximum value is 128k -->
 			<blockSizes>4k,8k</blockSizes>
@@ -5710,9 +5710,9 @@
 		</test>	
 		<test>
 			<testName>ICA-FIO-RAID0-BSD-TEST</testName>
-			<testScript>bsd_fio.sh</testScript>
+			<testScript>bsd_stripe.sh</testScript>
 			<testScriptps1>ICA-FIO-BSD-TEST.ps1</testScriptps1>
-			<files>.\remote-scripts\report.tgz,.\remote-scripts\bsd_fio.sh</files>
+			<files>.\remote-scripts\report.tgz,.\remote-scripts\bsd_stripe.sh</files>
 			<!-- you can specifiy que depths with commaa separated integer values. 2k,4k,16k...... The unit must be 'k'.-->
 			<!-- The maximum value is 128k -->
 			<blockSizes>4k,8k</blockSizes>
