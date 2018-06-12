@@ -877,6 +877,35 @@
 					</VirtualMachine>
 				</HostedService>
 			</KQperf>
+			<Netperf>
+				<isDeployed>NO</isDeployed>
+				<HostedService>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D15</InstanceSize>
+						<ARMInstanceSize>Standard_D15_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>22</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+					<VirtualMachine>
+						<state></state>
+						<InstanceSize>Standard_D15</InstanceSize>
+						<ARMInstanceSize>Standard_D15_v2</ARMInstanceSize>
+						<EndPoints>
+							<Name>SSH</Name>
+							<Protocol>tcp</Protocol>
+							<LocalPort>22</LocalPort>
+							<PublicPort>222</PublicPort>
+						</EndPoints>
+						<DataDisk></DataDisk>
+					</VirtualMachine>
+				</HostedService>
+			</Netperf>
 
 			<VNETVM>
 				<isDeployed>NO</isDeployed>
@@ -5764,6 +5793,24 @@
 			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
 			<TestID>Azure_BuildKernel_001</TestID>
 		</test>
+		<test>
+			<testName>ICA-NETWORK-LATENCY-BSD-TEST</testName>
+			<testScript></testScript>
+			<testScriptps1>ICA-NETWORK-LATENCY-BSD-TEST.ps1</testScriptps1>
+			<connections>1,2,4,8,16,32,64,128,256,512</connections>
+			<requestNums>1,2,4,8,16,32</requestNums>
+			<testNames>TCP_RR,UDP_RR</testNames>
+			<runTimeSec>60</runTimeSec>
+			<files>.\remote-scripts\start_netperf_server.py,.\remote-scripts\start_netperf_client.py,.\remote-scripts\azuremodules.py</files>
+			<setupType>Netperf</setupType>
+			<dataTableName>Perf_FreeBSD_Azure_NetPerf</dataTableName>
+			<TestType></TestType>
+			<DataPath>Synthetic</DataPath>
+			<TestFeature></TestFeature>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureNetwork_latency_01</TestID>
+			<Priority>P0</Priority>
+		</test>
 		
 		</testsDefinition>
 		
@@ -6398,7 +6445,14 @@
 				<Name>ICA-KQ-BSD-TEST</Name>
 			</test>
 		</Cycle>
-		
+
+		<Cycle>
+			<cycleName>PERF-NETWORK-LATENCY</cycleName>
+			<test>
+				<Name>ICA-NETWORK-LATENCY-BSD-TEST</Name>
+			</test>
+		</Cycle>
+
 		<Cycle>
 			<cycleName>BUILD-KERNEL</cycleName>
 			<test>
