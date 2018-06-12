@@ -5800,7 +5800,7 @@
 			<connections>1,2,4,8,16,32,64,128,256,512</connections>
 			<requestNums>1,2,4,8,16,32</requestNums>
 			<testNames>TCP_RR,UDP_RR</testNames>
-			<runTimeSec>120</runTimeSec>
+			<runTimeSec>60</runTimeSec>
 			<files>.\remote-scripts\start_netperf_server.py,.\remote-scripts\start_netperf_client.py,.\remote-scripts\azuremodules.py</files>
 			<setupType>Netperf</setupType>
 			<dataTableName>Perf_FreeBSD_Azure_NetPerf</dataTableName>
