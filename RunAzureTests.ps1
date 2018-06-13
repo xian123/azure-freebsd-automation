@@ -35,7 +35,7 @@ Param( $BuildNumber=$env:BUILD_NUMBER,
 [switch] $EnableAcceleratedNetworking,
 [string] $customKernel,
 [string] $customLIS,
-[string] $customLISBranch,
+[string] $customBISBranch,
 [switch] $ForceDeleteResources,
 [switch] $keepReproInact,
 [string] $customSecretsFilePath = "",
@@ -261,6 +261,7 @@ if( $ResultDBTable )
 {
     $xmlFileData.config.Azure.database.dbtable = ($ResultDBTable).Trim()
 }
+
 if( $ResultDBTestTag )
 {
     $xmlFileData.config.Azure.database.testTag = ($ResultDBTestTag).Trim()
@@ -270,6 +271,10 @@ else
     #Write-Host "No Test Tag provided. If test needs DB support please fill testTag."
 }
 
+if( $customBISBranch )
+{
+    $xmlFileData.config.global.VMEnv.LISBuildBranch = ($customBISBranch).Trim()
+}
 
 if( $testCycle -eq "BUILD-KERNEL" )
 {

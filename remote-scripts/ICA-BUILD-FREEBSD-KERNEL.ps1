@@ -30,9 +30,15 @@ if ($isDeployed)
 		RemoteCopy -uploadTo $hs1VIP -port $hs1vm1sshport -files $currentTestData.files -username $user -password $password -upload
 		RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "chmod +x *" -runAsSudo
 
+		$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "uname -a" -runAsSudo
+		$kernelVersion = $out.Replace('Password:', "") 
+		LogMsg "The detailed kernel version before building kernel: $kernelVersion"
+		
 		#Install tools & build & install kernel		
 		$runMaxAllowedTime = 3600 * 15 # It will cost more than 12 hours if the VM size is basic A1
-		$command = "nohup /bin/csh  /home/$user/$($currentTestData.testScript)"
+		$buildBranch = $xmlConfig.config.global.VMEnv.LISBuildBranch
+		LogMsg "Build branch: $buildBranch"
+		$command = "nohup /bin/csh  /home/$user/$($currentTestData.testScript) -b $buildBranch"
 		$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command $command -runAsSudo -runMaxAllowedTime  $runMaxAllowedTime
 		
 		#The VM will reboot after building & installing the latest kernel
@@ -47,6 +53,10 @@ if ($isDeployed)
 			if ($testStatus -eq "DeployCompleted")
 			{
 				LogMsg "Build and install kernel completed"
+				$out = RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "uname -a" -runAsSudo
+				$kernelVersion = $out.Replace('Password:', "") 
+				LogMsg "The detailed kernel version after building kernel: $kernelVersion"
+				
 				#Delete old log
 				RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf ~/.ssh/" -runAsSudo 
 				RunLinuxCmd -username $user -password $password -ip $hs1VIP -port $hs1vm1sshport -command "rm -rf /var/log/*" -runAsSudo 

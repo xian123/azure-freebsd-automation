@@ -11,7 +11,7 @@
 		</params>
 		<VMEnv>
 			<LISBuild>3.1</LISBuild>
-			<LISBuildBranch>Released</LISBuildBranch>
+			<LISBuildBranch>master</LISBuildBranch>
 			<VMImageDetails>Partner Provided</VMImageDetails>
 		</VMEnv>
 		<ServerEnv>
