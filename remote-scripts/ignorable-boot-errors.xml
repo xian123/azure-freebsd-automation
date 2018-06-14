@@ -26,7 +26,7 @@
 			<keywords>floppy: error -5 while reading block 0</keywords>
 			<keywords>Broken pipe</keywords>
 			<keywords>errors=remount-ro</keywords>
-			<keywords>module_register_init: MOD_LOAD (vesa, 0xffffffff8101d970, 0) error 19</keywords>
+			<keywords>module_register_init: MOD_LOAD (vesa,</keywords>
 		</errors>
 		<warnings/>
 </messages>
