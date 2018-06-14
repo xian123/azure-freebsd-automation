@@ -154,7 +154,7 @@ if( -e ${srcPath}${repoName} ) then
     end
     
     if( $tryTimes >= $TOTALTIMES ) then
-        echo "Warning: git checkout $br for the first loop unseccessfully."  >> $logFile
+        echo "Warning: git checkout $br for the first loop unsuccessfully."  >> $logFile
         echo "It will try again after git clone the code."  >> $logFile
         cd $srcPath
         rm -rf $repoName
@@ -230,6 +230,14 @@ endif
 date >> $logFile
 date > $logFileOfBuildKernel
 echo "Update the source code successfully."  >> $logFile
+
+
+#Disable the WITNESS
+echo "Disable the WITNESS for performance."  >> $logFile
+sed  -i .bak  '/.*WITNESS.*/d'  sys/amd64/conf/GENERIC
+sed  -i .bak  '/.*WITNESS.*/d'  sys/i386/conf/GENERIC
+echo "debug.witness.watch=0" >> /boot/loader.conf
+
 
 #Build the tool chain firstly, but the process continue even it's failed
 echo "Begin to build tool chain and it will take a very long time."  >> $logFileOfBuildKernel
