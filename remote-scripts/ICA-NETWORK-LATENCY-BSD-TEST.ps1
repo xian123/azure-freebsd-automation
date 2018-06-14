@@ -170,7 +170,7 @@ if($isDeployed)
 							$SQLQuery += "KernelVersion,Protocol,Connection,RequestPerConnection,Latency50Percentile_ms,Latency90Percentile_ms,Latency99Percentile_ms,"
 							$SQLQuery += "MinLatency_ms,MaxLatency_ms,MeanLatency_ms) VALUES "
 							
-							$SQLQuery += "('$TestCaseName','$dataPath','$TestDate','$HostType','$HostBy','$GuestDistro',$InstanceSize','$GuestOS',"
+							$SQLQuery += "('$TestCaseName','$dataPath','$TestDate','$HostType','$HostBy','$GuestDistro','$InstanceSize','$GuestOS',"
 							$SQLQuery += "'$KernelVersion','$Protocol','$connectionNum','$requestNum','$Latency50Percentile_ms','$Latency90Percentile_ms','$Latency99Percentile_ms',"
 							$SQLQuery += "'$MinLatency_ms','$MaxLatency_ms',$MeanLatency_ms)"
 
