@@ -248,8 +248,13 @@ Function InstallPackagesOnFreebsd( [string] $username,[string] $password,[string
 	if( $out -like  "*10.*"   )
 	{
 		# Load the aio module for freebsd 10.x, otherwise the fio test will be failed.
-		$command = "kldload aio"
-		$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo
+		$kldstatus = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command "kldstat" -runAsSudo
+		if( $kldstatus -like  "*aio.ko*"   )
+		{
+			$command = "kldload aio;ls"  # Command with "ls" is a trick to make sure the return value is 0.
+			$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo
+		}
+		
 	}
 
 }
