@@ -18,8 +18,8 @@ if($isDeployed)
 	$ServerInterIp = $allVMData[1].InternalIP
 	
 	LogMsg "Install netperf on both of server and client VMs"
-	$tmp = RunLinuxCmd -username $user -password $password -ip $ClientIp -port $ClientSshport -command "env ASSUME_ALWAYS_YES=yes pkg install -y netperf bash" -runAsSudo
-	$tmp = RunLinuxCmd -username $user -password $password -ip $ServerIp -port $ServerSshport -command "env ASSUME_ALWAYS_YES=yes pkg install -y netperf bash" -runAsSudo
+	$tmp = RunLinuxCmd -username $user -password $password -ip $ClientIp -port $ClientSshport -command "pkg install -y netperf" -runAsSudo
+	$tmp = RunLinuxCmd -username $user -password $password -ip $ServerIp -port $ServerSshport -command "pkg install -y netperf" -runAsSudo
 
 	$cmd1="$python_cmd start_netperf_server.py"
 	$cmd2="$python_cmd start_netperf_client.py -H $ServerInterIp -t TCP_RR -l 120"
