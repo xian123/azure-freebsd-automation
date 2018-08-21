@@ -229,7 +229,7 @@ Function InstallPackagesOnFreebsd( [string] $username,[string] $password,[string
 	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command "echo 'echo y | pkg update -f' >> updateports.csh" -runAsSudo
 	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command "/bin/csh updateports.csh > updateports.log" -runAsSudo -runMaxAllowedTime  300
 	
-	$appsToBeInstalled=@("bash","unix2dos","fio")  
+	$appsToBeInstalled=@("bash","unix2dos","fio","iperf")  
     foreach( $app in $appsToBeInstalled )
 	{
 		$command = "pkg install -y $app "
