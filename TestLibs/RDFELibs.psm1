@@ -1121,7 +1121,9 @@ Function GetAndCheckKernelLogs($allDeployedVMs, $status, $vmUser, $vmPassword)
 			
 			# For freebsd, the bash and dos2unix tools are not installed by default.
 			LogMsg "Install basic apps/tools."
-			InstallPackagesOnFreebsd -username $vmUser -password $vmPassword -ip $VM.PublicIP -port $VM.SSHPort
+			$port = [string]($VM.SSHPort)
+			$port = [int]$port
+			InstallPackagesOnFreebsd -username $vmUser -password $vmPassword -ip $VM.PublicIP -port $port
 			
 			$out = RemoteCopy -download -downloadFrom $VM.PublicIP -port $VM.SSHPort -files "/home/$vmUser/InitialBootLogs.txt" -downloadTo $BootLogDir -username $vmUser -password $vmPassword
 			LogMsg "$($VM.RoleName): $status Kernel logs collected ..SUCCESSFULLY"
@@ -2095,7 +2097,7 @@ Function RemoteCopy($uploadTo, $downloadFrom, $downloadTo, $port, $files, $usern
 	}
 }
 
-Function RunLinuxCmd([string] $username,[string] $password,[string] $ip,[string] $command, [int] $port, [switch]$runAsSudo, [Boolean]$WriteHostOnly, [Boolean]$NoLogsPlease, [switch]$ignoreLinuxExitCode, [int]$runMaxAllowedTime = 300, [switch]$RunInBackGround)
+Function RunLinuxCmd([string] $username,[string] $password,[string] $ip,[string] $command, $port, [switch]$runAsSudo, [Boolean]$WriteHostOnly, [Boolean]$NoLogsPlease, [switch]$ignoreLinuxExitCode, [int]$runMaxAllowedTime = 300, [switch]$RunInBackGround)
 {
 	$randomFileName = [System.IO.Path]::GetRandomFileName()
 	$maxRetryCount = 10
