@@ -25,6 +25,20 @@ if ($isDeployed)
 			{
 				$isStopped = $false
 			}
+			
+			# The return status of Stop-AzureRmVM is NULL under some PowerShell Version
+			if ( (-not $stopVM.Status) -or (-not $stopVM.StatusCode) )
+			{
+				$isSSHOpened = isAllSSHPortsEnabledRG -AllVMDataObject $AllVMData
+				if ( $isSSHOpened -eq "True" )
+				{
+					$isStopped = $false
+				}
+				else
+				{
+					$isStopped = $true
+				}
+			}			
 		}
 		else
 		{
