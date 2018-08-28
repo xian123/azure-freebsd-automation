@@ -221,9 +221,9 @@ Function GetSIOMode($mode)
 ####################################################
 #Install basic apps/tools
 ####################################################
-Function InstallPackagesOnFreebsd( [string] $username,[string] $password,[string] $ip, [string]$port )
+Function InstallPackagesOnFreebsd( [string] $username,[string] $password,[string] $ip, $port )
 {
-	$command = "ASSUME_ALWAYS_YES=yes pkg bootstrap -yf"
+	$command = "env ASSUME_ALWAYS_YES=yes pkg bootstrap -yf"
 	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo -runMaxAllowedTime  300
 	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command "echo '#!/bin/csh' > updateports.csh" -runAsSudo
 	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command "echo 'echo y | pkg update -f' >> updateports.csh" -runAsSudo
