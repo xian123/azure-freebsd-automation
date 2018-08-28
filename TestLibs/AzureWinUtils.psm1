@@ -221,7 +221,7 @@ Function GetSIOMode($mode)
 ####################################################
 #Install basic apps/tools
 ####################################################
-Function InstallPackagesOnFreebsd( [string] $username,[string] $password,[string] $ip, $port )
+Function InstallPackagesOnFreebsd( [string] $username,[string] $password,[string] $ip, [string]$port )
 {
 	$command = "ASSUME_ALWAYS_YES=yes pkg bootstrap -yf"
 	$out = RunLinuxCmd -username $username -password $password -ip $ip -port $port -command $command -runAsSudo -runMaxAllowedTime  300
