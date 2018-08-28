@@ -1121,8 +1121,6 @@ Function GetAndCheckKernelLogs($allDeployedVMs, $status, $vmUser, $vmPassword)
 			
 			# For freebsd, the bash and dos2unix tools are not installed by default.
 			LogMsg "Install basic apps/tools."
-			$port = [string]($VM.SSHPort)
-			$port = [int]$port
 			InstallPackagesOnFreebsd -username $vmUser -password $vmPassword -ip $VM.PublicIP -port $port
 			
 			$out = RemoteCopy -download -downloadFrom $VM.PublicIP -port $VM.SSHPort -files "/home/$vmUser/InitialBootLogs.txt" -downloadTo $BootLogDir -username $vmUser -password $vmPassword
