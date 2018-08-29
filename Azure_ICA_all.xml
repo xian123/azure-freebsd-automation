@@ -5811,7 +5811,18 @@
 			<TestID>AzureNetwork_latency_01</TestID>
 			<Priority>P0</Priority>
 		</test>
-		
+		<test>
+			<testName>ICA-NETWORK-BASIC-SRIOV-BSD-TEST</testName>
+			<testScript>ICA-NETWORK-BASIC-SRIOV-BSD-TEST.sh</testScript>
+			<testScriptps1>ICA-NETWORK-BASIC-SRIOV-BSD-TEST.ps1</testScriptps1>
+			<files>.\remote-scripts\ICA-NETWORK-BASIC-SRIOV-BSD-TEST.sh</files>
+			<setupType>D2V2</setupType>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<TestID>AzureNetwork_SRIOV_001</TestID>
+			<TestFeature></TestFeature>
+			<SubtestValues></SubtestValues>
+			<Priority>P0</Priority>
+		</test>
 		</testsDefinition>
 		
 	<testCycles>
@@ -6392,7 +6403,7 @@
 		</Cycle>
 
         <Cycle>
-			<cycleName>DiskTestAgainstFreeBSD</cycleName>
+			<cycleName>DISK</cycleName>
 			<test>
 				<Name>E2E-HOT-ADD-REMOVE-NEW-DATA-DISK-SEQ</Name>
 			</test>
@@ -6459,10 +6470,17 @@
 				<Name>ICA-BUILD-FREEBSD-KERNEL</Name>
 			</test>
 		</Cycle>
+		
+		<Cycle>
+			<cycleName>SRIOV</cycleName>
+			<test>
+				<Name>ICA-NETWORK-BASIC-SRIOV-BSD-TEST</Name>
+			</test>
+		</Cycle>
 
 		<Cycle>
 			<cycleName>DEBUG</cycleName>
-			<!--You can add individual tests here and run them for debugging purpose. You can also add new cycles. -->
+			<!-- You can add individual tests here and run them for debugging purpose. You can also add new cycles. -->
             <test>
 				<Name>BVT-VERIFY-NO-ERROR-IN-LOGS</Name>
 			</test>
