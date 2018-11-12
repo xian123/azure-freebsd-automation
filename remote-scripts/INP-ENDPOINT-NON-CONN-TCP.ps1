@@ -27,7 +27,7 @@ if($isDeployed)
 	LogMsg "DTAP Machine : $dtapServerIp : $hs1vm1sshport"
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
-	$testPort = $hs1vm1tcpport + 10
+	$testPort = [int]$hs1vm1tcpport + 10
 	foreach ($mode in $currentTestData.TestMode.Split(","))
 	{
 		try
