@@ -3059,17 +3059,17 @@ Function IperfClientServerTest($server,$client)
 
 Function IperfClientServerTestParallel($server,$client)
 {
-	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo ServerStarted | sudo tee iperf-server.txt" -runAsSudo
+	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo ServerStarted > iperf-server.txt" -runAsSudo
 	$out = StartIperfServer $server
 	$isServerStarted = IsIperfServerStarted $server
 	if($isServerStarted -eq $true)
 	{
 		LogMsg "iperf Server started successfully. Listening TCP port $($client.tcpPort) ..."
 #>>>On confirmation, of server starting, let's start iperf client...
-		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo ClientStarted | sudo tee iperf-client.txt" -runAsSudo
+		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo ClientStarted > iperf-client.txt" -runAsSudo
 		$out = StartIperfClient $client
-		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo ClientStopped | sudo tee -a iperf-client.txt" -runAsSudo
-		$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo ServerStopped | sudo tee -a iperf-server.txt" -runAsSudo
+		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo ClientStopped >> iperf-client.txt" -runAsSudo
+		$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo ServerStopped >> iperf-server.txt" -runAsSudo
 		$isClientStarted = IsIperfClientStarted $client
 		
 		if($isClientStarted -eq $true)
