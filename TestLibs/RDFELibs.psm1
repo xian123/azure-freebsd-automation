@@ -2877,18 +2877,18 @@ Function IperfClientServertcpNonConnectivity($server,$client)
 	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "rm -rf *.txt *.log" -runAsSudo
 	$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "chmod +x *" -runAsSudo
 	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "chmod +x *" -runAsSudo
-	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
+	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started > iperf-server.txt" -runAsSudo
 	StartIperfServer $server
 	$isServerStarted = IsIperfServerStarted $server
 	if($isServerStarted -eq $true)
 	{
 		LogMsg "iperf Server started successfully. Listening TCP port $($server.tcpPort) ..."
 #>>>On confirmation, of server starting, let's start iperf client...
-		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | sudo tee iperf-client.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 		StartIperfClient $client
 		$isClientStarted = IsIperfClientStarted $client
-		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete | sudo tee -a iperf-client.txt" -runAsSudo
-		$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete | sudo tee -a iperf-server.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete >> iperf-client.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete >> iperf-server.txt" -runAsSudo
 		if($isClientStarted -eq $false)
 		{
 			$serverState = IsIperfServerRunning $server
@@ -2936,18 +2936,18 @@ Function IperfClientServerUDPNonConnectivity($server,$client)
 	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "rm -rf *.txt *.log" -runAsSudo
 	$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "chmod +x *" -runAsSudo
 	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "chmod +x *" -runAsSudo
-	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
+	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started > iperf-server.txt" -runAsSudo
 	StartIperfServer $server
 	$isServerStarted = IsIperfServerStarted $server
 	if($isServerStarted -eq $true)
 	{
 		LogMsg "iperf Server started successfully. Listening UDP port $($server.tcpPort) ..."
 #>>>On confirmation, of server starting, let's start iperf client...
-		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | sudo tee iperf-client.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 		StartIperfClient $client
 		$isClientStarted = IsIperfClientStarted $client
-		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete | sudo tee -a iperf-client.txt" -runAsSudo
-		$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete | sudo tee -a iperf-server.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete >> iperf-client.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete >> iperf-server.txt" -runAsSudo
 		$serverState = IsIperfServerRunning $server
 		if($serverState -eq $false)
 		{
@@ -2977,7 +2977,7 @@ Function IperfClientServerUDPTest($server,$client)
 	$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "chmod +x *" -runAsSudo
 	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "chmod +x *" -runAsSudo
 
-	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
+	$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started > iperf-server.txt" -runAsSudo
 	StartIperfServer $server
 	$isServerStarted = IsIperfServerStarted $server
 	if($isServerStarted -eq $true)
@@ -2985,11 +2985,11 @@ Function IperfClientServerUDPTest($server,$client)
 		LogMsg "iperf Server started successfully. Listening UDP port $($server.tcpPort) ..."
 
 #>>>On confirmation, of server starting, let's start iperf client...
-		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | sudo tee iperf-client.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 		StartIperfClient $client
 		$isClientStarted = IsIperfClientStarted $client
-		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete | sudo tee -a iperf-client.txt" -runAsSudo
-		$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete | sudo tee -a iperf-server.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete >> iperf-client.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete >> iperf-server.txt" -runAsSudo
 		$serverState = IsIperfServerRunning $server
 		if($serverState -eq $true)
 		{
@@ -3149,17 +3149,17 @@ Function IperfClientServerUDPTestParallel($server,$client)
 	$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "chmod +x *" -runAsSudo
 	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "chmod +x *" -runAsSudo
 
-	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
+	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started > iperf-server.txt" -runAsSudo
 	StartIperfServer $server
 	$isServerStarted = IsIperfServerStarted $server
 	if($isServerStarted -eq $true)
 	{
 		LogMsg "iperf Server started successfully. Listening UDP port $($client.udpPort) ..."
 #>>>On confirmation, of server starting, let's start iperf client...
-		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | sudo tee iperf-client.txt" -runAsSudo
+		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 		StartIperfClient $client
 		$isClientStarted = IsIperfClientStarted $client
-		$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo TestComplete | sudo tee -a iperf-server.txt" -runAsSudo
+		$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo TestComplete >> iperf-server.txt" -runAsSudo
 		if($isClientStarted -eq $true)
 		{
 			$serverState = IsIperfServerRunning $server
@@ -3249,7 +3249,7 @@ Function KQperfClientServerTest($server,$client,$timeOutInSecs)
 	$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "chmod +x *" -runAsSudo
 	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "chmod +x *" -runAsSudo
 
-	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started | tee kqnetperf-server.txt" -runAsSudo
+	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started > kqnetperf-server.txt" -runAsSudo
 	StartKQperfServer $server
 	$isServerStarted = IsKQperfServerStarted $server
 	if($isServerStarted -eq $true)
@@ -3257,10 +3257,10 @@ Function KQperfClientServerTest($server,$client,$timeOutInSecs)
 		LogMsg "kqnetperf Server started successfully."
 		
 #>>>On confirmation, of server starting, let's start kqnetperf client...
-		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | tee kqnetperf-client.txt" -runAsSudo
+		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > kqnetperf-client.txt" -runAsSudo
 		StartKQperfClient $client
 		$isClientStarted = IsKQperfClientStarted $client
-		$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo TestComplete | tee -a kqnetperf-server.txt" -runAsSudo
+		$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo TestComplete >> kqnetperf-server.txt" -runAsSudo
 		if($isClientStarted -eq $true)
 		{
 		    #Wait client complete
@@ -3315,18 +3315,18 @@ Function IperfClientServerUDPDatagramTest($server,$client, [switch] $VNET)
 	$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "rm -rf *.txt && rm -rf *.log" -runAsSudo
 	$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "rm -rf *.txt && rm -rf *.log" -runAsSudo
 	
-	$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
+	$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started > iperf-server.txt" -runAsSudo
 	$tmp = StartIperfServer $server
 	$isServerStarted = IsIperfServerStarted $server
 	if($isServerStarted -eq $true)
 	{
 		LogMsg "iperf Server started successfully. Listening UDP port $($server.udpPort) ..."
 #>>>On confirmation, of server starting, let's start iperf client...
-		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | sudo tee iperf-client.txt" -runAsSudo
+		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 		$tmp = StartIperfClient $client
 		$isClientStarted = IsIperfClientStarted $client
-		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete | sudo tee -a iperf-client.txt" -runAsSudo
-		$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete | sudo tee -a iperf-server.txt" -runAsSudo
+		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete >> iperf-client.txt" -runAsSudo
+		$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete >> iperf-server.txt" -runAsSudo
 		if($isClientStarted -eq $true)
 		{
 			$serverState = IsIperfServerRunning $server
@@ -3386,21 +3386,21 @@ Function NetperfClientServerUDPDatagramTest($server,$client, [switch] $VNET)
 	$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "rm -rf *.txt && rm -rf *.log" -runAsSudo
 	$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "rm -rf *.txt && rm -rf *.log" -runAsSudo
 	
-	$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
+	$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started > iperf-server.txt" -runAsSudo
 	$tmp = StartIperfServer $server 
 	$isServerStarted = IsIperfServerStarted $server  1 "netserver"
 	if($isServerStarted -eq $true)
 	{
 		LogMsg "netperf Server started successfully. Listening UDP port $($server.udpPort) ..."
 #>>>On confirmation, of server starting, let's start netperf client...
-		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | sudo tee iperf-client.txt" -runAsSudo
+		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 		$tmp = StartIperfClient $client
 		# $isClientStarted = IsIperfClientStarted $client
 		RemoteCopy -download -downloadFrom $client.ip -files "/home/$user/iperf-client.txt" -downloadTo $client.LogDir -port $client.sshPort -username $client.user -password $client.password
 		RemoteCopy -download -downloadFrom $client.ip -files "/home/$user/state.txt, /home/$user/Summary.log" -downloadTo $client.Logdir -port $client.sshPort -username $client.user -password $client.password
 	
-		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete | sudo tee -a iperf-client.txt" -runAsSudo
-		$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete | sudo tee -a iperf-server.txt" -runAsSudo
+		$tmp = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Complete >> iperf-client.txt" -runAsSudo
+		$tmp = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Complete >> iperf-server.txt" -runAsSudo
 		# if($isClientStarted -eq $true)
 		# {
 
@@ -3489,8 +3489,8 @@ Function VerifyCustomProbe ($server1,$server2, [string] $probe) {
 	$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "chmod +x *" -runAsSudo
 	$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshPort -command "chmod +x *" -runAsSudo
 
-	$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
-	$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
+	$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo Test Started > iperf-server.txt" -runAsSudo
+	$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "echo Test Started > iperf-server.txt" -runAsSudo
 
 	StartIperfServer $server1
 	StartIperfServer $server2
@@ -3502,8 +3502,8 @@ Function VerifyCustomProbe ($server1,$server2, [string] $probe) {
 	if(($isServerStarted -eq $true) -and ($isServerStarted -eq $true)) {
 		LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $client.tcpPort ..."
 
-		$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo TestComplete | sudo tee -a iperf-server.txt" -runAsSudo
-		$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "echo TestComplete | sudo tee -a iperf-server.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo TestComplete >> iperf-server.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "echo TestComplete >> iperf-server.txt" -runAsSudo
 		RemoteCopy -download -downloadFrom $server1.ip -files "/home/$user/iperf-server.txt" -downloadTo $server1.LogDir -port $server1.sshPort -username $server1.user -password $server1.password
 		RemoteCopy -download -downloadFrom $server2.ip -files "/home/$user/iperf-server.txt" -downloadTo $server2.LogDir -port $server1.sshPort -username $server2.user -password $server2.password
 
@@ -3627,8 +3627,8 @@ Function VerifyLBTCPConnectivity ($server1,$server2, $client, [string] $probe, [
 	$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshPort -command "chmod +x *" -runAsSudo
 	$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "chmod +x *" -runAsSudo
 
-	$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
-	$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "echo Test Started | sudo tee iperf-server.txt" -runAsSudo
+	$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo Test Started > iperf-server.txt" -runAsSudo
+	$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "echo Test Started > iperf-server.txt" -runAsSudo
 	StartIperfServer $server1
 	StartIperfServer $server2
 	$isServerStarted = IsIperfServerStarted $server1
@@ -3637,11 +3637,11 @@ Function VerifyLBTCPConnectivity ($server1,$server2, $client, [string] $probe, [
 	if(($isServerStarted -eq $true) -and ($isServerStarted -eq $true)) {
 		LogMsg "Iperf Server1 and Server2 started successfully. Listening TCP port $client.tcpPort ..."
 #>>>On confirmation, of server starting, let's start iperf client...
-		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started | sudo tee iperf-client.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > iperf-client.txt" -runAsSudo
 		StartIperfClient $client
 		$isClientStarted = IsIperfClientStarted $client
-		$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo TestComplete | sudo tee -a iperf-server.txt" -runAsSudo
-		$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "echo TestComplete | sudo tee -a iperf-server.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $server1.user -password $server1.password -ip $server1.ip -port $server1.sshport -command "echo TestComplete >> iperf-server.txt" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $server2.user -password $server2.password -ip $server2.ip -port $server2.sshPort -command "echo TestComplete >> iperf-server.txt" -runAsSudo
 		if($isClientStarted -eq $true) {
 			$server1State = IsIperfServerRunning $server1
 			$server2State = IsIperfServerRunning $server2
@@ -4028,7 +4028,7 @@ Function IsIperfClientStarted($node, [string]$beginningText, [string]$endText)
 
 Function DoNslookupTest ($vm1, $vm2)
 {
-	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo TestStarted | sudo tee nslookup12.log" -runAsSudo
+	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo TestStarted > nslookup12.log" -runAsSudo
 	if ($detectedDistro -eq "COREOS")
 	{
 		$nslookupCommand = "$python_cmd nslookup.py -n $($vm2.Hostname)"
@@ -4037,9 +4037,9 @@ Function DoNslookupTest ($vm1, $vm2)
 	{
 		$nslookupCommand = "nslookup $($vm2.Hostname)"
 	}
-	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo Executing : $nslookupCommand | sudo tee -a nslookup12.log" -runAsSudo
-	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "$nslookupCommand | sudo tee -a nslookup12.log" -runAsSudo -ignoreLinuxExitCode
-	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo TestCompleted | sudo tee -a nslookup12.log" -runAsSudo
+	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo Executing : $nslookupCommand >> nslookup12.log" -runAsSudo
+	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "$nslookupCommand >> nslookup12.log" -runAsSudo -ignoreLinuxExitCode
+	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo TestCompleted >> nslookup12.log" -runAsSudo
 	RemoteCopy -download -downloadTo $vm1.logDir -downloadFrom $vm1.ip -port $vm1.sshport  -username $vm1.user -password $vm1.password -files "nslookup12.log"
 	$nslookuplog12 = $vm1.logDir + "\nslookup12.log"
 	$nslookupResult = GetStringMatchCount -logFile $nslookuplog12 -beg TestStarted -end TestCompleted -str $vm2.DIP
@@ -4063,7 +4063,7 @@ Function DoNslookupTest ($vm1, $vm2)
 
 Function DoDigTest ($vm1, $vm2)
 {
-	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo TestStarted | sudo tee dig12.log" -runAsSudo
+	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo TestStarted > dig12.log" -runAsSudo
 	if ($detectedDistro -eq "COREOS")
 	{
 		$digCommand = "$python_cmd dig.py -n $($vm2.fqdn)"
@@ -4072,9 +4072,9 @@ Function DoDigTest ($vm1, $vm2)
 	{
 		$digCommand = "dig $($vm2.fqdn)"
 	}
-	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo Executing : $digCommand | sudo tee -a dig12.log" -runAsSudo
-	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "$digCommand | sudo tee -a dig12.log" -runAsSudo -ignoreLinuxExitCode
-	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo TestCompleted | sudo tee -a dig12.log" -runAsSudo
+	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo Executing : $digCommand >> dig12.log" -runAsSudo
+	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "$digCommand >> dig12.log" -runAsSudo -ignoreLinuxExitCode
+	$out = RunLinuxCmd -username $vm1.user -password $vm1.password -ip $vm1.Ip -port $vm1.SshPort -command "echo TestCompleted >> dig12.log" -runAsSudo
 	RemoteCopy -download -downloadTo $vm1.logDir -downloadFrom $vm1.ip -port $vm1.sshport  -username $vm1.user -password $vm1.password -files "dig12.log"
 	$diglog12 = $vm1.logDir + "\dig12.log"
 	$digResult = GetStringMatchCount -logFile $diglog12 -beg TestStarted -end TestCompleted -str $vm2.DIP
@@ -4118,11 +4118,11 @@ Function DoPingTest ($pingFrom, [switch]$isVNET, [switch]$fromLocal, $intermedia
 	$pingLog = $pingFrom.logDir + "\ping.log"
 	if(!$fromLocal)
 	{
-		$suppressedOut = RunLinuxCmd -username $pingFrom.user -password $pingFrom.password -ip $pingFrom.Ip -port $pingFrom.SshPort -command "echo TestStarted | sudo tee ping.log" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $pingFrom.user -password $pingFrom.password -ip $pingFrom.Ip -port $pingFrom.SshPort -command "echo TestStarted > ping.log" -runAsSudo
 		$suppressedOut = RunLinuxCmd -username $pingFrom.user -password $pingFrom.password -ip $pingFrom.Ip -port $pingFrom.SshPort -command "chmod +x *.py" -runAsSudo
-		$suppressedOut = RunLinuxCmd -username $pingFrom.user -password $pingFrom.password -ip $pingFrom.Ip -port $pingFrom.SshPort -command "echo Executing : $($pingFrom.cmd) | sudo tee -a ping.log" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $pingFrom.user -password $pingFrom.password -ip $pingFrom.Ip -port $pingFrom.SshPort -command "echo Executing : $($pingFrom.cmd) >> ping.log" -runAsSudo
 		$suppressedOut = RunLinuxCmd -username $pingFrom.user -password $pingFrom.password -ip $pingFrom.Ip -port $pingFrom.SshPort -command "$($pingFrom.cmd)" -runAsSudo 
-		$suppressedOut = RunLinuxCmd -username $pingFrom.user -password $pingFrom.password -ip $pingFrom.Ip -port $pingFrom.SshPort -command "echo TestCompleted | sudo tee -a ping.log" -runAsSudo
+		$suppressedOut = RunLinuxCmd -username $pingFrom.user -password $pingFrom.password -ip $pingFrom.Ip -port $pingFrom.SshPort -command "echo TestCompleted >> ping.log" -runAsSudo
 		RemoteCopy -download -downloadTo $pingFrom.logDir -downloadFrom $pingFrom.ip -port $pingFrom.sshport  -username $pingFrom.user -password $pingFrom.password -files "ping.log"
 	}
 	else
