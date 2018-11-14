@@ -23,7 +23,7 @@ if($isDeployed)
 	$hs2vm1tcpport = $allVMData[1].TCPtestPort
 	$hs2vm1udpport = $allVMData[1].UDPtestPort
 
-	$testPort = $hs1vm1tcpport + 10
+	$testPort = [int]$hs1vm1tcpport + 10
 	$iperfTimeoutSeconds = $currentTestData.iperfTimeoutSeconds
 
 	foreach ($mode in $currentTestData.TestMode.Split(","))
