@@ -7,62 +7,69 @@ $VMSizes = @()
 $StandardSizes = @()
 $XioSizes = @()
 
-if($currentTestData.SubtestValuesSpecified -eq 'True')
-{
-	$VMSizes = ($currentTestData.SubtestValues).Split(",")
-}
 # Get all supported sizes in this region
+if ( $UseAzureResourceManager )
+{
+	$StorAccount = $xmlConfig.config.Azure.General.ARMStorageAccount
+	$AccountDetail =  Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorAccount}
+	$Location = $AccountDetail.PrimaryLocation
+	$AccountType = $AccountDetail.Sku.Tier.ToString()
+	$SupportSizes = (Get-AzureRmVMSize -Location $location).Name
+}
 else
 {
-	if ( $UseAzureResourceManager )
+	$StorAccount = $xmlConfig.config.Azure.General.StorageAccount
+	$Location = (Get-AzureStorageAccount -StorageAccountName $StorAccount).GeoPrimaryLocation
+	$AccountType = (Get-AzureStorageAccount -StorageAccountName $StorAccount).AccountType
+	$SupportSizes = (Get-AzureLocation | where {$_.Name -eq $location}).VirtualMachineRoleSizes
+}
+foreach($size in $SupportSizes)
+{
+	if($size -match 'DS' -or $size -match 'GS')
 	{
-		$StorAccount = $xmlConfig.config.Azure.General.ARMStorageAccount
-		$AccountDetail =  Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorAccount}
-		$Location = $AccountDetail.PrimaryLocation
-		$AccountType = $AccountDetail.Sku.Tier.ToString()
-		$SupportSizes = (Get-AzureRmVMSize -Location $location).Name
+		$XioSizes += $size.Replace('Standard','').Replace('_','')
 	}
 	else
 	{
-		$StorAccount = $xmlConfig.config.Azure.General.StorageAccount
-		$Location = (Get-AzureStorageAccount -StorageAccountName $StorAccount).GeoPrimaryLocation
-		$AccountType = (Get-AzureStorageAccount -StorageAccountName $StorAccount).AccountType
-		$SupportSizes = (Get-AzureLocation | where {$_.Name -eq $location}).VirtualMachineRoleSizes
-	}
-	foreach($size in $SupportSizes)
-	{
-		if($size -match 'DS' -or $size -match 'GS')
+		if($size -eq 'ExtraSmall')
 		{
-			$XioSizes += $size.Replace('Standard','').Replace('_','')
+			$StandardSizes += 'A0'
+		}
+		elseif($size -eq 'Small')
+		{
+			$StandardSizes += 'A1'
+		}
+		elseif($size -eq 'Medium')
+		{
+			$StandardSizes += 'A2'
+		}
+		elseif($size -eq 'Large')
+		{
+			$StandardSizes += 'A3'
+		}
+		elseif($size -eq 'ExtraLarge')
+		{
+			$StandardSizes += 'A4'
 		}
 		else
 		{
-			if($size -eq 'ExtraSmall')
-			{
-				$StandardSizes += 'A0'
-			}
-			elseif($size -eq 'Small')
-			{
-				$StandardSizes += 'A1'
-			}
-			elseif($size -eq 'Medium')
-			{
-				$StandardSizes += 'A2'
-			}
-			elseif($size -eq 'Large')
-			{
-				$StandardSizes += 'A3'
-			}
-			elseif($size -eq 'ExtraLarge')
-			{
-				$StandardSizes += 'A4'
-			}
-			else
-			{
-				$StandardSizes += $size.Replace('Standard','').Replace('_','')	
-			}
+			$StandardSizes += $size.Replace('Standard','').Replace('_','')	
 		}
 	}
+}
+
+if($currentTestData.SubtestValuesSpecified -eq 'True')
+{
+	$VMSizes_tmp = @()
+	$VMSizes_tmp = ($currentTestData.SubtestValues).Split(",")
+	foreach( $testSize in ($currentTestData.SubtestValues).Split(",") ) {
+		if( $testSize -in $StandardSizes) {
+			$VMSizes += $testSize
+		} else {
+			LogMsg "Warning: the $testSize is not supported in the region, so ignore it"
+		}
+	}	
+} else {
 	if($AccountType -match 'Premium')
 	{
 		$VMSizes = $XioSizes
@@ -72,6 +79,7 @@ else
 		$VMSizes = $StandardSizes
 	}
 }
+
 LogMsg "test VM sizes: $VMSizes"
 $NumberOfSizes = $VMSizes.Count
 $DeploymentCount = $currentTestData.DeploymentCount
