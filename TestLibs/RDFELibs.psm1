@@ -3238,8 +3238,6 @@ Function IperfClientServerUDPTestParallel($server,$client)
 	return $testResult
 }
 
-
-
 Function KQperfClientServerTest($server,$client,$timeOutInSecs)
 {
 	RemoteCopy -uploadTo $server.ip -port $server.sshPort -files $server.files -username $server.user -password $server.password -upload
@@ -3249,56 +3247,56 @@ Function KQperfClientServerTest($server,$client,$timeOutInSecs)
 	$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshPort -command "chmod +x *" -runAsSudo
 	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshPort -command "chmod +x *" -runAsSudo
 
-	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo Test Started > kqnetperf-server.txt" -runAsSudo
+	$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport `
+						-command "echo Test Started > kqnetperf-server.txt" -runAsSudo
 	StartKQperfServer $server
 	$isServerStarted = IsKQperfServerStarted $server
-	if($isServerStarted -eq $true)
-	{
+	if ($isServerStarted -eq $true) {
 		LogMsg "kqnetperf Server started successfully."
-		
 #>>>On confirmation, of server starting, let's start kqnetperf client...
-		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport -command "echo Test Started > kqnetperf-client.txt" -runAsSudo
+		$out = RunLinuxCmd -username $client.user -password $client.password -ip $client.ip -port $client.sshport `
+							-command "echo Test Started > kqnetperf-client.txt" -runAsSudo
 		StartKQperfClient $client
 		$isClientStarted = IsKQperfClientStarted $client
-		$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport -command "echo TestComplete >> kqnetperf-server.txt" -runAsSudo
-		if($isClientStarted -eq $true)
-		{
-		    #Wait client complete
+		$out = RunLinuxCmd -username $server.user -password $server.password -ip $server.ip -port $server.sshport `
+							-command "echo TestComplete >> kqnetperf-server.txt" -runAsSudo
+		if ($isClientStarted -eq $true) {
+			#Wait client complete
 			$timeOut = 20 * [int]$timeOutInSecs
-            $isClientFinished = IsKQperfClientFinished $client
-			while(  $isClientFinished -eq $false -and $timeOut -gt 0 )
-			{
+			$isClientFinished = IsKQperfClientFinished $client
+			while ( ($isClientFinished -eq $false) -and ($timeOut -gt 0) ) {
 				# LogMsg "Wait the client test finished"
 				sleep 10
 				$isClientFinished = IsKQperfClientFinished $client
 				$timeOut = $timeOut - 10
 			}
-			
-			if( $isClientFinished -eq $false )
-			{
+			if ( $isClientFinished -eq $false ) {
 				LogErr "Test time out"
 				$testResult = "FAIL"
+			} else {
+				$isNoError = IsKQperfClientWithoutError $client
+				if ($isNoError) {
+					$testResult = "PASS"
+				} else {
+					$testResult = "FAIL"
+				}
 			}
-			else
-			{
-				#TODO
-				$testResult = "PASS"
-			}
-			
 		} else {
 			LogErr "Failured detected in client connection."
-			RemoteCopy -download -downloadFrom $server.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $server.LogDir -port $server.sshPort -username $server.user -password $server.password
+			RemoteCopy -download -downloadFrom $server.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $server.LogDir `
+						-port $server.sshPort -username $server.user -password $server.password
 			LogMsg "Test Finished..!"
 			$testResult = "FAIL"
-		}		
-
-	} else	{
+		}
+	} else {
 		LogErr "Unable to start kqnetperf-server. Aborting test."
-		RemoteCopy -download -downloadFrom $server.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $server.LogDir -port $server.sshPort -username $server.user -password $server.password
-		RemoteCopy -download -downloadFrom $client.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $client.LogDir -port $client.sshPort -username $client.user -password $client.password
+		RemoteCopy -download -downloadFrom $server.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $server.LogDir `
+					-port $server.sshPort -username $server.user -password $server.password
+		RemoteCopy -download -downloadFrom $client.ip -files "/home/$user/kqnetperf-server.txt" -downloadTo $client.LogDir `
+					-port $client.sshPort -username $client.user -password $client.password
 		$testResult = "Aborted"
-	}	
-		
+	}
+
 	return $testResult
 }
 
@@ -3956,7 +3954,20 @@ Function IsKQperfClientFinished($node)
 	return CheckKQperfClientStatus $node "Total:"	
 }
 
-
+Function IsKQperfClientWithoutError($node)
+{
+	$LogContents = Get-Content -Path "$($node.LogDir)\kqnetperf-client.txt"
+	foreach ($line in $LogContents) {
+		if ($line -imatch "Total:") {
+			$isExistError = $line.Split(",")[-1].replace("error","").Trim()
+			if( [int]$isExistError -ne 0 ) {
+				LogErr "Fund error in $($node.LogDir)\kqnetperf-client.txt"
+				return $False
+			}
+		}
+	}
+	return $True
+}
 
 Function IsIperfServerRunning($node)
 {
